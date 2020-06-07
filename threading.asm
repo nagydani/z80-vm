@@ -40,3 +40,12 @@ cpu:	ex	de, hl
 	ex	(sp), hl
 	ret
 
+; Skip a code section
+; followed by length
+skip:	ld	a, (de)
+	add	a, e
+	jr	nc, skip_nc
+	inc	d
+	and	a
+skip_nc:ld	e, a
+	jp	(ix)
