@@ -13,14 +13,10 @@ vm_l:	ex	de, hl
 	ret	nc		; no fail
 
 ; Failure branch
-	ld	a, (FLAGS)
-	bit	IGNORE, a
-	ret	nz		; ignore failure
-	pop	bc		; discard jump
-	ld	bc,FAIL_EFFECT
-	push	bc
+	ld	bc, (FAIL_EFFECT + 1)
 	exx			; continue with the effect
-	pop	bc		; failure cannot be handled, just caught
+	ld	bc, FAIL_EFFECT	; failure cannot be handled, just caught
+	and	a		; clear CF (failed state)
 
 ; Catch exception
 catch:	ld	sp, (ERR_SP)	; restore stack pointer
