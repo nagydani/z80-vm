@@ -7,14 +7,12 @@ vm:	macro
 	org	0x8000
 start:	xor	a		; clear A and CF
 	vm
-	defw	try
-	defw	  FAIL_EFFECT
-	defw	  error
+	defw	if
+	defb	  error - $
 
 ; Test IF-THEN-ELSE
-	defw		try
-	defw		  FAIL_EFFECT
-	defw		  else
+	defw		if
+	defb		  else - $
 	defw			hello
 	defw			fail
 	defw			then
@@ -37,6 +35,9 @@ endif:	equ	$
 	defw	cpu
 	rst	8
 	defb	0xFF
+
+error:	rst	8
+	defb	0x0B
 
 fail:	vm
 	defw	setcf
@@ -62,9 +63,6 @@ N_type:	ld	c, l
 	pop	de
 	pop	hl
 	jr	cr
-
-error:	rst	8
-	defb	0x0B
 
 	include	"vmrst.asm"
 	include	"threading.asm"
