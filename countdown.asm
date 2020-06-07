@@ -3,7 +3,7 @@ countdown:
 	pop	hl
 
 ; Countdown generator
-; N: counter
+; N:counter
 N_countdown:
 ;	vm
 ;	defw	N_A_swap
