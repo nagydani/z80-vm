@@ -1,3 +1,6 @@
+; Return an integer to the calling thread
+N_end:	ex	(sp), hl
+
 ; Return to calling thread
 end:	ex	de, hl
 	pop	hl

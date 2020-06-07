@@ -12,24 +12,40 @@ start:	xor	a		; clear A and CF
 
 ; Test IF-THEN-ELSE
 	defw		if
-	defb		  else - $
+	defb		  else1 - $
 	defw			hello
 	defw			fail
-	defw			then
+	defw		then
 	defw			hello
 	defw			skip
-	defb			  endif - $
-else:	vm
+	defb		  	  endif1 - $
+else1:	vm		; else
 	defw			excl
-endif:	equ	$
+endif1:	equ	$	; endif
 
 ; Test literals
-	defw	lit8
-	defb	  123
-	defw	lit16
-	defw	  12345
-	defw	N_type
-	defw	N_type
+	defw		lit8
+	defb		  123
+	defw		lit16
+	defw		  12345
+	defw		N_type
+	defw		N_type
+
+; Test generator
+	defw		if
+	defb		  else2 - $
+	defw			lit8
+	defb			  10
+	defw			N_countdown
+	defw			N_type
+	defw			fail
+	defw		then
+	defw			hello
+	defw			skip
+	defb			  endif2 - $
+else2:	vm		; else
+	defw			excl
+endif2:	equ	$	; endif
 
 	defw	then
 	defw	cpu
@@ -69,6 +85,10 @@ N_type:	ld	c, l
 	include	"try.asm"
 	include	"then.asm"
 	include "literals.asm"
+	include "countdown.asm"
+	include	"pick.asm"
+	include "N_arithmetic.asm"
+	include "swap.asm"
 
 VM_PTR:	defw	vm_l
 ERR_SP:defw	0
