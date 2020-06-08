@@ -1,14 +1,14 @@
-countdown:
+countdown_l:
 	pop	de
 	pop	hl
 
 ; Countdown generator
 ; N:counter
-N_countdown:
+countdown:
 ;	vm
-;	defw	N_A_swap
-;	defw	N_decr
-;	defw	A_N_swap
+;	defw	NAswap
+;	defw	decr
+;	defw	ANswap
 ;; this is shorter and faster
 	dec	hl
 	ld	a, h
@@ -17,42 +17,43 @@ N_countdown:
 	vm
 ;;
 	defw	if
-	defb	  countdown - $
+	defb	  countdown_l - $
 	defw	argN
 	defb	  8	; counter
-	defw	generate
-	defw	end
+	defw	Ngenerate
 
-
-seq:	pop	de
+seq_l:	pop	de
 	pop	hl
 	vm
 	defw	argN
 	defb	  6	; from
 	defw	argN
 	defb	  4	; step
-	defw	N_N_add
-	defw	N_chg
+	defw	add
+	defw	Nchg
 	defb	  8
 	defw	cpu
+
 ; Sequence generator
 ; N:from N:to N:step
-N_N_N_seq:
-	vm
+seq:	vm
 	defw	argN
 	defb	  6	; from
 	defw	argN
 	defb	  6	; to
-	defw	N_N_le
-	defw	N_drop
+	defw	le
+	defw	Ndrop
 	defw	if
-	defb	  seq - $
+	defb	  seq_l - $
 	defw	argN
 	defb	  0xC	; from
-	defw	generate
-	defw	end
+	defw	Ngenerate
 
-generate:
+; Generate an integer
+; A:returnAddress Handling N
+; CAN end
+; RETURNS A Handling N A N
+Ngenerate:
 	ex	de, hl
 	push	hl
 	ld	hl, 8
