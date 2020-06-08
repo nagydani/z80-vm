@@ -1,7 +1,10 @@
 ; Return an integer to the calling thread
-N_end:	ex	(sp), hl
+; CAN end
+; A:caller N:returnValue
+Nend:	ex	(sp), hl
 
 ; Return to calling thread
+; A:returnAddress
 end:	ex	de, hl
 	pop	hl
 
@@ -39,6 +42,7 @@ catch:	ld	sp, (ERR_SP)	; restore stack pointer
 	ret
 
 ; Hand back control to CPU
+; A:returnAddress
 cpu:	ex	de, hl
 	ex	(sp), hl
 	ret

@@ -1,4 +1,6 @@
 ; Roll back the topmost handler
+; EXITS
+; RETURNS
 then:	ld	sp, (ERR_SP)	; restore stack pointer
 	pop	hl		; HL = old ERR_SP
 	ld	(ERR_SP), hl	; restore ERR_SP

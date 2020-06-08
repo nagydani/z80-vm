@@ -12,6 +12,17 @@ start:	xor	a		; clear A and CF
 
 ; Test IF-THEN-ELSE
 	defw		if
+	defb		  else0 - $
+	defw			hello
+	defw		then
+	defw			hello
+	defw			skip
+	defb		  	  endif0 - $
+else0:	vm		; else
+	defw			excl
+endif0:	equ	$	; endif
+
+	defw		if
 	defb		  else1 - $
 	defw			hello
 	defw			fail
@@ -28,16 +39,16 @@ endif1:	equ	$	; endif
 	defb		  123
 	defw		lit16
 	defw		  12345
-	defw		N_type
-	defw		N_type
+	defw		Ntype
+	defw		Ntype
 
 ; Test countdown generator
 	defw		if
 	defb		  else2 - $
 	defw			lit8
 	defb			  10
-	defw			N_countdown
-	defw			N_type
+	defw			countdown
+	defw			Ntype
 	defw			fail
 	defw		then
 	defw			hello
@@ -56,8 +67,8 @@ endif2:	equ	$	; endif
 	defb			  100
 	defw			lit8
 	defb			  5
-	defw			N_N_N_seq
-	defw			N_type
+	defw			seq
+	defw			Ntype
 	defw			fail
 	defw		then
 	defw			hello
@@ -91,7 +102,7 @@ cr:	ld	a,13
 	and	a
 	jp	(ix)
 
-N_type:	ld	c, l
+Ntype:	ld	c, l
 	ld	b, h
 	push	de
 	call	0x2D2B			; stack_bc
@@ -107,8 +118,8 @@ N_type:	ld	c, l
 	include "literals.asm"
 	include "generators.asm"
 	include	"pick.asm"
-	include "N_arithmetic.asm"
-	include "swap.asm"
+	include "arithmetic.asm"
+	include "stack.asm"
 	include	"mut.asm"
 
 VM_PTR:	defw	vm_l

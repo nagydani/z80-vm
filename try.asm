@@ -1,6 +1,10 @@
+; Handling type
+; E:effect E:oldHandler A:oldERR_SP
+
 ; Set new effect handler address
 ; followed by effect to handle and the new handler's unsigned offset - 1
 ; places three words on the stack: effect address, old handler address, old ERR_SP
+; RETURNS Handling
 try:	push	hl		; save HL
 	ex	de, hl
 	ld	e, (hl)
@@ -21,6 +25,7 @@ try:	push	hl		; save HL
 ; Set new failure handler address
 ; followed by the new handler's signed offset
 ; places three words on the stack: effect address, old handler address, old ERR_SP
+; RETURNS Handling
 if:	push	hl
 	ld	a, (de)
 	ld	l, a

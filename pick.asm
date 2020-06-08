@@ -1,4 +1,5 @@
 ; Pick an integer argument in the stack
+; RETURNS N
 argN:	push	hl
 	ld	a, (de)
 	inc	de
@@ -6,6 +7,7 @@ argN:	push	hl
 	ld	h, 0
 
 ; Pick the referenced integer argument in the stack
+; RETURNS N
 N_pickN:add	hl, sp
 	ld	a, (hl)
 	inc	hl

@@ -1,4 +1,5 @@
 ; Byte literal
+; RETURNS N
 lit8:	push	hl
 	ld	a, (de)
 	inc	de
@@ -7,6 +8,7 @@ lit8:	push	hl
 	jp	(ix)
 
 ; Word literal
+; RETURNS N
 lit16:	push	hl
 	ex	de, hl
 	ld	e, (hl)
