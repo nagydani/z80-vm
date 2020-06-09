@@ -23,8 +23,7 @@ start:	ld	ix, vm_l	; success handler
 	defw			hello
 	defw			skip
 	defb		  	  endif1b - $
-else1b:	exception
-	vm		; else
+else1b:	vm		; else
 	defw			excl
 endif1b:equ	$	; endif
 
@@ -76,8 +75,7 @@ test_IF_THEN:
 	defw		hello
 	defw		skip
 	defb	  	  endif0 - $
-else0:	exception
-	vm	; else
+else0:	vm	; else
 	defw		excl
 endif0:	defw	end ; endif
 
@@ -91,8 +89,7 @@ test_IF_ELSE:
 	defw		hello
 	defw		skip
 	defb	  	  endif1 - $
-else1:	exception
-	vm	; else
+else1:	vm	; else
 	defw		excl
 endif1:	defw	end ;endif
 
@@ -119,8 +116,7 @@ test_countdown:
 	defw		hello
 	defw		skip
 	defb		  endif2 - $
-else2:	exception
-	vm	; else
+else2:	vm	; else
 	defw		excl
 endif2:	defw	end ; endif
 
@@ -141,8 +137,7 @@ test_seq:
 	defw		hello
 	defw		skip
 	defb		  endif3 - $
-else3:	exception
-	vm	; else
+else3:	vm	; else
 	defw		excl
 endif3:	defw	end ; endif
 

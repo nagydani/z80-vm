@@ -1,6 +1,3 @@
-countdown_l:
-	exception
-
 ; Countdown generator
 ; N:counter
 countdown:
@@ -16,14 +13,12 @@ countdown:
 	vm
 ;;
 	defw	if
-	defb	  countdown_l - $
+	defb	  countdown - $
 	defw	argN
 	defb	  8	; counter
 	defw	Ngenerate
 
-seq_l:
-	exception
-	vm
+seq_l:	vm
 	defw	argN
 	defb	  6	; from
 	defw	argN
