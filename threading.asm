@@ -19,10 +19,20 @@ vm_l:	ex	de, hl
 	ret	nc		; no fail
 
 ; Failure branch
-	ld	bc, (FAIL_EFFECT + 1)
-	exx			; continue with the effect
-	ld	bc, FAIL_EFFECT	; failure cannot be handled, just caught
-	and	a		; clear CF (failed state)
+	pop	bc		; discard next token
+	dec	de
+	dec	de		; move back
+	ld	bc, FAIL_EFFECT
+	ex	de, hl
+	ex	(sp), hl
+	push	bc
+	ret
+
+; Hand back control to CPU
+; A:returnAddress
+cpu:	ex	de, hl
+	ex	(sp), hl
+	ret
 
 ; Catch exception
 catch:	ld	sp, (ERR_SP)	; restore stack pointer
@@ -38,13 +48,9 @@ catch:	ld	sp, (ERR_SP)	; restore stack pointer
 	ld	(hl), d
 	jr	nz, catch	; continue searching, if not me
 	exx
+	pop	de		; return address
+	pop	hl		; old HL
 	push	bc
-	ret
-
-; Hand back control to CPU
-; A:returnAddress
-cpu:	ex	de, hl
-	ex	(sp), hl
 	ret
 
 ; Skip a code section

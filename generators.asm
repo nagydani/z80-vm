@@ -1,6 +1,5 @@
 countdown_l:
-	pop	de
-	pop	hl
+	exception
 
 ; Countdown generator
 ; N:counter
@@ -22,8 +21,8 @@ countdown:
 	defb	  8	; counter
 	defw	Ngenerate
 
-seq_l:	pop	de
-	pop	hl
+seq_l:
+	exception
 	vm
 	defw	argN
 	defb	  6	; from

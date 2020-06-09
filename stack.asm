@@ -19,3 +19,24 @@ NNswap:
 ; N
 Ndrop:	pop	hl
 	jp	(ix)
+
+; Convert a Sequence to a Vector (i.e. put stuff on the stack)
+; S
+; RETURNS V
+StoV:	push	hl
+	exx
+	pop	bc		; lenght
+	pop	hl		; start address
+	add	hl, bc		; end + 1
+StoV_l:	ld	a, b
+	or	c
+	jr	z, emptyStoV
+	dec	hl
+	ld	a, (hl)
+	dec	bc
+	push	af
+	inc	sp
+	jr	StoV_l
+emptyStoV:
+	exx
+	jp	(ix)
