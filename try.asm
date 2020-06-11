@@ -46,7 +46,6 @@ try_nc:	ld	a, (hl)
 	ld	(hl), b
 	ld	b, a		; old handler address in BC
 	dec	hl
-	dec	hl
 	push	hl		; effect on stack
 	push	bc		; old handler address on stack
 	ld	hl, (ERR_SP)

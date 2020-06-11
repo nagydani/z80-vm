@@ -1,3 +1,7 @@
+; Pick an address argument in the stack
+; RETURNS A
+argA:	equ	$
+
 ; Pick an integer argument in the stack
 ; RETURNS N
 argN:	push	hl

@@ -32,6 +32,7 @@ endif1b:equ	$	; endif
 	defw	test_literals
 	defw	test_countdown
 	defw	test_seq
+	defw	test_types
 
 	defw	then
 	defw	cpu
@@ -57,7 +58,7 @@ cr:	ld	a,13
 	and	a
 	jp	(ix)
 
-Ntype:	ld	c, l
+Nemit:	ld	c, l
 	ld	b, h
 	push	de
 	call	0x2D2B			; stack_bc
@@ -65,6 +66,15 @@ Ntype:	ld	c, l
 	pop	de
 	pop	hl
 	jr	cr
+
+Semit:	ld	c, l
+	ld	b, h
+	pop	hl
+	ex	de, hl
+	call	0x203C			; pr_string
+	ex	de, hl
+	pop	hl
+	jp	(ix)
 
 test_IF_THEN:
 	vm
@@ -97,10 +107,19 @@ test_literals:
 	vm
 	defw	lit8
 	defb	  123
-	defw	lit16
+	defw	litE
+	defb	  hw_e - $ -1
+			vm
+	defw		litS
+	defw		  hw_end - hw_st
+hw_st:	defm			"Hello world!\r"
+hw_end:	defw		Semit
+	defw		end
+hw_e:	defw	lit16
 	defw	  12345
-	defw	Ntype
-	defw	Ntype
+	defw	Nemit
+	defw	call
+	defw	Nemit
 	defw	end
 
 test_countdown:
@@ -110,7 +129,7 @@ test_countdown:
 	defw		lit8
 	defb		  10
 	defw		countdown
-	defw		Ntype
+	defw		Nemit
 	defw		fail
 	defw	then
 	defw		hello
@@ -131,7 +150,7 @@ test_seq:
 	defw		lit8
 	defb		  5
 	defw		seq
-	defw		Ntype
+	defw		Nemit
 	defw		fail
 	defw	then
 	defw		hello
@@ -141,6 +160,22 @@ else3:	vm	; else
 	defw		excl
 endif3:	defw	end ; endif
 
+test_types:
+	vm
+	defw	lit16
+	defw	  Type		; type description address
+	defw	lit16
+	defw	  TestType	; instance in memory
+	defw	size
+	defw	Nemit
+	defw	end
+
+TestType:
+	defb	RECORD
+	defw	Byte
+	defw	N
+
+; ROM
 	include	"exrst.asm"
 	include	"vmrst.asm"
 	include	"threading.asm"
@@ -152,7 +187,8 @@ endif3:	defw	end ; endif
 	include "arithmetic.asm"
 	include "stack.asm"
 	include	"mut.asm"
+	include	"types.asm"
 
+; RAM
+	include	"effects.asm"
 ERR_SP:defw	0
-FAIL_EFFECT:
-	jp	ignore

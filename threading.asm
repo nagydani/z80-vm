@@ -1,7 +1,11 @@
 ; Return an integer to the calling thread
+; R N
 ; CAN end
-; A:caller N:returnValue
+; RETURNS N
 Nend:	ex	(sp), hl
+; This would be faster, but longer:
+;	pop	de
+;	jp	(ix)
 
 ; Return to calling thread
 ; A:returnAddress
@@ -26,18 +30,18 @@ vm_l:	ex	de, hl
 
 
 ; Catch exception
-catch:	ld	sp, (ERR_SP)	; restore stack pointer
+catch:	inc	bc
+catch1:	ld	sp, (ERR_SP)	; restore stack pointer
 	pop	hl		; old ERR_SP
 	ld	(ERR_SP), hl	; restore ERR_SP
 	pop	de		; previous handler address
 	pop	hl		; effect address
 	sbc	hl, bc		; set ZF, if it's me
 	add	hl,bc		; effect address, ZF intact
-	inc	hl
 	ld	(hl), e		; restore handler address
 	inc	hl
 	ld	(hl), d
-	jr	nz, catch	; continue searching, if not me
+	jr	nz, catch1	; continue searching, if not me
 	exx
 	pop	de		; return address
 	pop	hl		; old HL
@@ -47,7 +51,11 @@ catch:	ld	sp, (ERR_SP)	; restore stack pointer
 ; Hand back control to CPU
 ; A:returnAddress
 cpu:	ex	de, hl
-	ex	(sp), hl
+
+; Call function
+; a E(a->b)
+; RETURNS b
+call:	ex	(sp), hl
 	ret
 
 ; Skip a code section
