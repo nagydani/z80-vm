@@ -16,3 +16,9 @@ Only prepend the part of the (input) type to the label that can be polymorphic
 `EXITS` if changes the stack frame
 
 Type identifiers are optionally followed by `:` and a label
+
+## Mapping
+
+`A` is the topmost element of the data stack
+`HL` points to where the topmost element would go, if a new one is placed onto the stack
+
