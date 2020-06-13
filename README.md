@@ -1,6 +1,7 @@
 # z80-vm
 
-Threaded virtual machine on the Z80 CPU for the purpose of seedling
+Z80 implementation of seedling, first written in assembler. If it works, it 
+will be re-written in itself.
 
 ## Function naming convention
 
