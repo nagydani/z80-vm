@@ -1,11 +1,11 @@
 vm_fail:and	a
 vm_result:
 	pop	hl
-vm_exec:ret	c
+do_ok:	ret	c
 	ld	a, (hl)
 	inc	hl
 vm_tail:add	a, a
-	ld	bc, vm_exec
+	ld	bc, do_ok
 	push	bc
 	ret	z
 	exx
