@@ -4,7 +4,7 @@ vm_result:
 vm_exec:ret	c
 	ld	a, (hl)
 	inc	hl
-	add	a, a
+vm_tail:add	a, a
 	ld	bc, vm_exec
 	push	bc
 	ret	z

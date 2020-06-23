@@ -5,42 +5,69 @@ rst0:	di
 	defs	rst0 + 8 - $
 	include	"vmrst.asm"
 
-	include	"vmexec.asm"
-
-failure:and	a
-	ld	hl, do_halt
-	push	hl
-	rst	vm_rst
-	defb	litS8
-	defb	  end_fmsg - fmsg
-fmsg:	defb	  "Failure.", 0xA0
-end_fmsg:
-	defb	scan
-	defb	C8emit
-	defb	fail
-do_halt:halt
 
 start:	ld	de, WORKSP		; datastack
-	ld	hl, failure
-	push	hl
 	exx
 	ld	de, vm_tab
 	exx
 	rst	vm_rst
-	defb	litS8
-	defb	  end_hello - hello
-hello:	defb	  "Hello World!", 0x0A
+	defb	litE
+	defb	  end_test - test
+test:		rst	vm_rst
+		defb	litS8
+		defb	  end_hello - hello
+hello:		defb	  "Hello World!", 0x0A
 end_hello:
-	defb	scan
-	defb	C8emit
-	defb	fail
+		defb	tail
+		defb	  S8emit
+end_test:
+	defb	litE
+	defb	  end_failure - failure
+failure:	rst	vm_rst
+		defb	litS8
+		defb	  end_fmsg - fmsg
+fmsg:		defb	  "Failure.", 0x0A
+end_fmsg:
+		defb	tail
+		defb	  S8emit
+end_failure:
+	defb	or
+	defb	cpu
+	halt
 
+popBC:	ex	de, hl
+	dec	hl
+	ld	b, (hl)
+	dec	hl
+	ld	c, (hl)
+	ex	de, hl
+	ret
+
+popNC:	ccf
+	ret	nc
+	pop	bc
+	and	a
+	ret
+
+popC:	ret	nc
+	pop	bc
+	ret
+
+	include	"vmexec.asm"
 ; ---
 
 vm_tab:	equ	$ - 1
 
 ; ( -( fail )- )
 fail:	equ	0x80
+
+; ( -( tail )- )
+tail:	equ	$ - vm_tab
+	defb	do_tail - $
+
+; ( -( tail )- )
+cpu:	equ	$ - vm_tab
+	defb	do_cpu - $
 
 ; ( -- N8 )
 litN8:	equ	$ - vm_tab
@@ -50,17 +77,29 @@ litN8:	equ	$ - vm_tab
 litS8:	equ	$ - vm_tab
 	defb	do_litS8 - $
 
+; ( -- E )
+litE:	equ	$ - vm_tab
+	defb	do_litE - $
+
 ; ( N8 -- )
 N8drop:	equ	$ - vm_tab
-	defb	do_N8drop
+	defb	do_N8drop - $
+
+; ( -- E )
+emptyE:	equ	$ - vm_tab
+	defb	do_emptyE - $
 
 ; ( S8 -( fail ) -- S8 C8 )
 scan:	equ	$ - vm_tab
 	defb	do_scan - $
 
 ; ( N8 -( fail )- N8 )
-countdown:	equ	$ - vm_tab
-	defb	do_countdown - $
+times:	equ	$ - vm_tab
+	defb	do_times - $
+
+; ( S8 -( emit )- )
+S8emit:	equ	$ - vm_tab
+	defb	do_S8emit - $
 
 ; ( a ( a -( e fail )- b ) ( a -( e fail )- b ) -( e fail )- b )
 or:	equ	$ - vm_tab
@@ -79,6 +118,19 @@ N8emit:	equ	$ - vm_tab
 	defb	do_N8emit - $
 
 ; ---
+
+; ( -( tail )- )
+do_tail:ld	a, (hl)
+	pop	bc		; discard vm_exec
+	pop	bc		; discard vm_result
+	pop	hl
+	jr	vm_tail
+
+; ( -( tail )- )
+do_cpu:	pop	bc		; discard vm_exec
+	pop	bc		; discard vm_result
+	ex	(sp), hl
+	ret
 
 ; ( -- N8 )
 do_litN8:
@@ -111,6 +163,16 @@ do_N8drop:
 	dec	de
 	ret
 
+; ( -- E )
+do_emptyE:
+	ex	de, hl
+	ld	(hl), do_nop - 0x100 * (do_nop / 0x100)
+	inc	hl
+	ld	(hl), do_nop / 0x100
+	inc	hl
+	ex	de, hl
+do_nop:	ret
+
 ; ( S8 -( fail suspend )- S8 C8 )
 do_scan:
 	dec	de
@@ -134,7 +196,7 @@ do_scan:
 	jr	genN8
 
 ; ( N8 -( fail suspend )- N8 )
-do_countdown:
+do_times:
 	dec	de
 	ld	a, (de)
 	sub	a, 1		; CAN fail
@@ -157,32 +219,38 @@ generator:
 	exx
 	ret
 
+; ( S8 -( emit )- )
+do_S8emit:
+	rst	vm_rst
+	defb	litE
+	defb	  S8emit_end - S8emit_start
+S8emit_start:
+		rst	vm_rst
+		defb	scan
+		defb	C8emit
+		defb	fail
+S8emit_end:
+	defb	emptyE
+	defb	cpu
+
 ; ( a ( a -( e fail )- b ) ( a -( e fail )- b ) -( e fail )- b )
-do_or:	call	do_apply
-	jr	nc, do_Edrop
-	and	a
+do_or:	call	popBC
+	push	bc
+	ld	bc, popNC
+	push	bc
 
 ; ( a ( a -( e )- b ) -( e )- b )
 do_apply:
-	ex	de, hl
-	dec	hl
-	ld	b, (hl)
-	dec	hl
-	ld	c, (hl)
-	ex	de, hl
+	call	popBC
 	push	bc
 	ret
 
 ; ( a ( a -( e fail )- b ) ( b -( e fail )- c ) -( e fail )- c )
-do_and:	call	do_apply
-	jr	nc, do_apply
-	and	a
-
-; ( E -- )
-do_Edrop:
-	dec	de
-	dec	de
-	ret
+do_and:	call	popBC
+	push	bc
+	ld	bc, popC
+	push	bc
+	jr	do_apply
 
 ; ( C8 -( emit )- )
 do_C8emit:
