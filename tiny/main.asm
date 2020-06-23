@@ -81,9 +81,13 @@ litS8:	equ	$ - vm_tab
 litE:	equ	$ - vm_tab
 	defb	do_litE - $
 
+; ( N8 N8 -- N8 N8 )
+swap:	equ	$ - vm_tab
+	defb	do_swap - $
+
 ; ( N8 -- )
-N8drop:	equ	$ - vm_tab
-	defb	do_N8drop - $
+drop:	equ	$ - vm_tab
+	defb	do_drop - $
 
 ; ( -- E )
 emptyE:	equ	$ - vm_tab
@@ -101,7 +105,7 @@ times:	equ	$ - vm_tab
 S8emit:	equ	$ - vm_tab
 	defb	do_S8emit - $
 
-; ( a ( a -( e fail )- b ) ( a -( e fail )- b ) -( e fail )- b )
+; ( a ( a -( e )- b ) ( a -( f )- b ) -( e f )- b )
 or:	equ	$ - vm_tab
 	defb	do_or - $
 
@@ -109,13 +113,27 @@ or:	equ	$ - vm_tab
 apply:	equ	$ - vm_tab
 	defb	do_apply - $
 
+; ( a ( a -( e )- b ) ( b -( f )- c ) -( e f )- c )
+and:	equ	$ - vm_tab
+	defb	do_and - $
+
+; ( N8 -( fail )- N8 )
+one_plus:equ	$ - vm_tab
+	defb	do_one_plus - $
+
+; ( C8 -( fail )- C8 )
+stroke:	equ	$ - vm_tab
+	defb	do_stroke - $
+
+; ---
+
 ; ( C8 -( emit )- )
 C8emit:	equ	$ - vm_tab
 	defb	do_C8emit - $
 
-; ( N8 -( emit )- )
-N8emit:	equ	$ - vm_tab
-	defb	do_N8emit - $
+; ( -( key )- C8 )
+key:	equ	$ - vm_tab
+	defb	do_key - $
 
 ; ---
 
@@ -159,8 +177,20 @@ do_litS8:
 do_litE:call	do_litS8
 
 ; ( N8 -- )
-do_N8drop:
-	dec	de
+do_drop:dec	de
+	ret
+
+; ( N8 N8 -- N8 N8 )
+do_swap:ex	de, hl
+	dec	hl
+	ld	b, (hl)
+	dec	hl
+	ld	c, (hl)
+	ld	(hl), b
+	inc	hl
+	ld	(hl), c
+	inc	hl
+	ex	de, hl
 	ret
 
 ; ( -- E )
@@ -173,7 +203,7 @@ do_emptyE:
 	ex	de, hl
 do_nop:	ret
 
-; ( S8 -( fail suspend )- S8 C8 )
+; ( S8 -( fail pend )- S8 C8 )
 do_scan:
 	dec	de
 	ld	a, (de)
@@ -193,18 +223,18 @@ do_scan:
 	inc	hl
 	inc	hl
 	ex	de, hl
-	jr	genN8
+	jr	do_pendN8
 
-; ( N8 -( fail suspend )- N8 )
+; ( N8 -( fail pend )- N8 )
 do_times:
 	dec	de
 	ld	a, (de)
 	sub	a, 1		; CAN fail
 	ret	c
-genN8:	ld	(de), a
+do_pendN8:
+	ld	(de), a
 	inc	de
-generator:
-	exx
+do_pend:exx
 	pop	bc		; return address
 	pop	hl		; backtrack address
 	push	hl
@@ -233,7 +263,7 @@ S8emit_end:
 	defb	emptyE
 	defb	cpu
 
-; ( a ( a -( e fail )- b ) ( a -( e fail )- b ) -( e fail )- b )
+; ( a ( a -( e )- b ) ( a -( f )- b ) -( e f )- b )
 do_or:	call	popBC
 	push	bc
 	ld	bc, popNC
@@ -245,12 +275,46 @@ do_apply:
 	push	bc
 	ret
 
-; ( a ( a -( e fail )- b ) ( b -( e fail )- c ) -( e fail )- c )
+; ( a ( a -( e )- b ) ( b -( f )- c ) -( e f )- c )
 do_and:	call	popBC
 	push	bc
 	ld	bc, popC
 	push	bc
 	jr	do_apply
+
+; ( N8 -( fail )- N8 )
+do_one_plus:
+	dec	de
+	ld	a, (de)
+	inc	a
+	ld	(de), a
+	inc	de
+	ret	nz
+	scf
+	ret
+
+; ( C8 -( fail )- C8 )
+do_stroke:
+	dec	de
+	ld	a, (de)
+	inc	de
+	cp	"!"
+	ret
+;	rst	vm_rst
+;	defb	litN8
+;	defb	  "!"
+;	defb	swap
+;	defb	tail
+;	defb	  le
+
+; ( N8 C8 -- V8 )
+do_word:rst	vm_rst
+	defb	stroke
+	defb	swap
+	defb	tail
+	defb	  one_plus
+
+;---
 
 ; ( C8 -( emit )- )
 do_C8emit:
@@ -259,13 +323,10 @@ do_C8emit:
 	out	(0), a
 	ret
 
-; ( N8 -( emit )- )
-do_N8emit:
-	dec	de
-	ld	a, (de)
-	add	"0"
-	out	(0), a
-	ret
+; ( -( key pend )- C8 )
+do_key:
+	in	a, (0)
+	jr	do_pendN8
 
 ; ---
 
