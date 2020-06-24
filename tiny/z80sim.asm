@@ -6,40 +6,21 @@ rst0:	di
 	include	"vmrst.asm"
 
 
-start:	ld	de, WORKSP		; datastack
+start:	ld	bc, vm_tab
 	exx
-	ld	de, vm_tab
-	exx
+	ld	de, EFFECT
+; Effect initialization
 	rst	vm_rst
-	defb	litE
-	defb	  end_test - test
-test:		rst	vm_rst
-		defb	litS8
-		defb	  end_hello - hello
-hello:		defb	  "Hello", 0x0A
-end_hello:
-		defb	S8emit
-		defb	key
-		defb	word
-		defb	tail
-		defb	  fail
-end_test:
-	defb	litE
-	defb	  end_failure - failure
-failure:	rst	vm_rst
-		defb	litS8
-		defb	  end_fmsg - fmsg
-fmsg:		defb	  "Failure.", 0x0A
-end_fmsg:
-		defb	tail
-		defb	  S8emit
-end_failure:
-	defb	or
+effect_base:	equ	0x80
+	include	"io.asm"
 	defb	cpu
-	halt
+; Stack after effects
+	inc	d
+	ld	e, 0
+
+	include	"repl.asm"
 
 	include "seed.asm"
 
-	include	"io.asm"
-
+	org	( ( $ + 0xFF ) / 0x100 ) * 0x100
 	include	"sysvars.asm"

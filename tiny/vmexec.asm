@@ -2,32 +2,33 @@ vm_fail:and	a
 vm_result:
 	pop	hl
 do_ok:	ret	c
-	ld	a, (hl)
-	inc	hl
-vm_tail:add	a, a
 	ld	bc, do_ok
 	push	bc
-	ret	z
-	exx
-	jr	c, vm_user
-	rrca
-	ld	l, a
-	ld	h, 0
-	add	hl, de
-	ld	c, (hl)
-	ld	b, 0
-	add	hl, bc
+	call	vm_tick
 	push	hl
 	exx
 	ret
 
-vm_user:ld	l, a
-	ld	h, FAIL / 0x100
-	ld	c, (hl)
-	inc	l
-	ld	b, (hl)
-	push	bc
+vm_tick:ld	a, (hl)
+	inc	hl
+vm_tail:add	a, a
 	exx
-	and	a
+	jr	c, vm_effect
+	rrca
+	ld	l, a
+	ld	h, 0
+	add	hl, bc
+	ld	e, (hl)
+	ld	d, 0
+	add	hl, de
 	ret
 
+vm_effect:
+	ld	l, a
+	ld	h, EFFECT / 0x100
+	ld	e, (hl)
+	inc	l
+	ld	d, (hl)
+	and	a
+	ex	de, hl
+	ret
