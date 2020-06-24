@@ -8,128 +8,126 @@ backBC:	ld	a, (hl)
 	and	a
 	ret
 
-popBC:	ex	de, hl
-	dec	hl
-	ld	b, (hl)
-	dec	hl
-	ld	c, (hl)
-	ex	de, hl
-	ret
-
-
-popNC:	ccf
-	ret	nc
-	pop	bc
-NCret:	ccf
-	ret
-
-popC:	ret	nc
-	pop	bc
-	ret
-
 	include	"vmexec.asm"
 ; ---
 
-vm_tab:	equ	$
+seed_tab:	equ	$
 
 ; ( -- )
-ok:	equ	$ - vm_tab
+ok:	equ	$ - seed_tab
 	defb	do_nop - $
 
 ; ( -( fail )- )
-fail:	equ	$ - vm_tab
+fail:	equ	$ - seed_tab
 	defb	do_fail - $
 
 ; ( -( tail )- )
-tail:	equ	$ - vm_tab
+tail:	equ	$ - seed_tab
 	defb	do_tail - $
 
 ; ( -( tail )- )
-cpu:	equ	$ - vm_tab
+cpu:	equ	$ - seed_tab
 	defb	do_cpu - $
 
 ; ( -- N8 )
-litN8:	equ	$ - vm_tab
+litN8:	equ	$ - seed_tab
 	defb	do_litN8 - $
 
 ; ( -- S8 )
-litS8:	equ	$ - vm_tab
+litS8:	equ	$ - seed_tab
 	defb	do_litS8 - $
 
 ; ( -- E )
-tick:	equ	$ - vm_tab
-	defb	do_tick - $
+tickself: equ	$ - seed_tab
+	defb	do_tickself
 
 ; ( -- E )
-litE:	equ	$ - vm_tab
+tick:	equ	$ - seed_tab
+	defb	do_tick - $
+
+; ( ( a -( e f )- b ) e -( f )- b )
+tryTo:	equ	$ - seed_tab
+	defb	do_tryTo
+
+; ( -- E )
+litE:	equ	$ - seed_tab
 	defb	do_litE - $
 
 ; ( N8 -- )
-drop:	equ	$ - vm_tab
+drop:	equ	$ - seed_tab
 	defb	do_drop - $
 
 ; ( -- N8 )
-zero:	equ	$ - vm_tab
+zero:	equ	$ - seed_tab
 	defb	do_zero - $
 
 ; ( N8 N8 -- N8 N8 )
-swap:	equ	$ - vm_tab
+swap:	equ	$ - seed_tab
 	defb	do_swap - $
 
 ; ( -- E )
-emptyE:	equ	$ - vm_tab
+emptyE:	equ	$ - seed_tab
 	defb	do_emptyE - $
 
+; ( N8 N8 -( fail )- N8 )
+eq:	equ	$ - seed_tab
+	defb	do_eq - $
+
+; ( N8 N8 -( fail )- N8 )
+neq:	equ	$ - seed_tab
+	defb	do_neq - $
+
 ; ( S8 -( fail ) -- S8 C8 )
-scan:	equ	$ - vm_tab
+scan:	equ	$ - seed_tab
 	defb	do_scan - $
 
 ; ( N8 -( fail )- N8 )
-times:	equ	$ - vm_tab
+times:	equ	$ - seed_tab
 	defb	do_times - $
 
 ; ( -( pend )- )
-pend:	equ	$ - vm_tab
+pend:	equ	$ - seed_tab
 	defb	do_pend - $
 
 ; ( S8 -( emit )- )
-write:	equ	$ - vm_tab
+write:	equ	$ - seed_tab
 	defb	do_write - $
 
 ; ( a ( a -( e )- b ) ( a -( f )- b ) -( e f )- b )
-or:	equ	$ - vm_tab
+or:	equ	$ - seed_tab
 	defb	do_or - $
 
 ; ( a ( a -( e )- b ) -( e )- b )
-apply:	equ	$ - vm_tab
-	defb	do_apply - $
+call:	equ	$ - seed_tab
+	defb	do_call - $
 
 ; ( V8 C8 -( fail )- V8 )
-append:	equ	$ - vm_tab
+append:	equ	$ - seed_tab
 	defb	do_append - $
 
 ; ( N8 -( fail )- N8 )
-one_plus:equ	$ - vm_tab
+one_plus:equ	$ - seed_tab
 	defb	do_one_plus - $
 
 ; ( V8 -- V8 S8 )
-string:	equ	$ - vm_tab
+string:	equ	$ - seed_tab
 	defb	do_string - $
 
-; ( C8 -( fail )- C8 )
-stroke:	equ	$ - vm_tab
-	defb	do_stroke - $
+; ( V8 -( dict )- )
+dict:	equ	$ - seed_tab
+	defb	do_dict - $
 
-; ( N8 C8 -- S8 )
-word:	equ	$ - vm_tab
-	defb	do_word - $
+; ( -( key emit )- )
+comp:	equ	$ - seed_tab
+	defb	do_comp_jr - $
+
+seed_last: equ	$ - seed_tab
 
 ; ---
 
 ; ( -( tail )- )
 do_tail:ld	a, (hl)
 	pop	bc		; discard do_ok
-	pop	bc		; discard vm_result
 	pop	hl
 	ld	bc, do_ok
 	push	bc
@@ -140,7 +138,6 @@ do_tail:ld	a, (hl)
 
 ; ( -( tail )- )
 do_cpu:	pop	bc		; discard do_ok
-	pop	bc		; discard vm_result
 	ex	(sp), hl
 	ret
 
@@ -168,15 +165,42 @@ do_litS8:
 	ret
 
 ; ( -- E )
+do_tickself:
+	call	backBC
+	jr	pushBC
+
+; ( -- E )
 do_tick:call	vm_tick
 	push	hl
 	exx
 	pop	bc
 	jr	pushBC
 
-; ( -- A )
-pop_do:	pop	bc
-	jr	pushBC
+; ( ( a -( e f )- b ) e -( f )- b )
+do_tryTo:
+	ld	a, (hl)
+	add	a, a
+;	jr	nc, special_effects
+	exx
+	call	vm_effect
+	push	hl
+	push	bc
+	rst	pop_rst
+	ex	de, hl
+	ld	(hl), b
+	dec	l
+	ld	(hl), c
+	pop	bc
+	exx
+	call	do_call
+	ld	a, (hl)
+	add	a, a
+	exx
+	ld	l, a
+	ld	h, EFFECT / 0x100
+	pop	bc
+	and	a
+	ret
 
 ; ( -- E )
 do_litE:call	do_litS8
@@ -215,6 +239,19 @@ pushBC:	ex	de, hl
 	ex	de, hl
 do_nop:	ret
 
+; ( N8 N8 -( fail )- N8 )
+do_eq:	rst	cmp_rst
+	ret	z
+	scf
+	ret
+
+; ( N8 N8 -( fail )- N8 )
+do_neq:	rst	cmp_rst
+	scf
+	ret	z
+	and	a
+	ret
+
 ; ( S8 -( fail pend )- S8 C8 )
 do_scan:
 	dec	de
@@ -246,36 +283,27 @@ do_times:
 vm_pendN8:
 	ld	(de), a
 	inc	de
-	exx
-	pop	de		; return address
-	pop	hl		; backtrack address
-	push	hl
-	exx
-	dec	hl
-	push	hl
-	inc	hl
-	exx
-	dec	hl
-	push	hl
-	push	de
-	exx
+	pop	af		; do_ok
+	pop	bc		; backtrack
+	dec	bc
+	push	bc		; backtrack
+	push	af		; do_ok
+	and	a
 	ret
 
 ; ( -( pend )- )
 do_pend:call	backBC		; BC = handler
-	exx
-	pop	de		; do_ok
-	pop	hl		; vm_result
-	exx
+	pop	af		; do_ok
 	pop	hl		; backtrack
 	push	bc		; handler
-	ld	bc, NCret
-	push	bc
-	push	hl		; placeholder
-	exx
-	push	hl		; vm_result
-	push	de		; do_ok
-	exx
+
+	call	suspend
+	and	a		; clear failed state
+	ret
+
+suspend:push	hl		; placeholder
+	push	af		; do_ok
+	and	a
 	ret
 
 ; ( S8 -( emit )- )
@@ -293,14 +321,18 @@ write_end:
 	defb	cpu
 
 ; ( a ( a -( e )- b ) ( a -( f )- b ) -( e f )- b )
-do_or:	call	popBC
+do_or:	rst	pop_rst
 	push	bc
-	ld	bc, popNC
-	push	bc
+	call	do_call
+	ccf
+	ret	nc
+	pop	bc
+	and	a
+	ret
+
 
 ; ( a ( a -( e )- b ) -( e )- b )
-do_apply:
-	call	popBC
+do_call:rst	pop_rst
 	push	bc
 	ret
 
@@ -347,34 +379,69 @@ do_string:
 	pop	de
 	ret
 
-; ( C8 -( fail )- C8 )
-do_stroke:
+; ( -( key emit )- )
+do_comp_jr:
+	jr	do_comp
+
+; ( V8 -( dict )- )
+do_dict:ld	c, (ix + 1)
+	ld	b, (ix + 2)
+	ld	a, b
+	or	c
+	push	ix
+	jr	z, dict_1
+dict_l:	inc	sp
+	inc	sp
+	push	bc
+	inc	bc
+	ld	a, (bc)
+	ex	af, af'
+	inc	bc
+	ld	a, (bc)
+	ld	b, a
+	ex	af, af'
+	ld	c, a
+	or	b
+	jr	nz, dict_l
+dict_1:	push	de
+	exx
+	pop	de
 	dec	de
 	ld	a, (de)
+	pop	hl
+	add	a, (hl)
+	ld	(de), a
+	inc	hl
+	ld	(hl), e
+	inc	hl
+	ld	(hl), d
+	exx
+	xor	a
+	ld	(de), a
 	inc	de
-	cp	"!"
-	ret	nc
-	dec	de
+	ld	(de), a
+	inc	de
+	pop	bc			; do_ok
+	call	dict_r
+	exx
+	ld	l, (ix + 1)
+	ld	h, (ix + 2)
+dict_n:	inc	hl
+	ld	e, (hl)
+	inc	hl
+	ld	d, (hl)
+	ld	a, e
+	or	l
+	jr	z, dict_d
+	ex	de, hl
+	jr	dict_n
+dict_d:	ld	(hl), a
+	dec	hl
+	ld	(hl), a
+	exx
 	ret
 
-; ( N8 C8 -- S8 )
-do_word:
-	rst	vm_rst
-	defb	zero
-	defb	litE
-	defb	  word_a - word_r
-word_r:		rst	vm_rst
-		defb	litE
-		defb	  word_e - word_s
-word_s:			rst	vm_rst
-			defb	key
-			defb	stroke
-			defb	pend
-			defb	  word_s - $
-word_e:		defb	apply
-		defb	append
-		defb	fail
-word_a:	defb	tick
-	defb	  string
-	defb	tail
-	defb	  or
+dict_r:	push	bc			; do_ok
+	ret
+
+	include	"compiler.asm"

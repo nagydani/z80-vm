@@ -1,12 +1,6 @@
-rst0:	di
-	ld	sp, 0
-	xor	a
-	jp	start
-	defs	rst0 + 8 - $
-	include	"vmrst.asm"
+	include	"startrst.asm"
 
-
-start:	ld	bc, vm_tab
+start:	ld	bc, seed_tab
 	exx
 	ld	de, EFFECT
 ; Effect initialization

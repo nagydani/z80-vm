@@ -1,5 +1,33 @@
 vm_rst:	ex	(sp), hl
-	ld	bc, vm_result
-	push	bc
-	jp	do_ok
+do_vm:	rst	vm_exec
+do_ok:	jp	nc, do_vm	; faster than jr
+	pop	hl
+	ret
+
 	defs	vm_rst + 8 - $, 0xFF
+
+vm_exec:call	vm_tick
+	push	hl
+	exx
+	ret
+
+	defs	vm_exec + 8 - $, 0xFF
+
+pop_rst:ex	de, hl
+	dec	hl
+	ld	b, (hl)
+	dec	hl
+	ld	c, (hl)
+	ex	de, hl
+	ret
+
+	defs	pop_rst + 8 - $, 0xFF
+
+cmp_rst:rst	pop_rst
+	ld	a, c
+	ld	(de), a
+	inc	de
+	cp	b
+	ret
+
+	defs	cmp_rst + 8 - $, 0xFF
