@@ -26,6 +26,10 @@ tail:	equ	$ - seed_tab
 	defb	do_tail - $
 
 ; ( -( tail )- )
+tailself: equ	$ - seed_tab
+	defb	do_tailself
+
+; ( -( tail )- )
 cpu:	equ	$ - seed_tab
 	defb	do_cpu - $
 
@@ -134,6 +138,14 @@ do_tail:ld	a, (hl)
 	call	vm_tail
 	push	hl
 	exx
+	ret
+
+; ( -( tail )- )
+do_tailself:
+	pop	bc		; discard do_ok
+	pop	bc		; discard threading
+	call	backBC
+	push	bc
 	ret
 
 ; ( -( tail )- )
