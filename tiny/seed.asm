@@ -81,6 +81,10 @@ eq:	equ	$ - seed_tab
 neq:	equ	$ - seed_tab
 	defb	do_neq - $
 
+; ( -( pend )- )
+pend:	equ	$ - seed_tab
+	defb	do_pend - $
+
 ; ( S8 -( fail ) -- S8 C8 )
 scan:	equ	$ - seed_tab
 	defb	do_scan - $
@@ -88,10 +92,6 @@ scan:	equ	$ - seed_tab
 ; ( N8 -( fail )- N8 )
 times:	equ	$ - seed_tab
 	defb	do_times - $
-
-; ( -( pend )- )
-pend:	equ	$ - seed_tab
-	defb	do_pend - $
 
 ; ( S8 -( emit )- )
 write:	equ	$ - seed_tab
@@ -264,6 +264,21 @@ do_neq:	rst	cmp_rst
 	and	a
 	ret
 
+; ( -( pend )- )
+do_pend:call	backBC		; BC = handler
+	pop	af		; do_ok
+	pop	hl		; backtrack
+	push	bc		; handler
+
+	call	suspend
+	and	a		; clear failed state
+	ret
+
+suspend:push	hl		; placeholder
+	push	af		; do_ok
+	and	a
+	ret
+
 ; ( S8 -( fail pend )- S8 C8 )
 do_scan:
 	dec	de
@@ -295,28 +310,9 @@ do_times:
 vm_pendN8:
 	ld	(de), a
 	inc	de
-	pop	af		; do_ok
-	pop	bc		; backtrack
-	dec	bc
-	push	bc		; backtrack
-	push	af		; do_ok
-	and	a
-	ret
-
-; ( -( pend )- )
-do_pend:call	backBC		; BC = handler
-	pop	af		; do_ok
-	pop	hl		; backtrack
-	push	bc		; handler
-
-	call	suspend
-	and	a		; clear failed state
-	ret
-
-suspend:push	hl		; placeholder
-	push	af		; do_ok
-	and	a
-	ret
+	rst	vm_rst
+	defb	pend
+	defb	  do_scan - $
 
 ; ( S8 -( emit )- )
 do_write:

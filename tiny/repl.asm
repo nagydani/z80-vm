@@ -1,7 +1,7 @@
 	rst	vm_rst
 
 	defb	litE
-	defb	repl_local_end - repl_local
+	defb	end_repl_local - repl_local
 repl_local:	rst	vm_rst
 		defb	litS8
 		defb	  end_repl_dict - repl_dict
@@ -20,21 +20,21 @@ end_repl_dict:	equ	$
 do_readln:	rst	vm_rst
 		defb	zero
 		defb	litE
-		defb	  readln_end - readln_start
-readln_start:		defb	litN8
+		defb	  end_readln - start_readln
+start_readln:		defb	litN8
 			defb	  0x10
 			defb	key
 			defb	neq
 			defb	append
 			defb	tailself
-			defb	  readln_start - $
-readln_end:	defb	tick
+			defb	  start_readln - $
+end_readln:	defb	tick
 		defb	  string
 		defb	tail
 		defb	  or
 
 
-repl_local_end:	equ	$
+end_repl_local:	equ	$
 	defb	call
 
 	defb	litE
@@ -45,13 +45,7 @@ repl:		rst	vm_rst
 hello:		defb	  "Hello", 0x0A
 end_hello:
 		defb	write
-
-;		defb	tick
-;		defb	  comp
-;		defb	tick
-;		defb	  extend
-;		defb	tryto
-;		defb	  emit
+		defb	fail
 
 end_repl:
 	defb	litE
@@ -63,7 +57,7 @@ fmsg:		defb	  "Failure.", 0x0A
 end_fmsg:
 		defb	tail
 		defb	  write
-end_failure:
+end_failure:	equ 	$
 	defb	or
 	defb	cpu
 	halt
