@@ -91,6 +91,10 @@ pend:	equ	$ + 0x7F - seed_tab
 	defb	do_pend - $
 
 ; ( S8 -( fail ) -- S8 C8 )
+bite:	equ	$ + 0x7F - seed_tab
+	defb	do_bite - $
+
+; ( S8 -( fail pend ) -- S8 C8 )
 scan:	equ	$ + 0x7F - seed_tab
 	defb	do_scan - $
 
@@ -289,8 +293,8 @@ suspend:push	hl		; placeholder
 	and	a
 	ret
 
-; ( S8 -( fail pend )- S8 C8 )
-do_scan:dec	de
+; ( S8 -( fail )- S8 C8 )
+do_bite:dec	de
 	ld	a, (de)
 	sub	a, 1
 	ld	(de), a
@@ -298,7 +302,9 @@ do_scan:dec	de
 	dec	hl
 	ld	b, (hl)
 	dec	hl
-	jr	c, scan_f
+	ex	de, hl
+	ret	c
+	ex	de, hl
 	ld	c, (hl)
 	ld	a, (bc)
 	inc	bc
@@ -310,11 +316,13 @@ do_scan:dec	de
 	ex	de, hl
 	ld	(de), a
 	inc	de
-	rst	vm_rst
+	ret
+
+; ( S8 -( fail pend )- S8 C8 )
+do_scan:rst	vm_rst
+	defb	bite
 	defb	pend
 	defb	  do_scan - $
-scan_f:	ex	de, hl
-	ret
 
 ; ( S8 -( emit )- )
 do_write:
