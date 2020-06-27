@@ -1,4 +1,4 @@
-; ( -( key emit )- )
+; ( S8 -( key emit )- )
 do_comp:rst	vm_rst
 	defb	use
 	defb	  end_comp_local - comp_local
@@ -16,6 +16,31 @@ stroke:	equ	$ - comp_tab + seed_last
 ; ( -( key )- S8 )
 word:	equ	$ - comp_tab + seed_last
 	defb	do_word - $
+
+; ( -( key emit )- )
+quot:	equ	$ - comp_tab + seed_last
+	defb	do_quot - $
+
+; ( -( key emit )- )
+brace:	equ	$ - comp_tab + seed_last
+	defb	do_brace - $
+
+; ( -( key emit )- )
+voc:	equ	$ - comp_tab + seed_last
+	defb	do_voc - $
+
+; ( -( key emit )- )
+fn:	equ	$ - comp_tab + seed_last
+	defb	do_fn - $
+
+; ( -( key emit )- )
+fnRef:	equ	$ - comp_tab + seed_last
+	defb	do_fnRef - $
+
+; ( -( key emit )- )
+selfRef:equ	$ - comp_tab + seed_last
+	defb	do_selfRef - $
+
 
 ; ---
 
@@ -49,7 +74,18 @@ word_a:	defb	tick
 	defb	  string
 	defb	tail
 	defb	  or
+
+do_quot:
+do_brace:
+do_voc:
+do_fn:
+do_fnRef:
+do_selfRef:
+
+
 end_comp_local:	equ	$
+
+
 
 ; ---
 
