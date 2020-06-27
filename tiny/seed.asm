@@ -1,4 +1,4 @@
--backBC:	ld	a, (hl)
+backBC:	ld	a, (hl)
 	add	a, l
 	ld	c, a
 	ld	a, 0xFF
