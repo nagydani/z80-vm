@@ -11,121 +11,126 @@ backBC:	ld	a, (hl)
 	include	"vmexec.asm"
 ; ---
 
-seed_tab:	equ	$
+seed_tab:
+	defb	0x80
 
 ; ( -- )
-ok:	equ	$ - seed_tab
+ok:	equ	$ + 0x7F - seed_tab
 	defb	do_nop - $
 
 ; ( -( fail )- )
-fail:	equ	$ - seed_tab
+fail:	equ	$ + 0x7F - seed_tab
 	defb	do_fail - $
 
 ; ( -( tail )- )
-tail:	equ	$ - seed_tab
+tail:	equ	$ + 0x7F - seed_tab
 	defb	do_tail - $
 
 ; ( -( tail )- )
-tailself: equ	$ - seed_tab
-	defb	do_tailself
+tailself: equ	$ + 0x7F - seed_tab
+	defb	do_tailself - $
 
 ; ( -( tail )- )
-cpu:	equ	$ - seed_tab
+cpu:	equ	$ + 0x7F - seed_tab
 	defb	do_cpu - $
 
 ; ( -- N8 )
-litN8:	equ	$ - seed_tab
+litN8:	equ	$ + 0x7F - seed_tab
 	defb	do_litN8 - $
 
 ; ( -- S8 )
-litS8:	equ	$ - seed_tab
+litS8:	equ	$ + 0x7F - seed_tab
 	defb	do_litS8 - $
 
 ; ( -- E )
-tickself: equ	$ - seed_tab
+tickself: equ	$ + 0x7F - seed_tab
 	defb	do_tickself
 
 ; ( -- E )
-tick:	equ	$ - seed_tab
+tick:	equ	$ + 0x7F - seed_tab
 	defb	do_tick - $
 
 ; ( ( a -( e f )- b ) e -( f )- b )
-tryTo:	equ	$ - seed_tab
+tryTo:	equ	$ + 0x7F - seed_tab
 	defb	do_tryTo
 
 ; ( -- E )
-litE:	equ	$ - seed_tab
+litE:	equ	$ + 0x7F - seed_tab
 	defb	do_litE - $
 
 ; ( N8 -- )
-drop:	equ	$ - seed_tab
+drop:	equ	$ + 0x7F - seed_tab
 	defb	do_drop - $
 
+; ( V8 -- )
+rain:	equ	$ + 0x7F - seed_tab
+	defb	do_rain - $
+
 ; ( -- N8 )
-zero:	equ	$ - seed_tab
+zero:	equ	$ + 0x7F - seed_tab
 	defb	do_zero - $
 
 ; ( N8 N8 -- N8 N8 )
-swap:	equ	$ - seed_tab
+swap:	equ	$ + 0x7F - seed_tab
 	defb	do_swap - $
 
+; ( A -- A )
+adv:	equ	$ + 0x7F - seed_tab
+	defb	do_adv - $
+
 ; ( -- E )
-emptyE:	equ	$ - seed_tab
+emptyE:	equ	$ + 0x7F - seed_tab
 	defb	do_emptyE - $
 
 ; ( N8 N8 -( fail )- N8 )
-eq:	equ	$ - seed_tab
+eq:	equ	$ + 0x7F - seed_tab
 	defb	do_eq - $
 
 ; ( N8 N8 -( fail )- N8 )
-neq:	equ	$ - seed_tab
+neq:	equ	$ + 0x7F - seed_tab
 	defb	do_neq - $
 
 ; ( -( pend )- )
-pend:	equ	$ - seed_tab
+pend:	equ	$ + 0x7F - seed_tab
 	defb	do_pend - $
 
 ; ( S8 -( fail ) -- S8 C8 )
-scan:	equ	$ - seed_tab
+scan:	equ	$ + 0x7F - seed_tab
 	defb	do_scan - $
 
-; ( N8 -( fail )- N8 )
-times:	equ	$ - seed_tab
-	defb	do_times - $
-
 ; ( S8 -( emit )- )
-write:	equ	$ - seed_tab
+write:	equ	$ + 0x7F - seed_tab
 	defb	do_write - $
 
 ; ( a ( a -( e )- b ) ( a -( f )- b ) -( e f )- b )
-or:	equ	$ - seed_tab
+or:	equ	$ + 0x7F - seed_tab
 	defb	do_or - $
 
 ; ( a ( a -( e )- b ) -( e )- b )
-call:	equ	$ - seed_tab
+call:	equ	$ + 0x7F - seed_tab
 	defb	do_call - $
 
 ; ( V8 C8 -( fail )- V8 )
-append:	equ	$ - seed_tab
+append:	equ	$ + 0x7F - seed_tab
 	defb	do_append - $
 
 ; ( N8 -( fail )- N8 )
-one_plus:equ	$ - seed_tab
+one_plus:equ	$ + 0x7F - seed_tab
 	defb	do_one_plus - $
 
 ; ( V8 -- V8 S8 )
-string:	equ	$ - seed_tab
+string:	equ	$ + 0x7F - seed_tab
 	defb	do_string - $
 
-; ( V8 -( dict )- )
-dict:	equ	$ - seed_tab
-	defb	do_dict - $
+; ( A -( dict )- )
+use:	equ	$ + 0x7F - seed_tab
+	defb	do_use - $
 
 ; ( -( key emit )- )
-comp:	equ	$ - seed_tab
-	defb	do_comp_jr - $
+comp:	equ	$ + 0x7F - seed_tab
+	defb	do_comp - $
 
-seed_last: equ	$ - seed_tab
+seed_last: equ	$ + 0x7F - seed_tab
 
 ; ---
 
@@ -145,6 +150,8 @@ do_tailself:
 	pop	bc		; discard do_ok
 	pop	bc		; discard threading
 	call	backBC
+	inc	sp
+	inc	sp		; discard old threading
 	push	bc
 	ret
 
@@ -221,6 +228,15 @@ do_litE:call	do_litS8
 do_drop:dec	de
 	ret
 
+; ( V8 -- )
+do_rain:dec	de
+	ld	a, (de)
+rain_l:	or	a
+	ret	z
+	dec	de
+	dec	a
+	jr	rain_l
+
 ; ( -- N8 )
 do_zero:xor	a
 	ld	(de), a
@@ -240,6 +256,11 @@ do_swap:ex	de, hl
 	ex	de, hl
 	ret
 
+; ( A -- A )
+do_adv:	rst	pop_rst
+	inc	bc
+	jr	pushBC
+
 ; ( -- E )
 do_emptyE:
 	ld	bc, do_nop
@@ -254,13 +275,13 @@ do_nop:	ret
 ; ( N8 N8 -( fail )- N8 )
 do_eq:	rst	cmp_rst
 	ret	z
+f_eq:	dec	de
 	scf
 	ret
 
 ; ( N8 N8 -( fail )- N8 )
 do_neq:	rst	cmp_rst
-	scf
-	ret	z
+	jr	z, f_eq
 	and	a
 	ret
 
@@ -280,16 +301,15 @@ suspend:push	hl		; placeholder
 	ret
 
 ; ( S8 -( fail pend )- S8 C8 )
-do_scan:
-	dec	de
+do_scan:dec	de
 	ld	a, (de)
 	sub	a, 1
-	ret	c		; CAN fail
 	ld	(de), a
 	ex	de, hl
 	dec	hl
 	ld	b, (hl)
 	dec	hl
+	jr	c, scan_f
 	ld	c, (hl)
 	ld	a, (bc)
 	inc	bc
@@ -299,20 +319,13 @@ do_scan:
 	inc	hl
 	inc	hl
 	ex	de, hl
-	jr	vm_pendN8
-
-; ( N8 -( fail pend )- N8 )
-do_times:
-	dec	de
-	ld	a, (de)
-	sub	a, 1		; CAN fail
-	ret	c
-vm_pendN8:
 	ld	(de), a
 	inc	de
 	rst	vm_rst
 	defb	pend
 	defb	  do_scan - $
+scan_f:	ex	de, hl
+	ret
 
 ; ( S8 -( emit )- )
 do_write:
@@ -334,10 +347,9 @@ do_or:	rst	pop_rst
 	call	do_call
 	ccf
 	ret	nc
-	pop	bc
-	and	a
+	pop	bc		; discard other function
+	ccf
 	ret
-
 
 ; ( a ( a -( e )- b ) -( e )- b )
 do_call:rst	pop_rst
@@ -387,69 +399,24 @@ do_string:
 	pop	de
 	ret
 
-; ( -( key emit )- )
-do_comp_jr:
-	jr	do_comp
-
-; ( V8 -( dict )- )
-do_dict:ld	c, (ix + 1)
-	ld	b, (ix + 2)
-	ld	a, b
-	or	c
-	push	ix
-	jr	z, dict_1
-dict_l:	inc	sp
-	inc	sp
+; ( A -( dict )- )
+do_use:	rst	pop_rst
 	push	bc
-	inc	bc
-	ld	a, (bc)
-	ex	af, af'
-	inc	bc
-	ld	a, (bc)
-	ld	b, a
-	ex	af, af'
-	ld	c, a
-	or	b
-	jr	nz, dict_l
-dict_1:	push	de
 	exx
-	pop	de
-	dec	de
-	ld	a, (de)
-	pop	hl
-	add	a, (hl)
-	ld	(de), a
-	inc	hl
-	ld	(hl), e
-	inc	hl
-	ld	(hl), d
-	exx
-	xor	a
-	ld	(de), a
-	inc	de
-	ld	(de), a
-	inc	de
-	pop	bc			; do_ok
-	call	dict_r
-	exx
-	ld	l, (ix + 1)
-	ld	h, (ix + 2)
-dict_n:	inc	hl
-	ld	e, (hl)
-	inc	hl
-	ld	d, (hl)
-	ld	a, e
-	or	l
-	jr	z, dict_d
-	ex	de, hl
-	jr	dict_n
-dict_d:	ld	(hl), a
-	dec	hl
-	ld	(hl), a
+	pop	hl		; HL = new voc
+	pop	de		; return address
+	push	bc		; old vocab
+	ld	c, l
+	ld	b, h
+	ld	hl, do_disuse
+	push	hl
+	push	de
 	exx
 	ret
-
-dict_r:	push	bc			; do_ok
+do_disuse:
+	exx
+	pop	bc
+	exx
 	ret
 
 	include	"compiler.asm"
