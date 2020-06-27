@@ -1,4 +1,4 @@
-backBC:	ld	a, (hl)
+-backBC:	ld	a, (hl)
 	add	a, l
 	ld	c, a
 	ld	a, 0xFF
@@ -74,10 +74,6 @@ zero:	equ	$ + 0x7F - seed_tab
 swap:	equ	$ + 0x7F - seed_tab
 	defb	do_swap - $
 
-; ( A -- A )
-adv:	equ	$ + 0x7F - seed_tab
-	defb	do_adv - $
-
 ; ( -- E )
 emptyE:	equ	$ + 0x7F - seed_tab
 	defb	do_emptyE - $
@@ -122,7 +118,7 @@ one_plus:equ	$ + 0x7F - seed_tab
 string:	equ	$ + 0x7F - seed_tab
 	defb	do_string - $
 
-; ( A -( dict )- )
+; ( -( dict )- )
 use:	equ	$ + 0x7F - seed_tab
 	defb	do_use - $
 
@@ -253,11 +249,6 @@ do_swap:ex	de, hl
 	inc	hl
 	ex	de, hl
 	ret
-
-; ( A -- A )
-do_adv:	rst	pop_rst
-	inc	bc
-	jr	pushBC
 
 ; ( -- E )
 do_emptyE:
@@ -398,7 +389,10 @@ do_string:
 	ret
 
 ; ( A -( dict )- )
-do_use:	rst	pop_rst
+do_use:	call	do_litE
+	rst	pop_rst
+	inc	bc
+	inc	bc		; skip back reference
 	push	bc
 	exx
 	pop	hl		; HL = new voc

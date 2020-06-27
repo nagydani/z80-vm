@@ -27,4 +27,3 @@ effect_base:	equ	0x00
 ; --
 
 	include	"sysvars.asm"
-

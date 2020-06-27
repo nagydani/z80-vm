@@ -1,2 +1,1 @@
 EFFECT:	equ	$
-WORKSP:	equ	EFFECT + 0x100

@@ -1,16 +1,20 @@
 ; ( -( key emit )- )
-do_comp:
+do_comp:rst	vm_rst
+	defb	use
+	defb	  end_comp_local - comp_local
+comp_local:	defw	seed_tab
+comp_voc:	defb	0x100 - seed_last
 
-comp_tab: equ	$
+comp_tab:	equ	$
 
 ; ---
 
 ; ( C8 -( fail )- C8 )
-stroke:	equ	$ - comp_tab - seed_last
+stroke:	equ	$ - comp_tab + seed_last
 	defb	do_stroke - $
 
-; ( N8 C8 -- S8 )
-word:	equ	$ - comp_tab - seed_last
+; ( -( key )- S8 )
+word:	equ	$ - comp_tab + seed_last
 	defb	do_word - $
 
 ; ---
@@ -25,9 +29,8 @@ do_stroke:
 	dec	de
 	ret
 
-; ( N8 C8 -- S8 )
-do_word:
-	rst	vm_rst
+; ( -( key )- S8 )
+do_word:rst	vm_rst
 	defb	zero
 	defb	litE
 	defb	  word_a - word_r
@@ -46,3 +49,7 @@ word_a:	defb	tick
 	defb	  string
 	defb	tail
 	defb	  or
+end_comp_local:	equ	$
+
+; ---
+

@@ -1,9 +1,9 @@
 do_repl:rst	vm_rst
 
-	defb	litE
+	defb	use
 	defb	  end_repl_local - repl_local
 repl_local:	defw	seed_tab
-repl_voc:	defb	- seed_last
+repl_voc:	defb	0x100 - seed_last
 
 ; ( S8 -( emit )- )
 writeln:	equ	$ - repl_voc + seed_last - 1
@@ -41,9 +41,6 @@ end_readln:	defb	tick
 		defb	  or
 
 end_repl_local:	equ	$
-	defb	adv
-	defb	adv
-	defb	use
 
 	defb	litE
 	defb	  end_repl - repl
