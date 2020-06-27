@@ -148,10 +148,8 @@ do_tail:ld	a, (hl)
 ; ( -( tail )- )
 do_tailself:
 	pop	bc		; discard do_ok
-	pop	bc		; discard threading
 	call	backBC
-	inc	sp
-	inc	sp		; discard old threading
+	pop	hl		; restore threading
 	push	bc
 	ret
 

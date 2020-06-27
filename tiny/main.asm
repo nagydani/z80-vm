@@ -1,24 +1,21 @@
 	include	"startrst.asm"
 
+	include "seed.asm"
+
 ; Set up vocabulary
 start:	ld	bc, seed_tab
 	exx
 	ld	de, EFFECT
-	ld	ix, EFFECT + 0x100
-	ld	(ix + 0), seed_last
-	ld	hl, 0
-	ld	(EFFECT + 0x101), hl
 ; Effect initialization
 	rst	vm_rst
-effect_base:	equ	0x80
+effect_base:	equ	0x00
 	include	"io.asm"
 	defb	cpu
-; Stack after effects and vocabulary root
-	ld	de, EFFECT + 0x103
+; Stack after effects
+	inc	d
+	ld	e, 0
 
 	include	"repl.asm"
-
-	include "seed.asm"
 
 ; short z80sim stuff
 ;	org	( ( $ + 0xFF ) / 0x100 ) * 0x100

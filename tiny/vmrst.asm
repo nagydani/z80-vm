@@ -24,10 +24,10 @@ pop_rst:ex	de, hl
 	defs	pop_rst + 8 - $, 0xFF
 
 cmp_rst:rst	pop_rst
-	ld	a, c
+	ld	a, b
 	ld	(de), a
 	inc	de
-	cp	b
+	cp	c
 	ret
 
 	defs	cmp_rst + 8 - $, 0xFF
