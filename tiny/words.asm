@@ -20,6 +20,8 @@ seed_words:
 	defb	fn
 	defb	"bite"
 	defb	fn
+	defb	"1-"
+	defb	fn
 	defb	"pend"
 	defb	selfRef
 	defb	"=!"

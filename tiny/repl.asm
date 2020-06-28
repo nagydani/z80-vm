@@ -43,7 +43,7 @@ end_readln:	defb	tick
 end_repl_local:	equ	$
 
 	defb	litS8
-	defb	  seed_words - end_seed_words
+	defb	  end_seed_words - seed_words
 		include	"words.asm"
 end_seed_words:	equ	$
 	defb	litE

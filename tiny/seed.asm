@@ -90,6 +90,10 @@ neq:	equ	$ + 0x7F - seed_tab
 pend:	equ	$ + 0x7F - seed_tab
 	defb	do_pend - $
 
+; ( N8 -( fail )- N8 )
+one_minus:equ	$ + 0x7F - seed_tab
+	defb	do_one_minus - $
+
 ; ( S8 -( fail ) -- S8 C8 )
 bite:	equ	$ + 0x7F - seed_tab
 	defb	do_bite - $
@@ -237,9 +241,7 @@ rain_l:	or	a
 
 ; ( -- N8 )
 do_zero:xor	a
-	ld	(de), a
-	inc	de
-	ret
+	jr	pushA
 
 ; ( N8 N8 -- N8 N8 )
 do_swap:ex	de, hl
@@ -293,18 +295,24 @@ suspend:push	hl		; placeholder
 	and	a
 	ret
 
-; ( S8 -( fail )- S8 C8 )
-do_bite:dec	de
+; ( N8 -( fail )- N8 )
+do_one_minus:
+	dec	de
 	ld	a, (de)
 	sub	a, 1
-	ld	(de), a
-	ex	de, hl
-	dec	hl
-	ld	b, (hl)
-	dec	hl
-	ex	de, hl
+	ret	c
+pushA:	ld	(de), a
+	inc	de
+	ret
+
+; ( S8 -( fail )- S8 C8 )
+do_bite:call	do_one_minus
+	dec	de
+	dec	de
 	ret	c
 	ex	de, hl
+	ld	b, (hl)
+	dec	hl
 	ld	c, (hl)
 	ld	a, (bc)
 	inc	bc
@@ -314,9 +322,7 @@ do_bite:dec	de
 	inc	hl
 	inc	hl
 	ex	de, hl
-	ld	(de), a
-	inc	de
-	ret
+	jr	pushA
 
 ; ( S8 -( fail pend )- S8 C8 )
 do_scan:rst	vm_rst
@@ -364,9 +370,7 @@ do_one_plus:
 	dec	de
 	ld	a, (de)
 	inc	a
-	ld	(de), a
-	inc	de
-	ret	nz
+	jr	nz, pushA
 
 ; ( -( fail )- )
 do_fail:scf
