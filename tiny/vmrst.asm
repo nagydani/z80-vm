@@ -1,3 +1,11 @@
+token_rst:
+	ex	(sp), hl
+	rst	vm_exec
+	ex	(sp), hl
+	ret
+
+	defs	token_rst + 8 - $, 0xFF
+
 vm_rst:	ex	(sp), hl
 do_vm:	rst	vm_exec
 do_ok:	jp	nc, do_vm	; faster than jr
@@ -31,3 +39,14 @@ cmp_rst:rst	pop_rst
 	ret
 
 	defs	cmp_rst + 8 - $, 0xFF
+
+effect_rst:
+	ld	l, a
+	ld	h, EFFECT / 0x100
+	ld	e, (hl)
+	inc	l
+	ld	d, (hl)
+	ex	de, hl
+	ret
+
+	defs	effect_rst + 8 - $, 0xFF

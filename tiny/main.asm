@@ -1,9 +1,9 @@
 	include	"startrst.asm"
 
-	include "seed.asm"
+	include "core.asm"
 
 ; Set up vocabulary
-start:	ld	bc, seed_tab
+start:	ld	bc, core_tab
 	exx
 	ld	de, EFFECT
 ; Effect initialization
@@ -12,8 +12,7 @@ effect_base:	equ	0x00
 	include	"io.asm"
 	defb	cpu
 ; Stack after effects
-	inc	d
-	ld	e, 0
+	ld	de, WORKSP
 
 	include	"repl.asm"
 

@@ -12,7 +12,7 @@ end_emit:	equ	$
 key:	equ	emit + 1
 	defb	litE
 	defb	  end_key - do_key
-; ( -( key fail eos )- C8 )
+; ( -( key fail )- C8 )
 do_key:
 	in	a, (0)
 	ld	(de), a

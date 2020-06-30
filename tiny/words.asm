@@ -1,5 +1,5 @@
-seed_words:
-	defb	seed_last - 0x80
+core_words:
+	defb	core_last
 	defb	"comp"
 	defb	fn
 	defb	"use"
@@ -12,7 +12,7 @@ seed_words:
 	defb	fn
 	defb	"call"
 	defb	fn
-	defb 	"or"
+	defb 	"|"
 	defb	fn
 	defb	"write"
 	defb	fn
@@ -47,9 +47,9 @@ seed_words:
 	defb	"'self"
 	defb	selfRef
 	defb	"\""
-	defb	quot
-	defb	"cpu"
-	defb	fn
+	defb	quote
+	defb	"~raw"
+	defb	raw
 	defb	"~self"
 	defb	selfRef
 	defb	"~"
@@ -58,3 +58,4 @@ seed_words:
 	defb	fn
 	defb	"ok"
 	defb	fn
+	defb	0x80

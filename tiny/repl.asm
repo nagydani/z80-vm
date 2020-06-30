@@ -1,16 +1,19 @@
 do_repl:rst	vm_rst
 
 	defb	use
-	defb	  end_repl_local - repl_local
-repl_local:	defw	seed_tab
-repl_voc:	defb	0x100 - seed_last
+		defw	core_tab
+repl_voc:	defb	0x100 - core_last
+		defb	repl_last - core_last
 
 ; ( S8 -( emit )- )
-writeln:	equ	$ - repl_voc + seed_last - 1
+writeln:	equ	$ - repl_voc + core_last - 2
 		defb	do_writeln - $
 ; ( -( key )- S8 )
-readln:		equ	$ - repl_voc + seed_last - 1
+readln:		equ	$ - repl_voc + core_last - 2
 		defb	do_readln - $
+
+repl_last:	equ	$ - repl_voc + core_last - 2
+		defb	end_repl_voc - $
 
 ; ---
 
@@ -40,12 +43,8 @@ end_readln:	defb	tick
 		defb	tail
 		defb	  or
 
-end_repl_local:	equ	$
+end_repl_voc:	equ	$
 
-	defb	litS8
-	defb	  end_seed_words - seed_words
-		include	"words.asm"
-end_seed_words:	equ	$
 	defb	litE
 	defb	  end_repl - repl
 repl:		rst	vm_rst
@@ -55,10 +54,17 @@ hello:		defm	  "Ok"
 end_hello:	defb	writeln
 
 		defb	readln
+		defb	litS8
+		defb	  end_core_words - core_words
+			include	"words.asm"
+end_core_words:	defb	drop
+		defb	drop
+		defb	drop
 		defb	writeln
 		defb	rain
+
 		defb	tailself
-		defb	  repl - $
+		defb	  0x100 + repl - $
 
 end_repl:
 	defb	litE

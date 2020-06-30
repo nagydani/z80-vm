@@ -2,57 +2,54 @@
 do_comp:rst	vm_rst
 	defb	use
 	defb	  end_comp_local - comp_local
-comp_local:	defw	seed_tab
-comp_voc:	defb	0x100 - seed_last
+comp_local:	defw	core_tab
+comp_voc:	defb	0x100 - core1_last
 
 comp_tab:	equ	$
 
 ; ---
 
-; ( C8 -( fail )- C8 )
-stroke:	equ	$ - comp_tab + seed_last
-	defb	do_stroke - $
-
-; ( -( key )- S8 )
-word:	equ	$ - comp_tab + seed_last
-	defb	do_word - $
+; ( -( key emit )- )
+quote:	equ	$ - comp_tab + core1_last
+	defb	do_quote - $
 
 ; ( -( key emit )- )
-quot:	equ	$ - comp_tab + seed_last
-	defb	do_quot - $
-
-; ( -( key emit )- )
-brace:	equ	$ - comp_tab + seed_last
+brace:	equ	$ - comp_tab + core1_last
 	defb	do_brace - $
 
 ; ( -( key emit )- )
-voc:	equ	$ - comp_tab + seed_last
+voc:	equ	$ - comp_tab + core1_last
 	defb	do_voc - $
 
 ; ( -( key emit )- )
-fn:	equ	$ - comp_tab + seed_last
+fn:	equ	$ - comp_tab + core1_last
 	defb	do_fn - $
 
 ; ( -( key emit )- )
-fnRef:	equ	$ - comp_tab + seed_last
+fnRef:	equ	$ - comp_tab + core1_last
 	defb	do_fnRef - $
 
 ; ( -( key emit )- )
-selfRef:equ	$ - comp_tab + seed_last
+selfRef:equ	$ - comp_tab + core1_last
 	defb	do_selfRef - $
 
+; ( -( key emit )- )
+raw:	equ	$ - comp_tab + core1_last
+	defb	do_raw - $
+
+; ( -( key )- S8 )
+word:	equ	$ - comp_tab + core1_last
+	defb	do_word - $
 
 ; ---
 
-; ( C8 -( fail )- C8 )
-do_stroke:
-	dec	de
-	ld	a, (de)
-	inc	de
-	cp	"!"
-	ret	nc
-	dec	de
-	ret
+do_quote:
+do_brace:
+do_voc:
+do_fn:
+do_fnRef:
+do_selfRef:
+do_raw:
 
 ; ( -( key )- S8 )
 do_word:rst	vm_rst
@@ -75,17 +72,19 @@ word_a:	defb	tick
 	defb	tail
 	defb	  or
 
-do_quot:
-do_brace:
-do_voc:
-do_fn:
-do_fnRef:
-do_selfRef:
-
-
 end_comp_local:	equ	$
 
-
+	defb	litE
+	defb	  end_parse - parse
+parse:		rst	vm_rst
+		defb	word
+		defb	pend
+		defb	  parse - $
+end_parse:
+	defb	tick
+	defb	  writeln
+	defb	tail
+	defb	  or
 
 ; ---
 
