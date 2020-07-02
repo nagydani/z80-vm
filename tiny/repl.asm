@@ -53,13 +53,18 @@ repl:		rst	vm_rst
 hello:		defm	  "Ok"
 end_hello:	defb	writeln
 
-		defb	readln
 		defb	litS8
 		defb	  end_core_words - core_words
 			include	"words.asm"
-end_core_words:	defb	drop
-		defb	drop
-		defb	drop
+end_core_words:	defb	litE
+		defb	  end_wordlist - wordlist
+wordlist:		rst	vm_rst
+			defb	words
+			defb	writeln
+			defb	fail
+end_wordlist:	defb	emptyE
+		defb	or
+		defb	readln
 		defb	writeln
 		defb	rain
 

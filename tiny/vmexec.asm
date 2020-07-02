@@ -1,3 +1,9 @@
+vm_token:
+	exx
+	push	hl
+	exx
+	ret
+
 vm_tick:ld	a, (hl)
 	inc	hl
 vm_tail:rlca

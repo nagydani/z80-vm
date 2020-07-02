@@ -4,7 +4,7 @@
 
 core_tab:
 	defb	$100 - ok		; - fist code
-	defb	core_last - ok		; number of codes
+	defb	core0_last - ok		; number of codes
 
 ; ( -- )
 ok:	equ	$ + 0x7E - core_tab
@@ -36,7 +36,7 @@ litS8:	equ	$ + 0x7E - core_tab
 
 ; ( -- E )
 tickself: equ	$ + 0x7E - core_tab
-	defb	do_tickself
+	defb	do_tickself - $
 
 ; ( -- E )
 tick:	equ	$ + 0x7E - core_tab
@@ -78,13 +78,17 @@ eq:	equ	$ + 0x7E - core_tab
 neq:	equ	$ + 0x7E - core_tab
 	defb	do_neq - $
 
-; ( -( pend )- )
-pend:	equ	$ + 0x7E - core_tab
-	defb	do_pend - $
+; ( ( a -( e )- b ) -( tail pend )- )
+tailpend:equ	$ + 0x7E - core_tab
+	defb	do_tailpend - $
 
 ; ( N8 -( fail )- N8 )
 one_minus:equ	$ + 0x7E - core_tab
 	defb	do_one_minus - $
+
+; ( N8 -( fail pend )- N8 )
+times:	equ	$ + 0x7E - core_tab
+	defb	do_times - $
 
 ; ( S8 -( fail ) -- S8 C8 )
 bite:	equ	$ + 0x7E - core_tab
@@ -94,6 +98,10 @@ bite:	equ	$ + 0x7E - core_tab
 scan:	equ	$ + 0x7E - core_tab
 	defb	do_scan - $
 
+; ( a ( a -( e )- b ) -( e )- b )
+call:	equ	$ + 0x7E - core_tab
+	defb	do_call - $
+
 ; ( S8 -( emit )- )
 write:	equ	$ + 0x7E - core_tab
 	defb	do_write - $
@@ -101,10 +109,6 @@ write:	equ	$ + 0x7E - core_tab
 ; ( a b ( b -( e )- c ) ( a -( f )- c ) -( e f )- c )
 or:	equ	$ + 0x7E - core_tab
 	defb	do_or - $
-
-; ( a ( a -( e )- b ) -( e )- b )
-call:	equ	$ + 0x7E - core_tab
-	defb	do_call - $
 
 ; ( V8 C8 -( fail )- V8 )
 append:	equ	$ + 0x7E - core_tab
@@ -118,7 +122,7 @@ one_plus:equ	$ + 0x7E - core_tab
 string:	equ	$ + 0x7E - core_tab
 	defb	do_string - $
 
-core_last: equ	$ + 0x7E - core_tab
+core0_last: equ	$ + 0x7E - core_tab
 	defb	core1 - $
 
 ; ---
@@ -214,7 +218,8 @@ do_tryTo:
 	ret
 
 ; ( -- E )
-do_litE:call	do_litS8
+do_litE:rst	token_rst
+	defb	  litS8
 
 ; ( N8 -- )
 do_drop:dec	de
@@ -270,8 +275,9 @@ do_neq:	rst	cmp_rst
 	and	a
 	ret
 
-; ( -( pend )- )
-do_pend:call	backBC		; BC = handler
+; ( ( a -( e )- b ) -( tail pend )- )
+do_tailpend:
+	rst	pop_rst
 	pop	af		; do_ok
 	pop	hl		; backtrack
 	push	bc		; handler
@@ -295,8 +301,17 @@ pushA:	ld	(de), a
 	inc	de
 	ret
 
+; ( N8 -( fail pend )- N8 )
+do_times:
+	rst	vm_rst
+	defb	one_minus
+	defb	tickself
+	defb	  do_times - $
+	defb	tailpend
+
 ; ( S8 -( fail )- S8 C8 )
-do_bite:call	do_one_minus
+do_bite:rst	token_rst
+	defb	  one_minus
 	dec	de
 	dec	de
 	ret	c
@@ -317,8 +332,14 @@ do_bite:call	do_one_minus
 ; ( S8 -( fail pend )- S8 C8 )
 do_scan:rst	vm_rst
 	defb	bite
-	defb	pend
+	defb	tickself
 	defb	  do_scan - $
+	defb	tailpend
+
+; ( a ( a -( e )- b ) -( e )- b )
+do_call:rst	pop_rst
+	push	bc
+	ret
 
 ; ( S8 -( emit )- )
 do_write:
@@ -342,11 +363,6 @@ do_or:	rst	pop_rst
 	ret	nc
 	pop	bc		; discard other function
 	ccf
-	ret
-
-; ( a ( a -( e )- b ) -( e )- b )
-do_call:rst	pop_rst
-	push	bc
 	ret
 
 ; ( V8 C8 -( fail )- V8 )
@@ -390,62 +406,68 @@ do_string:
 	pop	de
 	ret
 
-core1:	defb	core1_last - core_last		; number of codes
+core1:	defb	core1_last - core0_last		; number of codes
 
 ; ( -( dict )- )
-use:	equ	$ - core1 + core_last - 1
+use:	equ	$ - core1 + core0_last - 1
 	defb	do_use - $
 
 ; ( -( monad )- )
-locals:	equ	$ - core1 + core_last - 1
+locals:	equ	$ - core1 + core0_last - 1
 	defb	do_locals - $
 
+; ( -( pour )- )
+pour:	equ	$ - core1 + core0_last - 1
+	defb	do_pour - $
+
 ; ( -( var )- N8 )
-varN8:	equ	$ - core1 + core_last - 1
+varN8:	equ	$ - core1 + core0_last - 1
 	defb	do_varN8 - $
 
 ; ( -( var )- E )
-varE:	equ	$ - core1 + core_last - 1
+varE:	equ	$ - core1 + core0_last - 1
 	defb	do_varE - $
 
 ; ( -( var )- S8 )
-varS8:	equ	$ - core1 + core_last - 1
+varS8:	equ	$ - core1 + core0_last - 1
 	defb	do_varS8 - $
 
 ; ( N8 -( let )- )
-letN8:	equ	$ - core1 + core_last - 1
-	defb	do_varN8 - $
+letN8:	equ	$ - core1 + core0_last - 1
+	defb	do_letN8 - $
 
 ; ( E -( let )- )
-letE:	equ	$ - core1 + core_last - 1
-	defb	do_varE - $
+letE:	equ	$ - core1 + core0_last - 1
+	defb	do_letE - $
 
 ; ( S8 -( let )- )
-letS8:	equ	$ - core1 + core_last - 1
-	defb	do_varS8 - $
+letS8:	equ	$ - core1 + core0_last - 1
+	defb	do_letS8 - $
 
 ; ( a ( a -( e )- b ) -( e monad )- b )
-tryWith:equ	$ - core1 + core_last - 1
+tryWith:equ	$ - core1 + core0_last - 1
 	defb	do_tryWith - $
 
 ; ( N8 -( fail )- N8 )
-stroke:	equ	$ - core1 + core_last - 1
+stroke:	equ	$ - core1 + core0_last - 1
 	defb	do_stroke - $
 
-; ( S8 -( pend )- S8 )
-words:	equ	$ - core1 + core_last - 1
+; ( S8 -( tail pend )- S8 )
+words:	equ	$ - core1 + core0_last - 1
 		defb	do_words - $
 
 ; ( 
-comp:	equ	$ - core1 + core_last - 1
+comp:	equ	$ - core1 + core0_last - 1
 	defb	do_comp - $
 
 ; ( 
-see:	equ	$ - core1 + core_last - 1
+see:	equ	$ - core1 + core0_last - 1
 	defb	do_see - $
 
-core1_last:equ	$ - core1 + core_last - 1
+core1_last:equ	$ - core1 + core0_last - 1
 	defb	core2 - $
+
+core_last:equ	core1_last
 
 ; ---
 
@@ -482,16 +504,24 @@ do_locals:	pop	bc	; return address
 		pop	ix
 		ret
 
+; ( -( pour )- )
+do_pour:	push	ix
+		pop	de
+		ret
+
 ; ( -( var )- N8 )
 do_varN8:	call	get_local
 		jr	var_next1
 
 ; ( -( var )- E )
-do_varE:	call	do_varN8
+do_varE:	rst	token_rst
+		defb	  varN8
 		jr	var_next2
 
+
 ; ( -( var )- S8 )
-do_varS8:	call	do_varE
+do_varS8:	rst	token_rst
+		defb	  varE
 var_next2:	exx
 		inc	hl
 var_next1:	ld	a, (hl)
@@ -502,21 +532,29 @@ var_next1:	ld	a, (hl)
 
 ; ( N8 -( let )- )
 do_letN8:	call	get_local
-		jr	let_next1
-
-; ( S8 -( let )- )
-do_letE:	call	do_letN8
-		jr	let_next1
-
-do_letS8:	call	do_letE
 let_next1:	exx
 		dec	de
 		ld	a, (de)
 		exx
 		ld	(hl), a
-		inc	hl
 		exx
 		ret
+
+; ( E -( let )- )
+do_letE:	call	get_local
+let_next2:	inc	hl
+		call	let_next1
+		exx
+		dec	hl
+		jr	let_next1
+
+; ( S8 -( let )- )
+do_letS8:	call	get_local
+		inc	hl
+		call	let_next2
+		exx
+		dec	hl
+		jr	let_next1
 
 ; ( a ( a -( e )- b ) -( e monad )- b )
 do_tryWith:	push	ix
@@ -537,25 +575,46 @@ do_stroke:	dec	de
 		ld	a, (de)
 		cp	"!"
 		ret	c
+		add	a, a
+		ret	c
 		inc	de
 		ret
 
+; ( S8 -( pend )- S8 )
 do_words:	rst	vm_rst
-		defb	locals
 		defb	bite
-words_l:	defb	one_minus
-		defb	pend
-		defb	  words_l - $
+		defb	locals
+		defb	times
 		defb	varS8
-		defb	  -3
+		defb	  -4
+		defb	zero
+		defb	letN8
+		defb	  +2
+		defb	varS8
+		defb	  -4
 		defb	litE
 		defb	  words_n_e - words_n
 words_n:		rst	vm_rst
 			defb	bite
 			defb	stroke
+			defb	drop
+			defb	varN8
+			defb	  +2
+			defb	one_plus
+			defb	letN8
+			defb	  +2
 			defb	tailself
 			defb	  words_n - $
-words_n_e:	
+words_n_e:	defb	litE
+		defb	  words_a_e - words_a
+words_a:		rst	vm_rst
+			defb	letS8
+			defb	  -4
+			defb	cpu
+			ret
+words_a_e:	defb	or
+		DEFB	cpu
+		HALT
 
 	include	"decompiler.asm"
 	include	"compiler.asm"
@@ -573,6 +632,7 @@ get_local:
 	sbc	a, a
 	ld	h, a
 	add	hl, de
+	and	a		; clear CF
 	ret
 
 backBC:	ld	a, (hl)

@@ -62,8 +62,9 @@ word_r:		rst	vm_rst
 word_s:			rst	vm_rst
 			defb	key
 			defb	stroke
-			defb	pend
+			defb	tickself
 			defb	  word_s - $
+			defb	tailpend
 word_e:		defb	call
 		defb	append
 		defb	fail
@@ -78,8 +79,9 @@ end_comp_local:	equ	$
 	defb	  end_parse - parse
 parse:		rst	vm_rst
 		defb	word
-		defb	pend
+		defb	tickself
 		defb	  parse - $
+		defb	tailpend
 end_parse:
 	defb	tick
 	defb	  writeln

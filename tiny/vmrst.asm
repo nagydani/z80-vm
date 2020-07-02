@@ -1,8 +1,9 @@
 token_rst:
 	ex	(sp), hl
-	rst	vm_exec
+	call	vm_tick
+	exx
 	ex	(sp), hl
-	ret
+	jr	vm_token
 
 	defs	token_rst + 8 - $, 0xFF
 
