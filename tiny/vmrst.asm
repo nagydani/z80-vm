@@ -16,7 +16,7 @@ do_ok:	jp	nc, do_vm	; faster than jr
 	defs	vm_rst + 8 - $, 0xFF
 
 vm_exec:call	vm_tick
-	push	hl
+jphlp:	push	hl
 	exx
 	ret
 

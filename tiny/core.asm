@@ -128,18 +128,14 @@ core0_last: equ	$ + 0x7E - core_tab
 ; ---
 
 ; ( -( tail )- )
-do_tail:ld	a, (hl)
-	pop	bc		; BC = return address
-	pop	hl		; threading
-	push	bc		; restack return address
-	call	vm_tail
-jphlp:	push	hl
-	exx
-	ret
+do_tail:pop	bc		; discard return addrerss
+	rst	vm_exec
+	pop	hl
+	jp	do_ok
 
 ; ( -( tail )- )
 do_tailself:
-	pop	bc		; discard do_ok
+	pop	bc		; discard return address
 	call	backBC
 	pop	hl		; restore threading
 jpbc:	push	bc
