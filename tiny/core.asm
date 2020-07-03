@@ -276,20 +276,29 @@ do_tailpend:
 	pop	af		; return address
 	pop	hl		; threading address
 	push	bc		; generator
-
-resuspend:
 	call	suspend
 	ccf			; clear failed state
 	ret	nc		; repeat generator on failure
+
+; resuspend after success
 	pop	bc		; BC = generator
 	pop	af		; AF = return address
-	pop	hl		; HL = threading address
+	exx
+	pop	hl
 	push	hl
 	push	af
+	push	hl
+	exx
+	ex	(sp), hl	; HL = threading address vs backtrack
+	push	bc		; stack generator
+	call	resuspend
+	pop	bc		; BC = generator
+	pop	hl		; HL = threading
 	push	bc
-	jr	resuspend
+	ret
 
-suspend:push	hl		; placeholder
+suspend:push	hl		; threading
+resuspend:
 	push	af		; return address
 	and	a
 	ret
