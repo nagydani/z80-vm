@@ -129,10 +129,9 @@ core0_last: equ	$ + 0x7E - core_tab
 
 ; ( -( tail )- )
 do_tail:ld	a, (hl)
-	pop	bc		; discard do_ok
-	pop	hl
-	ld	bc, do_ok
-	push	bc
+	pop	bc		; BC = return address
+	pop	hl		; threading
+	push	bc		; restack return address
 	call	vm_tail
 jphlp:	push	hl
 	exx
@@ -278,16 +277,24 @@ do_neq:	rst	cmp_rst
 ; ( ( a -( e )- b ) -( tail pend )- )
 do_tailpend:
 	rst	pop_rst
-	pop	af		; do_ok
-	pop	hl		; backtrack
-	push	bc		; handler
+	pop	af		; return address
+	pop	hl		; threading address
+	push	bc		; generator
 
+resuspend:
 	call	suspend
-	and	a		; clear failed state
-	ret
+	ccf			; clear failed state
+	ret	nc		; repeat generator on failure
+	pop	bc		; BC = generator
+	pop	af		; AF = return address
+	pop	hl		; HL = threading address
+	push	hl
+	push	af
+	push	bc
+	jr	resuspend
 
 suspend:push	hl		; placeholder
-	push	af		; do_ok
+	push	af		; return address
 	and	a
 	ret
 
@@ -496,13 +503,24 @@ disuse:	exx
 
 
 ; ( -( monad )- )
-do_locals:	pop	bc	; return address
-		push	ix
-		push	de	; stack pointer
-		pop	ix
-		call	jpbc
-		pop	ix
-		ret
+do_locals:
+	pop	af	; return address
+	pop	bc	; backtrack address
+	push	bc
+	push	ix
+	push	de	; stack pointer
+	pop	ix
+	call	a_locals
+
+	pop	ix
+	pop	hl
+	ret
+
+a_locals:
+	push	bc	; backtrack
+	push	af
+	and	a
+	ret
 
 ; ( -( pour )- )
 do_pour:	push	ix
@@ -613,8 +631,8 @@ words_a:		rst	vm_rst
 			defb	cpu
 			ret
 words_a_e:	defb	or
-		DEFB	cpu
-		HALT
+		defb	cpu
+		ret
 
 	include	"decompiler.asm"
 	include	"compiler.asm"
