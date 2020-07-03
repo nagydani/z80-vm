@@ -1,6 +1,30 @@
 core_words:
 	defb	core_last
+	defb	"see"
+	defb	fn
 	defb	"comp"
+	defb	fn
+	defb	"words"
+	defb	fn
+	defb	"stroke"
+	defb	fn
+	defb	"tryWith"
+	defb	fnRef
+	defb	"strLet"
+	defb	varRef
+	defb	"fnLet"
+	defb	varRef
+	defb	"let"
+	defb	varRef
+	defb	"$"
+	defb	varRef
+	defb	"fn"
+	defb	varRef
+	defb	"@"
+	defb	varRef
+	defb	"pour"
+	defb	fn
+	defb	"locals"
 	defb	fn
 	defb	"use"
 	defb	voc
@@ -10,19 +34,21 @@ core_words:
 	defb	fn
 	defb	","
 	defb	fn
-	defb	"call"
-	defb	fn
 	defb 	"|"
 	defb	fn
 	defb	"write"
 	defb	fn
-	defb	"scan"
+	defb	"call"
+	defb	fn
+	defb	"scan:"
 	defb	fn
 	defb	"bite"
 	defb	fn
+	defb	"times:"
+	defb	fn
 	defb	"1-"
 	defb	fn
-	defb	"pend"
+	defb	"~:"
 	defb	selfRef
 	defb	"=!"
 	defb	fn

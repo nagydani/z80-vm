@@ -33,6 +33,9 @@ fnRef:	equ	$ - comp_tab + core1_last
 selfRef:equ	$ - comp_tab + core1_last
 	defb	do_selfRef - $
 
+varRef:	equ	$ - comp_tab + core1_last
+	defb	do_varRef - $
+
 ; ( -( key emit )- )
 raw:	equ	$ - comp_tab + core1_last
 	defb	do_raw - $
@@ -49,6 +52,7 @@ do_voc:
 do_fn:
 do_fnRef:
 do_selfRef:
+do_varRef:
 do_raw:
 
 ; ( -( key )- S8 )

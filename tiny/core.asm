@@ -618,8 +618,15 @@ do_words:	rst	vm_rst
 		defb	litE
 		defb	  words_n_e - words_n
 words_n:		rst	vm_rst
-			defb	bite
-			defb	stroke
+			defb	tick
+			defb	  bite
+			defb	litE
+			defb	  words_nomore_e - words_nomore
+words_nomore:			defb	zero
+				defb	letN8
+				defb	  -1
+				defb	fail
+words_nomore_e:		defb	stroke
 			defb	drop
 			defb	varN8
 			defb	  +2

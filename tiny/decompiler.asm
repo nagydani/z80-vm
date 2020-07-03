@@ -33,6 +33,9 @@ see_tab:	equ	$
 ; selfRef:equ	$ - see_tab + core_last
 	defb	do_see_selfRef - $
 
+; varRef:equ	$ - see_tab + core_last
+	defb	do_see_varRef - $
+
 ; ( -( key emit )- )
 ; raw:	equ	$ - see_tab + core_last
 	defb	do_see_raw - $
@@ -45,6 +48,7 @@ do_see_voc:
 do_see_fn:
 do_see_fnRef:
 do_see_selfRef:
+do_see_varRef:
 do_see_raw:
 
 ; ---
