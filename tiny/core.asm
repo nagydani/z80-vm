@@ -603,46 +603,47 @@ do_stroke:	dec	de
 		inc	de
 		ret
 
-; ( S8 -( pend )- S8 )
+; ( S8 N8 -( pend )- S8 )
 do_words:	rst	vm_rst
 		defb	bite
 		defb	locals
-		defb	times
-		defb	varS8
-		defb	  -4
-		defb	zero
-		defb	letN8
-		defb	  +2
-		defb	varS8
-		defb	  -4
 		defb	litE
-		defb	  words_n_e - words_n
-words_n:		rst	vm_rst
-			defb	tick
-			defb	  bite
-			defb	litE
-			defb	  words_nomore_e - words_nomore
-words_nomore:			defb	zero
-				defb	letN8
-				defb	  -1
-				defb	fail
-words_nomore_e:		defb	stroke
-			defb	drop
-			defb	varN8
-			defb	  +2
-			defb	one_plus
+		defb	  words_g_e - words_g
+words_g:		rst	vm_rst
+			defb	one_minus
+			defb	varS8
+			defb	  -4
+			defb	zero
 			defb	letN8
 			defb	  +2
-			defb	tailself
-			defb	  words_n - $
-words_n_e:	defb	litE
-		defb	  words_a_e - words_a
-words_a:		rst	vm_rst
-			defb	letS8
+			defb	varS8
 			defb	  -4
-			defb	cpu
-			ret
-words_a_e:	defb	or
+			defb	bite
+			defb	litE
+			defb	  words_n_e - words_n
+words_n:			rst	vm_rst
+				defb	stroke
+				defb	drop
+				defb	varN8
+				defb	  +2
+				defb	one_plus
+				defb	letN8
+				defb	  +2
+				defb	bite
+				defb	tailself
+				defb	  words_n - $
+words_n_e:		defb	litE
+			defb	  words_a_e - words_a
+words_a:			rst	vm_rst
+				defb	letS8
+				defb	  -4
+				defb	cpu
+				ret
+words_a_e:		defb	or
+			defb	tickself
+			defb	  words_g - $
+			defb	tailpend
+words_g_e:	defb	call
 		defb	cpu
 		ret
 
