@@ -128,10 +128,13 @@ core0_last: equ	$ + 0x7E - core_tab
 ; ---
 
 ; ( -( tail )- )
-do_tail:pop	bc		; discard return addrerss
-	rst	vm_exec
+do_tail:pop	bc		; discard return address
+	ld	a, (hl)
 	pop	hl
-	jp	do_ok
+	call	vm_tail
+	push	hl
+	exx
+	ret
 
 ; ( -( tail )- )
 do_tailself:
@@ -643,9 +646,8 @@ words_a_e:		defb	or
 			defb	tickself
 			defb	  words_g - $
 			defb	tailpend
-words_g_e:	defb	call
-		defb	cpu
-		ret
+words_g_e:	defb	tail
+		defb	  call
 
 	include	"decompiler.asm"
 	include	"compiler.asm"
