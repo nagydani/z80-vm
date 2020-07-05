@@ -68,6 +68,14 @@ swap:	equ	($ - core_tab - 1) / 2
 emptyE:	equ	($ - core_tab - 1) / 2
 	defw	do_emptyE
 
+; ( V8 C8 -( fail )- V8 )
+append:	equ	($ - core_tab - 1) / 2
+	defw	do_append
+
+; ( N8 -( fail )- N8 )
+one_plus:equ	($ - core_tab - 1) / 2
+	defw	do_one_plus
+
 ; ( N8 -( fail )- maybe N8 )
 one_minus:equ	($ - core_tab - 1) / 2
 	defw	do_one_minus
@@ -92,6 +100,10 @@ times:	equ	($ - core_tab - 1) / 2
 bite:	equ	($ - core_tab - 1) / 2
 	defw	do_bite
 
+; ( S8 -( fail ) -- maybe S8 N8 )
+chop:	equ	($ - core_tab - 1) / 2
+	defw	do_chop
+
 ; ( S8 -( fail pend ) -- maybe S8 N8 )
 scan:	equ	($ - core_tab - 1) / 2
 	defw	do_scan
@@ -107,14 +119,6 @@ write:	equ	($ - core_tab - 1) / 2
 ; ( a b ( b -( e )- c maybe d ) ( a c -( f )- c d ) -( e f )- c d )
 or:	equ	($ - core_tab - 1) / 2
 	defw	do_or
-
-; ( V8 C8 -( fail )- V8 )
-append:	equ	($ - core_tab - 1) / 2
-	defw	do_append
-
-; ( N8 -( fail )- N8 )
-one_plus:equ	($ - core_tab - 1) / 2
-	defw	do_one_plus
 
 ; ( V8 -- V8 S8 )
 string:	equ	($ - core_tab - 1) / 2
@@ -323,6 +327,20 @@ N8fail0:cp	(hl)
 	and	a
 	jr	pushA
 
+; ( V8 C8 -( failOver )- V8 |maybe V8+ )
+do_append:
+	rst	vm_rst
+	defb	swap
+	defb	cpu
+
+; ( N8 -( failOver )- N8 |maybe N8+ )
+do_one_plus:
+	dec	de
+	ld	a, (de)
+	inc	a
+	jr	nz, N8ok
+	jr	N8fail0
+
 ; ( N8 -( failOver )- N8 |maybe N8- )
 do_one_minus:
 	dec	de
@@ -396,7 +414,6 @@ do_bite:rst	vm_rst
 	defb	cpu
 	dec	de
 	dec	de
-	ret	c
 	ex	de, hl
 	ld	b, (hl)
 	dec	hl
@@ -409,6 +426,27 @@ do_bite:rst	vm_rst
 	inc	hl
 	inc	hl
 	ex	de, hl
+	jr	pushA
+
+; ( S8 -( fail )- maybe S8 N8 )
+do_chop:rst	vm_rst
+	defb	one_minus
+	defb	  f_bite - $
+	defb	cpu
+	dec	de
+	dec	de
+	ex	de, hl
+	ld	b, (hl)
+	dec	hl
+	add	a, (hl)
+	ld	c, a
+	jr	nc, chop_nc
+	inc	b
+chop_nc:inc	hl
+	ex	de, hl
+	inc	de
+	inc	de
+	ld	a, (bc)
 	jr	pushA
 
 f_bite:	defb	drop
@@ -451,21 +489,6 @@ do_or:	rst	pop_rst
 	pop	bc		; discard other function
 	ccf
 	ret
-
-; ( V8 C8 -( failOver )- V8 |maybe V8+ )
-do_append:
-	rst	vm_rst
-	defb	swap
-	defb	cpu
-
-; ( N8 -( failOver )- N8 |maybe N8+ )
-do_one_plus:
-	dec	de
-	ld	a, (de)
-	inc	a
-	jr	nz, N8ok
-	jr	N8fail0
-
 
 ; ( V8 -- V8 S8 )
 do_string:
@@ -514,19 +537,37 @@ disuse:	exx
 ; ( -( monad )- )
 do_locals:
 	pop	af	; return address
+	ex	af, af'
+	ld	a, (hl)
+	inc	hl
 	pop	bc	; backtrack address
 	push	bc
 	push	ix
 	push	de	; stack pointer
+	push	de
 	pop	ix
+	push	af
 	call	a_locals
 
+	jr	c, f_locals
+	pop	bc
+	pop	bc
+	jr	ok_locals
+f_locals:
+	pop	af
+	ld	l, a
+	ld	h, 0xFF
+	pop	de
+	add	hl, de
+	ex	de, hl
+ok_locals:
 	pop	ix
 	pop	hl
 	ret
 
 a_locals:
 	push	bc	; backtrack
+	ex	af, af'
 	push	af
 	and	a
 	ret
@@ -603,10 +644,11 @@ do_stroke:	dec	de
 		inc	de
 		ret
 
-; ( S8 N8 -( pend )- maybe S8 )
+; ( S8 N8 -( pend )- maybe S8 N8 )
 do_words:	rst	vm_rst
 		defb	bite
 		defb	locals
+		defb	  -4
 		defb	litE
 		defb	  words_g_e - words_g
 words_g:		rst	vm_rst
@@ -639,8 +681,10 @@ words_n_e:		defb	litE
 words_a:			rst	vm_rst
 				defb	letS8
 				defb	  -4
-				defb	cpu
-				ret
+				defb	one_plus
+				defb	  0
+				defb	tail
+				defb	  chop
 words_a_e:		defb	or
 			defb	tickself
 			defb	  words_g - $
@@ -648,8 +692,8 @@ words_a_e:		defb	or
 words_g_e:	defb	tail
 		defb	  call
 
-	include	"decompiler.asm"
 	include	"compiler.asm"
+	include	"decompiler.asm"
 
 ; ---
 

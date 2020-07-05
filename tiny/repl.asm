@@ -30,11 +30,12 @@ do_readln:	rst	vm_rst
 		defb	litE
 		defb	  end_readln - start_readln
 start_readln:		rst	vm_rst
+			defb	key
 			defb	litN8
 			defb	  0x0A
-			defb	key
 			defb	neq
 			defb	append
+			defb	  0
 			defb	tailself
 			defb	  start_readln - $
 end_readln:	defb	tick
@@ -59,6 +60,7 @@ end_core_words:	defb	litE
 		defb	  end_wordlist - wordlist
 wordlist:		rst	vm_rst
 			defb	words
+			defb	drop
 			defb	writeln
 			defb	fail
 end_wordlist:	defb	emptyE

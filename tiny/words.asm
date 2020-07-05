@@ -25,14 +25,10 @@ core_words:
 	defb	"pour"
 	defb	fn
 	defb	"locals"
-	defb	fn
+	defb	varRef
 	defb	"use"
 	defb	voc
 	defb	"toStr"
-	defb	fn
-	defb	"1+"
-	defb	fn
-	defb	","
 	defb	fn
 	defb 	"|"
 	defb	fn
@@ -42,17 +38,23 @@ core_words:
 	defb	fn
 	defb	"scan:"
 	defb	fn
+	defb	"chop"
+	defb	fn
 	defb	"bite"
 	defb	fn
 	defb	"times:"
-	defb	fn
-	defb	"1-"
 	defb	fn
 	defb	"~:"
 	defb	selfRef
 	defb	"=!"
 	defb	fn
 	defb	"="
+	defb	fn
+	defb	"1-"
+	defb	failOver
+	defb	"1+"
+	defb	failOver
+	defb	","
 	defb	fn
 	defb	"{}"
 	defb	fn
@@ -80,8 +82,7 @@ core_words:
 	defb	selfRef
 	defb	"~"
 	defb	fnRef
-	defb	"fail"
-	defb	fn
 	defb	"ok"
 	defb	fn
-	defb	0x80
+	defb	"fail"
+	defb	fn

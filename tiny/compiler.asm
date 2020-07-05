@@ -2,46 +2,48 @@
 do_comp:rst	vm_rst
 	defb	use
 	defb	  end_comp_voc - comp_voc
-		defw	EFFECT
+		defw	io_tab
 comp_voc:	defb	io_last
-
-comp_tab:	equ	$
 
 ; ---
 
 ; ( -( key emit )- )
-quote:	equ	$ - comp_tab + io_last
+quote:	equ	($ - comp_voc - 1) / 2
 	defw	do_quote
 
 ; ( -( key emit )- )
-brace:	equ	$ - comp_tab + io_last
+brace:	equ	($ - comp_voc - 1) / 2
 	defw	do_brace
 
 ; ( -( key emit )- )
-voc:	equ	$ - comp_tab + io_last
+voc:	equ	($ - comp_voc - 1) / 2
 	defw	do_voc
 
 ; ( -( key emit )- )
-fn:	equ	$ - comp_tab + io_last
+fn:	equ	($ - comp_voc - 1) / 2
 	defw	do_fn
 
 ; ( -( key emit )- )
-fnRef:	equ	$ - comp_tab + io_last
+failOver:equ	($ - comp_voc - 1) / 2
+	defw	do_failOver
+
+; ( -( key emit )- )
+fnRef:	equ	($ - comp_voc - 1) / 2
 	defw	do_fnRef
 
 ; ( -( key emit )- )
-selfRef:equ	$ - comp_tab + io_last
+selfRef:equ	($ - comp_voc - 1) / 2
 	defw	do_selfRef
 
-varRef:	equ	$ - comp_tab + io_last
+varRef:	equ	($ - comp_voc - 1) / 2
 	defw	do_varRef
 
 ; ( -( key emit )- )
-raw:	equ	$ - comp_tab + io_last
+raw:	equ	($ - comp_voc - 1) / 2
 	defw	do_raw
 
 ; ( -( key )- S8 )
-word:	equ	$ - comp_tab + io_last
+word:	equ	($ - comp_voc - 1) / 2
 	defw	do_word
 
 ; ---
@@ -50,6 +52,7 @@ do_quote:
 do_brace:
 do_voc:
 do_fn:
+do_failOver:
 do_fnRef:
 do_selfRef:
 do_varRef:
