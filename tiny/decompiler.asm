@@ -2,43 +2,46 @@
 do_see:	rst	vm_rst
 	defb	use
 	defb	  end_see_local - see_local
-see_local:	defw	core_tab
+see_local:	defw	io_tab
 see_voc:	defb	0x100 - io_last
-
-see_tab:	equ	$
 
 ; ---
 
-; ( -( key emit )- )
-; quote:	equ	$ - see_tab + io_last
-	defb	do_see_quote - $
+; ( -( emit )- )
+; quote
+	defw	do_see_quote
 
-; ( -( key emit )- )
-; brace:	equ	$ - see_tab + io_last
-	defb	do_see_brace - $
+; ( -( emit )- )
+; brace
+	defw	do_see_brace
 
-; ( -( key emit )- )
-; voc:	equ	$ - see_tab + io_last
-	defb	do_see_voc - $
+; ( -( emit )- )
+; voc
+	defw	do_see_voc
 
-; ( -( key emit )- )
-; fn:	equ	$ - see_tab + io_last
-	defb	do_see_fn - $
+; ( -( emit )- )
+; fn
+	defw	do_see_fn
 
-; ( -( key emit )- )
-; fnRef:	equ	$ - see_tab + io_last
-	defb	do_see_fnRef - $
+; ( -( emit )- )
+; failOver
+	defw	do_see_failOver
 
-; ( -( key emit )- )
-; selfRef:equ	$ - see_tab + io_last
-	defb	do_see_selfRef - $
+; ( -( emit )- )
+; fnRef
+	defw	do_see_fnRef
 
-; varRef:equ	$ - see_tab + io_last
-	defb	do_see_varRef - $
+; ( -( emit )- )
+; selfRef
+	defw	do_see_selfRef
 
-; ( -( key emit )- )
-; raw:	equ	$ - see_tab + io_last
-	defb	do_see_raw - $
+; ( -( emit )- )
+; varRef
+	defw	do_see_varRef
+
+; ( -( emit )- )
+; raw
+	defw	do_see_raw
 
 ; ---
 
@@ -46,6 +49,7 @@ do_see_quote:
 do_see_brace:
 do_see_voc:
 do_see_fn:
+do_see_failOver:
 do_see_fnRef:
 do_see_selfRef:
 do_see_varRef:
@@ -54,3 +58,25 @@ do_see_raw:
 ; ---
 
 end_see_local:	equ	$
+
+	defb	locals
+	defb	  -5
+	defb	litE
+	defb	  end_see_scan - see_scan
+see_scan:	defb	litN8
+		defb	  1
+		defb	bite
+		defb	varS8
+		defb	  -5
+		defb	words
+		defb	varN8
+		defb	  +5
+		defb	varN8
+		defb	  +2
+		defb	eq
+		defb	drop		; code
+		defb	drop		; word type
+		defb	writeln
+		defb	fail
+end_see_scan:	equ	$
+	

@@ -6,6 +6,10 @@ core_words:
 	defb	fn
 	defb	"words"
 	defb	fn
+	defb	"readln"
+	defb	fn
+	defb	"writeln"
+	defb	fn
 	defb	"stroke"
 	defb	fn
 	defb	"tryWith"

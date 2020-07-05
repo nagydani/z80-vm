@@ -168,6 +168,14 @@ tryWith:equ	($ - core_tab - 1) / 2
 stroke:	equ	($ - core_tab - 1) / 2
 	defw	do_stroke
 
+; ( S8 -( emit )- )
+writeln:equ	($ - core_tab - 1) / 2
+	defw	do_writeln
+
+; ( -( key )- S8 )
+readln:	equ	($ - core_tab - 1) / 2
+	defw	do_readln
+
 ; ( S8 -( tail pend )- maybe S8 )
 words:	equ	($ - core_tab - 1) / 2
 	defw	do_words
@@ -643,6 +651,34 @@ do_stroke:	dec	de
 		ret	c
 		inc	de
 		ret
+
+
+; ( S8 -( emit )- )
+do_writeln:	rst	vm_rst
+		defb	write
+		defb	litN8
+		defb	  0x0A
+		defb	tail
+		defb	  emit
+
+; ( -( key )- S8 )
+do_readln:	rst	vm_rst
+		defb	zero
+		defb	litE
+		defb	  end_readln - start_readln
+start_readln:		rst	vm_rst
+			defb	key
+			defb	litN8
+			defb	  0x0A
+			defb	neq
+			defb	append
+			defb	  0
+			defb	tailself
+			defb	  start_readln - $
+end_readln:	defb	tick
+		defb	  string
+		defb	tail
+		defb	  or
 
 ; ( S8 N8 -( pend )- maybe S8 N8 )
 do_words:	rst	vm_rst
