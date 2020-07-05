@@ -1,3 +1,2 @@
 EFFECT:	equ	$
-WORKSP:	equ	EFFECT + 0x100
-
+io_tab: equ	EFFECT + 2

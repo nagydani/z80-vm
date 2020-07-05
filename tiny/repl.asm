@@ -1,19 +1,18 @@
 do_repl:rst	vm_rst
 
 	defb	use
-		defw	core_tab
-repl_voc:	defb	0x100 - core_last
-		defb	repl_last - core_last
+		defb	end_repl_voc - repl_voc
+		defw	io_tab
+repl_voc:	defb	io_last
 
 ; ( S8 -( emit )- )
-writeln:	equ	$ - repl_voc + core_last - 2
-		defb	do_writeln - $
+writeln:	equ	io_last
+		defw	do_writeln
 ; ( -( key )- S8 )
-readln:		equ	$ - repl_voc + core_last - 2
-		defb	do_readln - $
+readln:		equ	writeln + 1
+		defw	do_readln
 
-repl_last:	equ	$ - repl_voc + core_last - 2
-		defb	end_repl_voc - $
+repl_last:	equ	readln + 1
 
 ; ---
 

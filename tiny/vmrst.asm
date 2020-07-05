@@ -16,7 +16,7 @@ do_ok:	jp	nc, do_vm	; faster than jr
 	defs	vm_rst + 8 - $, 0xFF
 
 vm_exec:call	vm_tick
-jphlp:	push	hl
+jpdep:	push	de
 	exx
 	ret
 
@@ -32,22 +32,14 @@ pop_rst:ex	de, hl
 
 	defs	pop_rst + 8 - $, 0xFF
 
-cmp_rst:rst	pop_rst
-	ld	a, b
-	ld	(de), a
-	inc	de
-	cp	c
+cmp_rst:ex	de, hl
+	dec	hl
+	ld	a, (hl)
+	dec	hl
+	cp	(hl)
+	inc	hl
+	ex	de, hl
 	ret
 
 	defs	cmp_rst + 8 - $, 0xFF
 
-effect_rst:
-	ld	l, a
-	ld	h, EFFECT / 0x100
-	ld	e, (hl)
-	inc	l
-	ld	d, (hl)
-	ex	de, hl
-	ret
-
-	defs	effect_rst + 8 - $, 0xFF

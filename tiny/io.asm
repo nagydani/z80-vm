@@ -1,4 +1,4 @@
-emit:	equ	effect_base
+emit:	equ	core_last
 	defb	litE
 	defb	  end_emit - do_emit
 ; ( C8 -( emit fail )- )
@@ -20,4 +20,4 @@ do_key:
 	ret
 end_key:	equ	$
 
-io_end:		equ	key + 1
+io_last:	equ	key + 1

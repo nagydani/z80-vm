@@ -1,138 +1,197 @@
-
 	include	"vmexec.asm"
 ; ---
 
 core_tab:
-	defb	$100 - ok		; - fist code
-	defb	core0_last - ok		; number of codes
-
-; ( -- )
-ok:	equ	$ + 0x7E - core_tab
-	defb	do_nop - $
+	defb	0			; first code
 
 ; ( -( fail )- )
-fail:	equ	$ + 0x7E - core_tab
-	defb	do_fail - $
+fail:	equ	($ - core_tab - 1) / 2
+	defw	do_fail
+
+; ( -- )
+ok:	equ	($ - core_tab - 1) / 2
+	defw	do_nop
 
 ; ( -( tail )- )
-tail:	equ	$ + 0x7E - core_tab
-	defb	do_tail - $
+tail:	equ	($ - core_tab - 1) / 2
+	defw	do_tail
 
 ; ( -( tail )- )
-tailself: equ	$ + 0x7E - core_tab
-	defb	do_tailself - $
+tailself: equ	($ - core_tab - 1) / 2
+	defw	do_tailself
 
 ; ( -( tail )- )
-cpu:	equ	$ + 0x7E - core_tab
-	defb	do_cpu - $
+cpu:	equ	($ - core_tab - 1) / 2
+	defw	do_cpu
 
 ; ( -- N8 )
-litN8:	equ	$ + 0x7E - core_tab
-	defb	do_litN8 - $
+litN8:	equ	($ - core_tab - 1) / 2
+	defw	do_litN8
 
 ; ( -- S8 )
-litS8:	equ	$ + 0x7E - core_tab
-	defb	do_litS8 - $
+litS8:	equ	($ - core_tab - 1) / 2
+	defw	do_litS8
 
 ; ( -- E )
-tickself: equ	$ + 0x7E - core_tab
-	defb	do_tickself - $
+tickself: equ	($ - core_tab - 1) / 2
+	defw	do_tickself
 
 ; ( -- E )
-tick:	equ	$ + 0x7E - core_tab
-	defb	do_tick - $
+tick:	equ	($ - core_tab - 1) / 2
+	defw	do_tick
 
 ; ( ( a -( e f )- b ) e -( f monad )- b )
-tryTo:	equ	$ + 0x7E - core_tab
-	defb	do_tryTo
+tryTo:	equ	($ - core_tab - 1) / 2
+	defw	do_tryTo
 
 ; ( -- E )
-litE:	equ	$ + 0x7E - core_tab
-	defb	do_litE - $
+litE:	equ	($ - core_tab - 1) / 2
+	defw	do_litE
 
 ; ( N8 -- )
-drop:	equ	$ + 0x7E - core_tab
-	defb	do_drop - $
+drop:	equ	($ - core_tab - 1) / 2
+	defw	do_drop
 
 ; ( V8 -- )
-rain:	equ	$ + 0x7E - core_tab
-	defb	do_rain - $
+rain:	equ	($ - core_tab - 1) / 2
+	defw	do_rain
 
 ; ( -- N8 )
-zero:	equ	$ + 0x7E - core_tab
-	defb	do_zero - $
+zero:	equ	($ - core_tab - 1) / 2
+	defw	do_zero
 
 ; ( N8 N8 -- N8 N8 )
-swap:	equ	$ + 0x7E - core_tab
-	defb	do_swap - $
+swap:	equ	($ - core_tab - 1) / 2
+	defw	do_swap
 
 ; ( -- E )
-emptyE:	equ	$ + 0x7E - core_tab
-	defb	do_emptyE - $
+emptyE:	equ	($ - core_tab - 1) / 2
+	defw	do_emptyE
 
-; ( N8 N8 -( fail )- N8 )
-eq:	equ	$ + 0x7E - core_tab
-	defb	do_eq - $
+; ( N8 -( fail )- maybe N8 )
+one_minus:equ	($ - core_tab - 1) / 2
+	defw	do_one_minus
 
-; ( N8 N8 -( fail )- N8 )
-neq:	equ	$ + 0x7E - core_tab
-	defb	do_neq - $
+; ( N8 N8 -( fail )- maybe N8 )
+eq:	equ	($ - core_tab - 1) / 2
+	defw	do_eq
+
+; ( N8 N8 -( fail )- maybe N8 )
+neq:	equ	($ - core_tab - 1) / 2
+	defw	do_neq
 
 ; ( ( a -( e )- b ) -( tail pend )- )
-tailpend:equ	$ + 0x7E - core_tab
-	defb	do_tailpend - $
+tailpend:equ	($ - core_tab - 1) / 2
+	defw	do_tailpend
 
-; ( N8 -( fail )- N8 )
-one_minus:equ	$ + 0x7E - core_tab
-	defb	do_one_minus - $
+; ( N8 -( fail pend )- maybe N8 )
+times:	equ	($ - core_tab - 1) / 2
+	defw	do_times
 
-; ( N8 -( fail pend )- N8 )
-times:	equ	$ + 0x7E - core_tab
-	defb	do_times - $
+; ( S8 -( fail ) -- maybe S8 N8 )
+bite:	equ	($ - core_tab - 1) / 2
+	defw	do_bite
 
-; ( S8 -( fail ) -- S8 C8 )
-bite:	equ	$ + 0x7E - core_tab
-	defb	do_bite - $
-
-; ( S8 -( fail pend ) -- S8 C8 )
-scan:	equ	$ + 0x7E - core_tab
-	defb	do_scan - $
+; ( S8 -( fail pend ) -- maybe S8 N8 )
+scan:	equ	($ - core_tab - 1) / 2
+	defw	do_scan
 
 ; ( a ( a -( e )- b ) -( e )- b )
-call:	equ	$ + 0x7E - core_tab
-	defb	do_call - $
+call:	equ	($ - core_tab - 1) / 2
+	defw	do_call
 
 ; ( S8 -( emit )- )
-write:	equ	$ + 0x7E - core_tab
-	defb	do_write - $
+write:	equ	($ - core_tab - 1) / 2
+	defw	do_write
 
-; ( a b ( b -( e )- c ) ( a -( f )- c ) -( e f )- c )
-or:	equ	$ + 0x7E - core_tab
-	defb	do_or - $
+; ( a b ( b -( e )- c maybe d ) ( a c -( f )- c d ) -( e f )- c d )
+or:	equ	($ - core_tab - 1) / 2
+	defw	do_or
 
 ; ( V8 C8 -( fail )- V8 )
-append:	equ	$ + 0x7E - core_tab
-	defb	do_append - $
+append:	equ	($ - core_tab - 1) / 2
+	defw	do_append
 
 ; ( N8 -( fail )- N8 )
-one_plus:equ	$ + 0x7E - core_tab
-	defb	do_one_plus - $
+one_plus:equ	($ - core_tab - 1) / 2
+	defw	do_one_plus
 
 ; ( V8 -- V8 S8 )
-string:	equ	$ + 0x7E - core_tab
-	defb	do_string - $
+string:	equ	($ - core_tab - 1) / 2
+	defw	do_string
 
-core0_last: equ	$ + 0x7E - core_tab
-	defb	core1 - $
+; ( -( dict )- )
+use:	equ	($ - core_tab - 1) / 2
+	defw	do_use
+
+; ( -( monad )- )
+locals:	equ	($ - core_tab - 1) / 2
+	defw	do_locals
+
+; ( -( pour )- )
+pour:	equ	($ - core_tab - 1) / 2
+	defw	do_pour
+
+; ( -( var )- N8 )
+varN8:	equ	($ - core_tab - 1) / 2
+	defw	do_varN8
+
+; ( -( var )- E )
+varE:	equ	($ - core_tab - 1) / 2
+	defw	do_varE
+
+; ( -( var )- S8 )
+varS8:	equ	($ - core_tab - 1) / 2
+	defw	do_varS8
+
+; ( N8 -( let )- )
+letN8:	equ	($ - core_tab - 1) / 2
+	defw	do_letN8
+
+; ( E -( let )- )
+letE:	equ	($ - core_tab - 1) / 2
+	defw	do_letE
+
+; ( S8 -( let )- )
+letS8:	equ	($ - core_tab - 1) / 2
+	defw	do_letS8
+
+; ( a ( a -( e )- b ) -( e monad )- b )
+tryWith:equ	($ - core_tab - 1) / 2
+	defw	do_tryWith
+
+; ( N8 -( fail )- N8 )
+stroke:	equ	($ - core_tab - 1) / 2
+	defw	do_stroke
+
+; ( S8 -( tail pend )- maybe S8 )
+words:	equ	($ - core_tab - 1) / 2
+	defw	do_words
+
+; ( 
+comp:	equ	($ - core_tab - 1) / 2
+	defw do_comp
+
+; ( 
+see:	equ	($ - core_tab - 1) / 2
+	defw do_see
+
+core_last:equ	($ - core_tab - 1) / 2
 
 ; ---
+
+; ( -( fail )- )
+do_fail:scf
+
+; ( -- )
+do_nop:	ret
 
 ; ( -( tail )- )
 do_tail:pop	bc		; discard return address
 	ld	a, (hl)
 	pop	hl
 	call	vm_tail
-	push	hl
+	push	de
 	exx
 	ret
 
@@ -179,40 +238,35 @@ do_tickself:
 
 ; ( -- E )
 do_tick:call	vm_tick
-	push	hl
+	push	de
 	exx
 	pop	bc
 	jr	pushBC
 
 ; ( ( a -( e f )- b ) e -( f monad )- b )
 do_tryTo:
-	ld	a, (hl)		; effect ID
-	add	a, a
-;	jr	nc, special_effects
-	exx
-	rst	effect_rst	; HL = old handler, DE = effect address + 1
-	push	hl		; old handler on stack
+	call	vm_tick		; DE = old handler, HL = effect address + 1
+	push	de		; old handler on stack
 	push	bc		; vocabulary on stack
+	exx
 	rst	pop_rst		; BC = new handler
-	ex	de, hl		; HL = effect address + 1, DE = old handerl
+	push	bc		; move BC to
+	exx
+	pop	bc		; BC'
 	ld	(hl), b
-	dec	l
+	dec	hl
 	ld	(hl), c		; new handler set HL = effect address
 	pop	bc		; restore vocabulary
+	push	hl		; save effect address
 	exx
 	call	do_call		; try function inside the monad
-	ld	a, (hl)		; effect ID
-	inc	hl		; advance threading
-	add	a, a
 	exx
-	ld	l, a
-	ld	h, EFFECT / 0x100 ; HL = effect address
-	pop	de		; DE = old handler
+	pop	hl		; effect address
+	pop	de		; old handler
 	ld	(hl), e
-	inc	l
+	inc	hl
 	ld	(hl), d		; restore old handler
 	exx
-	and	a
 	ret
 
 ; ( -- E )
@@ -258,16 +312,36 @@ pushBC:	ex	de, hl
 	ld	(hl), b
 	inc	hl
 	ex	de, hl
-do_nop:	ret
+	ret
 
-; ( N8 N8 -( fail )- N8 )
+N8fail:	xor	a
+N8fail0:cp	(hl)
+	jr	z, do_fail
+	ld	c, (hl)
+	ld	b, a
+	add	hl, bc
+	and	a
+	jr	pushA
+
+; ( N8 -( failOver )- N8 |maybe N8- )
+do_one_minus:
+	dec	de
+	ld	a, (de)
+	sub	a, 1
+	jr	c, N8fail
+N8ok:	inc	hl
+pushA:	ld	(de), a
+	inc	de
+	ret
+
+; ( N8 N8 -( fail )- maybe N8 )
 do_eq:	rst	cmp_rst
 	ret	z
 f_eq:	dec	de
 	scf
 	ret
 
-; ( N8 N8 -( fail )- N8 )
+; ( N8 N8 -( fail )- maybe N8 )
 do_neq:	rst	cmp_rst
 	jr	z, f_eq
 	and	a
@@ -306,27 +380,20 @@ resuspend:
 	and	a
 	ret
 
-; ( N8 -( fail )- N8 )
-do_one_minus:
-	dec	de
-	ld	a, (de)
-	sub	a, 1
-	ret	c
-pushA:	ld	(de), a
-	inc	de
-	ret
-
-; ( N8 -( fail pend )- N8 )
+; ( N8 -( fail pend )- maybe N8 )
 do_times:
 	rst	vm_rst
 	defb	one_minus
+	defb	  0
 	defb	tickself
 	defb	  do_times - $
 	defb	tailpend
 
-; ( S8 -( fail )- S8 C8 )
-do_bite:rst	token_rst
-	defb	  one_minus
+; ( S8 -( fail )- maybe S8 N8 )
+do_bite:rst	vm_rst
+	defb	one_minus
+	defb	  f_bite - $
+	defb	cpu
 	dec	de
 	dec	de
 	ret	c
@@ -344,7 +411,12 @@ do_bite:rst	token_rst
 	ex	de, hl
 	jr	pushA
 
-; ( S8 -( fail pend )- S8 C8 )
+f_bite:	defb	drop
+	defb	drop
+	defb	drop
+	defb	fail
+
+; ( S8 -( fail pend )- maybe S8 N8 )
 do_scan:rst	vm_rst
 	defb	bite
 	defb	tickself
@@ -380,22 +452,20 @@ do_or:	rst	pop_rst
 	ccf
 	ret
 
-; ( V8 C8 -( fail )- V8 )
+; ( V8 C8 -( failOver )- V8 |maybe V8+ )
 do_append:
 	rst	vm_rst
 	defb	swap
 	defb	cpu
 
-; ( N8 -( fail )- N8 )
+; ( N8 -( failOver )- N8 |maybe N8+ )
 do_one_plus:
 	dec	de
 	ld	a, (de)
 	inc	a
-	jr	nz, pushA
+	jr	nz, N8ok
+	jr	N8fail0
 
-; ( -( fail )- )
-do_fail:scf
-	ret
 
 ; ( V8 -- V8 S8 )
 do_string:
@@ -421,94 +491,25 @@ do_string:
 	pop	de
 	ret
 
-core1:	defb	core1_last - core0_last		; number of codes
-
 ; ( -( dict )- )
-use:	equ	$ - core1 + core0_last - 1
-	defb	do_use - $
-
-; ( -( monad )- )
-locals:	equ	$ - core1 + core0_last - 1
-	defb	do_locals - $
-
-; ( -( pour )- )
-pour:	equ	$ - core1 + core0_last - 1
-	defb	do_pour - $
-
-; ( -( var )- N8 )
-varN8:	equ	$ - core1 + core0_last - 1
-	defb	do_varN8 - $
-
-; ( -( var )- E )
-varE:	equ	$ - core1 + core0_last - 1
-	defb	do_varE - $
-
-; ( -( var )- S8 )
-varS8:	equ	$ - core1 + core0_last - 1
-	defb	do_varS8 - $
-
-; ( N8 -( let )- )
-letN8:	equ	$ - core1 + core0_last - 1
-	defb	do_letN8 - $
-
-; ( E -( let )- )
-letE:	equ	$ - core1 + core0_last - 1
-	defb	do_letE - $
-
-; ( S8 -( let )- )
-letS8:	equ	$ - core1 + core0_last - 1
-	defb	do_letS8 - $
-
-; ( a ( a -( e )- b ) -( e monad )- b )
-tryWith:equ	$ - core1 + core0_last - 1
-	defb	do_tryWith - $
-
-; ( N8 -( fail )- N8 )
-stroke:	equ	$ - core1 + core0_last - 1
-	defb	do_stroke - $
-
-; ( S8 -( tail pend )- S8 )
-words:	equ	$ - core1 + core0_last - 1
-		defb	do_words - $
-
-; ( 
-comp:	equ	$ - core1 + core0_last - 1
-	defb	do_comp - $
-
-; ( 
-see:	equ	$ - core1 + core0_last - 1
-	defb	do_see - $
-
-core1_last:equ	$ - core1 + core0_last - 1
-	defb	core2 - $
-
-core_last:equ	core1_last
-
-; ---
-
-; ( -( dict )- )
-do_use:	inc	hl
+do_use:	ld	c, (hl)
+	inc	hl		; skip length
+	ld	b, 0
+	inc	hl
 	inc	hl		; skip back reference
 	push	hl		; stack new vocab
-	inc	hl		; skip first code
-use_n:	ld	c, (hl)		; number of codes
-	ld	b, 0
-	inc	bc
-	add	hl, bc
-	ld	c, (hl)		; last code
 	add	hl, bc
 	exx
-	pop	de		; DE = new voc
-	pop	hl		; HL = return address
+	pop	hl		; HL = new vocab
+	pop	de		; DE = return address
 	push	bc		; stack old vocab
-	ld	c, e
-	ld	b, d		; set new vocab
-	call	jphlp
+	ld	c, l
+	ld	b, h		; set new vocab
+	call	jpdep
 disuse:	exx
 	pop	bc		; restore old vocab
 	exx
 	ret
-
 
 ; ( -( monad )- )
 do_locals:
@@ -584,12 +585,8 @@ do_letS8:	call	get_local
 
 ; ( a ( a -( e )- b ) -( e monad )- b )
 do_tryWith:	push	ix
-		ld	a, (hl)
-		inc	hl
-		add	a, a
-		exx
-		rst	effect_rst
-		push	hl
+		call	vm_tick
+		push	de
 		exx
 		pop	ix
 		call	do_call
@@ -606,7 +603,7 @@ do_stroke:	dec	de
 		inc	de
 		ret
 
-; ( S8 N8 -( pend )- S8 )
+; ( S8 N8 -( pend )- maybe S8 )
 do_words:	rst	vm_rst
 		defb	bite
 		defb	locals
@@ -614,6 +611,7 @@ do_words:	rst	vm_rst
 		defb	  words_g_e - words_g
 words_g:		rst	vm_rst
 			defb	one_minus
+			defb	  0
 			defb	varS8
 			defb	  -4
 			defb	zero
@@ -630,6 +628,7 @@ words_n:			rst	vm_rst
 				defb	varN8
 				defb	  +2
 				defb	one_plus
+				defb	  0
 				defb	letN8
 				defb	  +2
 				defb	bite

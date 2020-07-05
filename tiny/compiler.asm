@@ -1,48 +1,48 @@
 ; ( S8 -( key emit )- )
 do_comp:rst	vm_rst
 	defb	use
-	defb	  end_comp_local - comp_local
-comp_local:	defw	core_tab
-comp_voc:	defb	0x100 - core1_last
+	defb	  end_comp_voc - comp_voc
+		defw	EFFECT
+comp_voc:	defb	io_last
 
 comp_tab:	equ	$
 
 ; ---
 
 ; ( -( key emit )- )
-quote:	equ	$ - comp_tab + core1_last
-	defb	do_quote - $
+quote:	equ	$ - comp_tab + io_last
+	defw	do_quote
 
 ; ( -( key emit )- )
-brace:	equ	$ - comp_tab + core1_last
-	defb	do_brace - $
+brace:	equ	$ - comp_tab + io_last
+	defw	do_brace
 
 ; ( -( key emit )- )
-voc:	equ	$ - comp_tab + core1_last
-	defb	do_voc - $
+voc:	equ	$ - comp_tab + io_last
+	defw	do_voc
 
 ; ( -( key emit )- )
-fn:	equ	$ - comp_tab + core1_last
-	defb	do_fn - $
+fn:	equ	$ - comp_tab + io_last
+	defw	do_fn
 
 ; ( -( key emit )- )
-fnRef:	equ	$ - comp_tab + core1_last
-	defb	do_fnRef - $
+fnRef:	equ	$ - comp_tab + io_last
+	defw	do_fnRef
 
 ; ( -( key emit )- )
-selfRef:equ	$ - comp_tab + core1_last
-	defb	do_selfRef - $
+selfRef:equ	$ - comp_tab + io_last
+	defw	do_selfRef
 
-varRef:	equ	$ - comp_tab + core1_last
-	defb	do_varRef - $
+varRef:	equ	$ - comp_tab + io_last
+	defw	do_varRef
 
 ; ( -( key emit )- )
-raw:	equ	$ - comp_tab + core1_last
-	defb	do_raw - $
+raw:	equ	$ - comp_tab + io_last
+	defw	do_raw
 
 ; ( -( key )- S8 )
-word:	equ	$ - comp_tab + core1_last
-	defb	do_word - $
+word:	equ	$ - comp_tab + io_last
+	defw	do_word
 
 ; ---
 
@@ -77,7 +77,7 @@ word_a:	defb	tick
 	defb	tail
 	defb	  or
 
-end_comp_local:	equ	$
+end_comp_voc:	equ	$
 
 	defb	litE
 	defb	  end_parse - parse

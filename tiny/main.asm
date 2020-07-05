@@ -3,17 +3,22 @@
 	include "core.asm"
 
 ; Set up vocabulary
-start:	ld	bc, core_tab
+start:	ld	hl, core_tab
+	ld	(EFFECT), hl
+	ld	hl, io_tab
+	ld	(hl), core_last
+	ld	c, l
+	ld	b, h
+	inc	hl
+	push	hl
 	exx
-	ld	de, EFFECT
+	pop	de
+
 ; Effect initialization
 	rst	vm_rst
-effect_base:	equ	0x00
 	include	"io.asm"
 	defb	cpu
 ; Stack after effects
-	ld	de, WORKSP
-
 	include	"repl.asm"
 
 ; short z80sim stuff
