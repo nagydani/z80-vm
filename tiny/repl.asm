@@ -6,12 +6,10 @@ repl:		rst	vm_rst
 		defb	litS8
 		defb	  end_hello - hello
 hello:		defm	  "Ok"
-end_hello:	defb	writeln
+end_hello:
 
-		defb	litS8
-		defb	  end_core_words - core_words
-			include	"words.asm"
-
+; Test words generator
+		defb	coreWords
 		defb	litE
 		defb	  end_wordList - do_wordList
 do_wordList:		rst	vm_rst
@@ -22,11 +20,12 @@ do_wordList:		rst	vm_rst
 end_wordList:	defb	emptyE
 		defb	or
 
-;		defb	tick
-;		defb	  words
-;		defb	see
+; Test decompiler
+		defb	tick
+		defb	  writeln
+		defb	see
 
-
+; Test readln and writeln
 		defb	readln
 		defb	writeln
 		defb	rain

@@ -188,6 +188,10 @@ readln:	equ	($ - core_tab - 1) / 2
 words:	equ	($ - core_tab - 1) / 2
 	defw	do_words
 
+; ( -- S8 )
+coreWords:equ     ($ - core_tab - 1) / 2
+	defw	do_coreWords
+
 ; ( 
 comp:	equ	($ - core_tab - 1) / 2
 	defw do_comp
@@ -477,6 +481,7 @@ do_chop:rst	vm_rst
 	ld	c, a
 	jr	nc, chop_nc
 	inc	b
+	and	a
 chop_nc:inc	hl
 	ex	de, hl
 	inc	de
@@ -718,12 +723,12 @@ words_g:		rst	vm_rst
 			defb	one_minus
 			defb	  0
 			defb	varS8
-			defb	  -4
+			defb	  -4		; current word
 			defb	zero
 			defb	letN8
-			defb	  +2
+			defb	  +2		; length zero
 			defb	varS8
-			defb	  -4
+			defb	  -4		; put back
 			defb	bite
 			defb	litE
 			defb	  words_n_e - words_n
@@ -755,6 +760,7 @@ words_a_e:		defb	or
 words_g_e:	defb	tail
 		defb	  call
 
+	include	"words.asm"
 	include	"compiler.asm"
 	include	"decompiler.asm"
 

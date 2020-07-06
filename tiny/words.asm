@@ -10,22 +10,27 @@ fn:	equ	words_first + 3
 
 failOver:equ	words_first + 4
 
-fnRef:	equ	words_first + 5
+selfRef:equ	words_first + 5
 
-selfRef:equ	words_first + 6
+fnRef:	equ	words_first + 6
 
 varRef:	equ	words_first + 7
 
 raw:	equ	words_first + 8
 
-
+do_coreWords:
+	rst	vm_rst
+	defb	litS8
+	defb	  end_core_words - core_words
 core_words:
 	defb	core_last
 	defb	"see"
 	defb	fn
 	defb	"comp"
 	defb	fn
-	defb	"words"
+	defb	"coreWords"
+	defb	fn
+	defb	"words:"
 	defb	fn
 	defb	"readln"
 	defb	fn
@@ -116,3 +121,5 @@ core_words:
 	defb	"fail"
 	defb	fn
 end_core_words:	equ	$
+	defb	tail
+	defb	  ok

@@ -28,12 +28,12 @@ comp_voc:	defb	words_first
 	defw	do_failOver
 
 ; ( -( key emit )- )
-; fnRef
-	defw	do_fnRef
-
-; ( -( key emit )- )
 ; selfRef
 	defw	do_selfRef
+
+; ( -( key emit )- )
+; fnRef
+	defw	do_fnRef
 
 ; ( -( key emit )- )
 ; varRef
