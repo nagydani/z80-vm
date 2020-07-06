@@ -2,8 +2,8 @@
 do_see:	rst	vm_rst
 	defb	use
 	defb	  end_see_local - see_local
-see_local:	defw	io_tab
-see_voc:	defb	0x100 - io_last
+see_local:	defw	effects_tab
+see_voc:	defb	0x80
 
 ; ---
 
@@ -59,6 +59,16 @@ do_see_raw:
 
 end_see_local:	equ	$
 
+	defb	litN8
+	defb	  1
+	defb	bite
+	defb	litN8
+		  rst	vm_rst
+	defb	tick
+	defb	  eq
+	defb	tick
+	defb	  seeRaw
+	defb	or
 	defb	locals
 	defb	  -5
 	defb	litE
@@ -74,9 +84,9 @@ see_scan:	defb	litN8
 		defb	varN8
 		defb	  +2
 		defb	eq
+		defb	found
 		defb	drop		; code
 		defb	drop		; word type
 		defb	writeln
-		defb	fail
 end_see_scan:	equ	$
 	

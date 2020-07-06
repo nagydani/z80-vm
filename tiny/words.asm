@@ -1,3 +1,24 @@
+words_first:equ	0x80
+
+quote:	equ	words_first + 0
+
+brace:	equ	words_first + 1
+
+voc:	equ	words_first + 2
+
+fn:	equ	words_first + 3
+
+failOver:equ	words_first + 4
+
+fnRef:	equ	words_first + 5
+
+selfRef:equ	words_first + 6
+
+varRef:	equ	words_first + 7
+
+raw:	equ	words_first + 8
+
+
 core_words:
 	defb	core_last
 	defb	"see"

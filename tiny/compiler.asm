@@ -2,48 +2,49 @@
 do_comp:rst	vm_rst
 	defb	use
 	defb	  end_comp_voc - comp_voc
-		defw	io_tab
-comp_voc:	defb	io_last
+		defw	effects_tab
+comp_voc:	defb	words_first
 
 ; ---
 
 ; ( -( key emit )- )
-quote:	equ	($ - comp_voc - 1) / 2
+; quote
 	defw	do_quote
 
 ; ( -( key emit )- )
-brace:	equ	($ - comp_voc - 1) / 2
+; brace
 	defw	do_brace
 
 ; ( -( key emit )- )
-voc:	equ	($ - comp_voc - 1) / 2
+; voc
 	defw	do_voc
 
 ; ( -( key emit )- )
-fn:	equ	($ - comp_voc - 1) / 2
+; fn
 	defw	do_fn
 
 ; ( -( key emit )- )
-failOver:equ	($ - comp_voc - 1) / 2
+; failOver
 	defw	do_failOver
 
 ; ( -( key emit )- )
-fnRef:	equ	($ - comp_voc - 1) / 2
+; fnRef
 	defw	do_fnRef
 
 ; ( -( key emit )- )
-selfRef:equ	($ - comp_voc - 1) / 2
+; selfRef
 	defw	do_selfRef
 
-varRef:	equ	($ - comp_voc - 1) / 2
+; ( -( key emit )- )
+; varRef
 	defw	do_varRef
 
 ; ( -( key emit )- )
-raw:	equ	($ - comp_voc - 1) / 2
+; raw
 	defw	do_raw
 
 ; ( -( key )- S8 )
-word:	equ	($ - comp_voc - 1) / 2
+word:	equ	($ - comp_voc - 1) / 2 + words_first
 	defw	do_word
 
 ; ---

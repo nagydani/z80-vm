@@ -5,7 +5,7 @@
 ; Set up vocabulary
 start:	ld	hl, core_tab
 	ld	(EFFECT), hl
-	ld	hl, io_tab
+	ld	hl, effects_tab
 	ld	(hl), core_last
 	ld	c, l
 	ld	b, h
@@ -16,7 +16,7 @@ start:	ld	hl, core_tab
 
 ; Effect initialization
 	rst	vm_rst
-	include	"io.asm"
+	include	"effects.asm"
 	defb	cpu
 ; Stack after effects
 	include	"repl.asm"

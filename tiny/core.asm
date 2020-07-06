@@ -40,6 +40,10 @@ tickself: equ	($ - core_tab - 1) / 2
 tick:	equ	($ - core_tab - 1) / 2
 	defw	do_tick
 
+; ( N8 -- E )
+look:	equ	($ - core_tab - 1) / 2
+	defw	do_look
+
 ; ( ( a -( e f )- b ) e -( f monad )- b )
 tryTo:	equ	($ - core_tab - 1) / 2
 	defw	do_tryTo
@@ -91,6 +95,10 @@ neq:	equ	($ - core_tab - 1) / 2
 ; ( ( a -( e )- b ) -( tail pend )- )
 tailpend:equ	($ - core_tab - 1) / 2
 	defw	do_tailpend
+
+; ( -( found )- )
+found:	equ	($ - core_tab - 1) / 2
+	defw	do_found
 
 ; ( N8 -( fail pend )- maybe N8 )
 times:	equ	($ - core_tab - 1) / 2
@@ -250,10 +258,16 @@ do_tickself:
 
 ; ( -- E )
 do_tick:call	vm_tick
-	push	de
+a_tick:	push	de
 	exx
 	pop	bc
 	jr	pushBC
+
+; ( N8 -- E )
+do_look:dec	de
+	ld	a, (de)
+	call	vm_tail
+	jr	a_tick
 
 ; ( ( a -( e f )- b ) e -( f monad )- b )
 do_tryTo:
@@ -405,6 +419,18 @@ resuspend:
 	push	af		; return address
 	and	a
 	ret
+
+
+; ( -( found )- )
+do_found:
+	pop	af		; return address
+	pop	bc		; threading address
+	inc	sp
+	inc	sp		; discard suspension
+	inc	sp
+	inc	sp		; discard generator
+	push	bc		; restarck threading
+	jr	resuspend
 
 ; ( N8 -( fail pend )- maybe N8 )
 do_times:

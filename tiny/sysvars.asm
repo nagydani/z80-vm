@@ -1,2 +1,2 @@
-EFFECT:	equ	$
-io_tab: equ	EFFECT + 2
+EFFECT:		equ	$
+effects_tab:	equ	EFFECT + 2
