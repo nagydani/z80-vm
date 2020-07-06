@@ -1,4 +1,4 @@
-; ( S8 E -( emit )- )
+; ( S8 E -( fail emit )- )
 do_see:	rst	vm_rst
 	defb	use
 	defb	  end_see_local - see_local
@@ -43,17 +43,39 @@ see_voc:	defb	0x80
 ; raw
 	defw	do_see_raw
 
+; ( N8 S8 -( emit )- )
+see_word:	equ	($ - see_voc - 1) / 2 + words_first
+	defw	do_see_word
+
 ; ---
 
 do_see_quote:
 do_see_brace:
 do_see_voc:
 do_see_fn:
+	rst	vm_rst
+	defb	tail
+	defb	  writeln
 do_see_failOver:
 do_see_fnRef:
+	rst	vm_rst
+	defb	litN8
+	defb	  1
+	defb	bite
+	
 do_see_selfRef:
 do_see_varRef:
 do_see_raw:
+
+; ( N8 S8 -( emit )- )
+do_see_word:
+	rst	vm_rst
+	defb	words
+	defb	varN8
+	defb	  -5
+	defb	eq
+	defb	drop
+	
 
 ; ---
 
@@ -86,7 +108,10 @@ see_scan:	defb	litN8
 		defb	eq
 		defb	found
 		defb	drop		; code
-		defb	drop		; word type
-		defb	writeln
+		defb	token
+		defb	call
+		defb	tailself
+		defb	  see_scan - $
 end_see_scan:	equ	$
-	
+	defb	tail
+	defb	  call

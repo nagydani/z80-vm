@@ -41,8 +41,8 @@ tick:	equ	($ - core_tab - 1) / 2
 	defw	do_tick
 
 ; ( N8 -- E )
-look:	equ	($ - core_tab - 1) / 2
-	defw	do_look
+token:	equ	($ - core_tab - 1) / 2
+	defw	do_token
 
 ; ( ( a -( e f )- b ) e -( f monad )- b )
 tryTo:	equ	($ - core_tab - 1) / 2
@@ -184,7 +184,7 @@ writeln:equ	($ - core_tab - 1) / 2
 readln:	equ	($ - core_tab - 1) / 2
 	defw	do_readln
 
-; ( S8 -( tail pend )- maybe S8 )
+; ( S8 -( pend )- maybe S8:words N8:token S8:word N8:wordType )
 words:	equ	($ - core_tab - 1) / 2
 	defw	do_words
 
@@ -264,7 +264,7 @@ a_tick:	push	de
 	jr	pushBC
 
 ; ( N8 -- E )
-do_look:dec	de
+do_token:dec	de
 	ld	a, (de)
 	call	vm_tail
 	jr	a_tick
@@ -468,6 +468,7 @@ do_chop:rst	vm_rst
 	defb	  f_bite - $
 	defb	cpu
 	dec	de
+	ld	a, (de)
 	dec	de
 	ex	de, hl
 	ld	b, (hl)
@@ -706,7 +707,7 @@ end_readln:	defb	tick
 		defb	tail
 		defb	  or
 
-; ( S8 N8 -( pend )- maybe S8 N8 )
+; ( S8 -( pend )- maybe S8:words N8:token S8:word N8:wordType )
 do_words:	rst	vm_rst
 		defb	bite
 		defb	locals

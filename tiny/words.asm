@@ -95,12 +95,16 @@ core_words:
 	defb	brace
 	defb	"tryTo"
 	defb	fnRef
+	defb	"token"
+	defb	fn
 	defb	"'"
 	defb	fnRef
 	defb	"'self"
 	defb	selfRef
 	defb	"\""
 	defb	quote
+	defb	"`"
+	defb	fnRef
 	defb	"~raw"
 	defb	raw
 	defb	"~self"
@@ -111,3 +115,4 @@ core_words:
 	defb	fn
 	defb	"fail"
 	defb	fn
+end_core_words:	equ	$

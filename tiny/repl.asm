@@ -11,15 +11,22 @@ end_hello:	defb	writeln
 		defb	litS8
 		defb	  end_core_words - core_words
 			include	"words.asm"
-end_core_words:	defb	litE
-		defb	  end_wordlist - wordlist
-wordlist:		rst	vm_rst
+
+		defb	litE
+		defb	  end_wordList - do_wordList
+do_wordList:		rst	vm_rst
 			defb	words
-			defb	drop
+			defb	drop		; word class
 			defb	writeln
 			defb	fail
-end_wordlist:	defb	emptyE
+end_wordList:	defb	emptyE
 		defb	or
+
+;		defb	tick
+;		defb	  words
+;		defb	see
+
+
 		defb	readln
 		defb	writeln
 		defb	rain
