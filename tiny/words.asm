@@ -1,22 +1,26 @@
 words_first:equ	0x80
 
-quote:	equ	words_first + 0
+number:	equ	words_first + 0
 
-brace:	equ	words_first + 1
+printable:equ	words_first + 1
 
-voc:	equ	words_first + 2
+quote:	equ	words_first + 2
 
-fn:	equ	words_first + 3
+brace:	equ	words_first + 3
 
-failOver:equ	words_first + 4
+voc:	equ	words_first + 4
 
-selfRef:equ	words_first + 5
+fn:	equ	words_first + 5
 
-fnRef:	equ	words_first + 6
+failOver:equ	words_first + 6
 
-varRef:	equ	words_first + 7
+selfRef:equ	words_first + 7
 
-raw:	equ	words_first + 8
+fnRef:	equ	words_first + 8
+
+varRef:	equ	words_first + 9
+
+raw:	equ	words_first + 10
 
 do_coreWords:
 	rst	vm_rst
@@ -108,8 +112,12 @@ core_words:
 	defb	selfRef
 	defb	"\""
 	defb	quote
+	defb	"0x"
+	defb	number
 	defb	"`"
 	defb	fnRef
+	defb	"ascii"
+	defb	printable
 	defb	"~raw"
 	defb	raw
 	defb	"~self"
@@ -118,7 +126,7 @@ core_words:
 	defb	fnRef
 	defb	"ok"
 	defb	fn
-	defb	"fail"
+	defb	"~fail"
 	defb	fn
 end_core_words:	equ	$
 	defb	tail

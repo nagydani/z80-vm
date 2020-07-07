@@ -8,6 +8,14 @@ comp_voc:	defb	words_first
 ; ---
 
 ; ( -( key emit )- )
+; number
+	defw	do_number
+
+; ( -( key emit )- )
+; printable
+	defw	do_printable
+
+; ( -( key emit )- )
 ; quote
 	defw	do_quote
 
@@ -49,6 +57,8 @@ word:	equ	($ - comp_voc - 1) / 2 + words_first
 
 ; ---
 
+do_number:
+do_printable:
 do_quote:
 do_brace:
 do_voc:

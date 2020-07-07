@@ -6,24 +6,25 @@ repl:		rst	vm_rst
 		defb	litS8
 		defb	  end_hello - hello
 hello:		defm	  "Ok"
-end_hello:
+end_hello:	defb	writeln
 
 ; Test words generator
-		defb	coreWords
-		defb	litE
-		defb	  end_wordList - do_wordList
-do_wordList:		rst	vm_rst
-			defb	words
-			defb	drop		; word class
-			defb	writeln
-			defb	fail
-end_wordList:	defb	emptyE
-		defb	or
+;		defb	coreWords
+;		defb	litE
+;		defb	  end_wordList - do_wordList
+;do_wordList:		rst	vm_rst
+;			defb	words
+;			defb	drop		; word class
+;			defb	writeln
+;			defb	fail
+;end_wordList:	defb	emptyE
+;		defb	or
 
 ; Test decompiler
-		defb	tick
-		defb	  writeln
-		defb	see
+;		defb	coreWords
+;		defb	tick
+;		defb	  writeln
+;		defb	see
 
 ; Test readln and writeln
 		defb	readln

@@ -1,11 +1,19 @@
 ; ( S8 E -( fail emit )- )
 do_see:	rst	vm_rst
 	defb	use
-	defb	  end_see_local - see_local
-see_local:	defw	effects_tab
+	defb	  end_see_voc - see_voc
+		defw	effects_tab
 see_voc:	defb	0x80
 
 ; ---
+
+; ( -( emit )- )
+; number
+	defw	do_see_number
+
+; ( -( emit )- )
+; printable
+	defw	do_see_printable
 
 ; ( -( emit )- )
 ; quote
@@ -53,30 +61,45 @@ see_word:	equ	($ - see_voc - 1) / 2 + words_first
 
 ; ---
 
-do_see_quote:
+do_see_number:
 	rst	vm_rst
-	defb	writesp
-	defb	varS8
-	defb	  -2
-	defb	bite
-	defb	swap
-	defb	drop
 	defb	write
-	defb	litN8
-	defb	  "\""
-	defb	emit
-	defb	litN8
-	defb	  0xA
+	defb	bite
+	defb	cpu
+	dec	de
+	xor	a
+	ex	de, hl
+	rrd
+	inc	hl
+	ld	(hl), a
+	inc	hl
+	ex	de, hl
+	call	do_see_digit
+do_see_digit:
+	dec	de
+	ld	a, (de)
+	add	a, 0x80
+	daa
+	adc	a, 0x40
+	daa
+	and	a
+	ld	(de), a
+	inc	de
+	rst	vm_rst
 	defb	tail
 	defb	  emit
+
+do_see_printable:
+
+do_see_quote:
 
 do_see_brace:
 	defb	vm_rst
 	defb	writeln
-	defb	varS8
+;	defb	varS8
 	defb	  -2
 	defb	bite		; length
-	defb	varE
+;	defb	varE
 	defb	  +5		; quotation
 	
 
@@ -85,37 +108,23 @@ do_see_voc:
 
 do_see_fn:
 	rst	vm_rst
+	defb	writeln
 	defb	tail
-	defb	  writeln
+	defb	  drop
 
 do_see_failOver:
 do_see_selfRef:
-	defb	vm_rst
-	defb	writeln
-	defb	varS8
-	defb	  -2
-	defb	bite
-	defb	drop
-	defb	letS8
-	defb	  -2
-	defb	tail
-	defb	  ok
 
 do_see_fnRef:
 	rst	vm_rst
 	defb	writesp
-	defb	varS8
-	defb	  -2
 	defb	bite
-	defb	varS8
-	defb	  -5
+;	defb	varS8
+	defb	  -6
 	defb	see_word
 	defb	drop
-	defb	writeln
-	defb	letS8
-	defb	  -2
 	defb	tail
-	defb	  ok
+	defb	  fn
 
 do_see_varRef:
 do_see_raw:
@@ -129,49 +138,60 @@ do_writesp:
 	defb	tail
 	defb	  emit
 
-; ( N8:token S8:words -- S8:word N8:wordClass )
+; ( N8:token S8:words -( fail pend )- S8:word N8:wordClass )
 do_see_word:
 	rst	vm_rst
 	defb	words
-	defb	varN8
+	defb	drop
+;	defb	varN8
+	defb	  -1
+;	defb	varN8
 	defb	  -5
 	defb	eq
-	defb	found
-	defb	pour
 	defb	tail
 	defb	  drop
 
 ; ---
 
-end_see_local:	equ	$
+end_see_voc:	equ	$
 
-; ( S8 E -( fail emit )- )
-
+; ( S8 E -( emit )- )
+;	defb	locals
+	defb	  -5
 	defb	litN8
 	defb	  1
 	defb	bite
-	defb	litN8
+;	defb	litN8
 		  rst	vm_rst
 	defb	tick
 	defb	  eq
-	defb	tick
-	defb	  seeRaw
-	defb	or
-	defb	drop
-	defb	locals
 	defb	litE
-	defb	  end_see_scan - see_scan
-see_scan:	defb	litN8
+	defb	  end_seeRawFn - do_seeRawFn
+do_seeRawFn:	rst	vm_rst
+		defb	drop
+		defb	litS8
+		defb	  end_tailRaw - tailRaw
+tailRaw:		defm	"~raw"
+end_tailRaw:	defb	writeln
+		defb	fail
+end_seeRawFn:	equ	$
+	defb	or
+	defb	drop		; comparison
+	defb	drop		; zero
+	defb	litE
+	defb	  do_fnScan_end - do_fnScan
+; ( S8 E -( fail emit )- S8 S8 S8 N8)
+do_fnScan:	rst	vm_rst
+		defb	litN8
 		defb	  2
 		defb	bite
-		defb	varS8
-		defb	  -5
-		defb	words
+;		defb	varS8
+		defb	  -5		; words
+		defb	see_word
 		defb	token
 		defb	call
-		defb	drop
-		defb	tailself
-		defb	  see_scan - $
-end_see_scan:	equ	$
+		defb	fail
+do_fnScan_end:	equ	$
+	defb	emptyE
 	defb	tail
-	defb	  call
+	defb	  or

@@ -7,6 +7,17 @@ token_rst:
 
 	defs	token_rst + 8 - $, 0xFF
 
+;emit_rst:
+;	push	af
+;	ld	(de), a
+;	inc	de
+;	rst	token_rst
+;	defb	  emit
+;	pop	af
+;	ret
+;
+;	defs	emit_rst + 8 - $, 0xFF
+
 vm_rst:	ex	(sp), hl
 do_vm:	rst	vm_exec
 do_ok:	jp	nc, do_vm	; faster than jr
