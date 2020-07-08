@@ -373,6 +373,7 @@ do_local:
 	ld	a, 0xFF
 	adc	a, d
 	ld	b, a
+	and	a
 	jr	pushBC
 
 ; ( -( var )- A )
@@ -736,7 +737,7 @@ words_n_e:		defb	litE
 			defb	  words_a_e - words_a
 words_a:			rst	vm_rst
 				defb	local
-				defb	  -4
+				defb	  -10
 				defb	S8store
 				defb	one_plus
 				defb	  0
