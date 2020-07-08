@@ -44,22 +44,22 @@ core_words:
 	defb	fn
 	defb	"tryWith"
 	defb	fnRef
-	defb	"strLet"
-	defb	varRef
-	defb	"fnLet"
-	defb	varRef
+	defb	"let$"
+	defb	fn
+	defb	"letFN"
+	defb	fn
 	defb	"let"
-	defb	varRef
+	defb	fn
 	defb	"$"
-	defb	varRef
+	defb	fn
 	defb	"fn"
-	defb	varRef
+	defb	fn
 	defb	"@"
-	defb	varRef
+	defb	fn
+	defb	"times:"
+	defb	fn
 	defb	"pour"
 	defb	fn
-	defb	"locals"
-	defb	varRef
 	defb	"use"
 	defb	voc
 	defb	"toStr"
@@ -70,33 +70,35 @@ core_words:
 	defb	fn
 	defb	"call"
 	defb	fn
+	defb	"rain"
+	defb	fn
 	defb	"scan:"
+	defb	fn
+	defb	"~:"
 	defb	fn
 	defb	"chop"
 	defb	fn
 	defb	"bite"
 	defb	fn
-	defb	"times:"
-	defb	fn
-	defb	"~:"
-	defb	selfRef
 	defb	"=!"
 	defb	fn
 	defb	"="
+	defb	fn
+	defb	"{}"
+	defb	fn
+	defb	"local"
+	defb	fn
+	defb	"var"
+	defb	varRef
+	defb	"swap"
+	defb	fn
+	defb	"0"
 	defb	fn
 	defb	"1-"
 	defb	failOver
 	defb	"1+"
 	defb	failOver
 	defb	","
-	defb	fn
-	defb	"{}"
-	defb	fn
-	defb	"swap"
-	defb	fn
-	defb	"0"
-	defb	fn
-	defb	"rain"
 	defb	fn
 	defb	"drop"
 	defb	fn
