@@ -46,7 +46,7 @@ core_words:
 	defb	fnRef
 	defb	"let$"
 	defb	fn
-	defb	"letFN"
+	defb	"letFn"
 	defb	fn
 	defb	"let"
 	defb	fn
