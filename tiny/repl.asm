@@ -21,8 +21,8 @@ end_wordList:	defb	emptyE
 		defb	or
 
 ; Test name
-		defb	litN8
-		defb	  name
+		defb	backtick
+		defb	  ok
 		defb	tick
 		defb	  srcWords
 		defb	name

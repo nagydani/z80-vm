@@ -830,7 +830,14 @@ words_g:		rst	vm_rst
 			defb	local
 			defb	  -7		; current word
 			defb	fetchS8		; fetch it
-			defb	bite
+			defb	tick
+			defb	  bite
+			defb	litE
+			defb	  words_f_e - words_f
+words_f:			rst	vm_rst
+				defb	fail
+				defb	  -7
+words_f_e:		defb	or
 			defb	litE
 			defb	  words_n_e - words_n
 words_n:			rst	vm_rst
@@ -881,7 +888,7 @@ s_name:			rst	vm_rst
 			defb	  -4
 			defb	fetchN8
 			defb	local
-			defb	  -11
+			defb	  -12
 			defb	fetchN8
 			defb	tick
 			defb	  eq
@@ -893,13 +900,14 @@ tok_mism:			rst	vm_rst
 tok_mism_end:		defb	or
 			defb	drop		; token number
 			defb	local
-			defb	  -14
+			defb	  -11
 			defb	S8store
 			defb	fail
 			defb	  0
 s_name_end:	defb	emptyE
-		defb	tail
-		defb	  or
+		defb	or
+		DEFB	cpu
+		HALT
 
 ; ( S8 S8 -- N8 )
 do_index:	rst	vm_rst
