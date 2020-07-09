@@ -34,11 +34,13 @@ core_words:
 	defb	fn
 	defb	"coreWords"
 	defb	fn
+	defb	"index"
+	defb	fn
+	defb	"name"
+	defb	fn
 	defb	"words:"
 	defb	fn
-	defb	"readln"
-	defb	fn
-	defb	"writeln"
+	defb	"verbatim"
 	defb	fn
 	defb	"stroke"
 	defb	fn
@@ -66,7 +68,7 @@ core_words:
 	defb	fn
 	defb 	"|"
 	defb	fn
-	defb	"write"
+	defb	"while"
 	defb	fn
 	defb	"call"
 	defb	fn
@@ -99,6 +101,8 @@ core_words:
 	defb	"1+"
 	defb	failOver
 	defb	","
+	defb	fn
+	defb	"dup"
 	defb	fn
 	defb	"drop"
 	defb	fn

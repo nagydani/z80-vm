@@ -64,6 +64,10 @@ litE:	equ	($ - core_tab - 1) / 2
 drop:	equ	($ - core_tab - 1) / 2
 	defw	do_drop
 
+; ( N8 -- N8 N8 )
+dup:	equ	($ - core_tab - 1) / 2
+	defw	do_dup
+
 ; ( V8 C8 -( fail )- V8 )
 append:	equ	($ - core_tab - 1) / 2
 	defw	do_append
@@ -128,9 +132,9 @@ rain:	equ	($ - core_tab - 1) / 2
 call:	equ	($ - core_tab - 1) / 2
 	defw	do_call
 
-; ( S8 -( emit )- )
-write:	equ	($ - core_tab - 1) / 2
-	defw	do_write
+; ( ( a -( e fail )- b maybe c ) ( b c -( f fail )- maybe a ) -( f fail )- maybe b )
+while:	equ	($ - core_tab - 1) / 2
+	defw	do_while
 
 ; ( a b ( b -( e )- c maybe d ) ( a c -( f )- c d ) -( e f )- c d )
 or:	equ	($ - core_tab - 1) / 2
@@ -184,17 +188,13 @@ tryWith:equ	($ - core_tab - 1) / 2
 stroke:	equ	($ - core_tab - 1) / 2
 	defw	do_stroke
 
-; ( S8 -( emit )- )
-writeln:equ	($ - core_tab - 1) / 2
-	defw	do_writeln
-
-; ( -( key )- S8 )
-readln:	equ	($ - core_tab - 1) / 2
-	defw	do_readln
-
 ; ( S8 -( pend )- maybe S8:words N8:token S8:word N8:wordType )
 words:	equ	($ - core_tab - 1) / 2
 	defw	do_words
+
+; ( S8 -- N8 )
+index:	equ	($ - core_tab - 1) / 2
+	defb	do_index
 
 ; ( -- S8 )
 coreWords:equ     ($ - core_tab - 1) / 2
@@ -313,6 +313,14 @@ do_litE:rst	token_rst
 
 ; ( N8 -- )
 do_drop:dec	de
+	ret
+
+; ( N8 -- N8 N8 )
+do_dup:	dec	de
+	ld	a, (de)
+	inc	de
+	ld	(de), a
+	inc	de
 	ret
 
 ; ( V8 C8 -( failOver )- V8 |maybe V8+ )
@@ -520,19 +528,36 @@ do_call:rst	pop_rst
 	push	bc
 	ret
 
-; ( S8 -( emit )- )
-do_write:
-	rst	vm_rst
-	defb	litE
-	defb	  write_end - write_start
-write_start:
-		rst	vm_rst
-		defb	scan
-		defb	emit
-		defb	fail
-write_end:
-	defb	emptyE
-	defb	cpu
+; ( ( a -( e fail )- b maybe c ) ( b c -( f fail )- maybe a ) -( f fail )- maybe b )
+do_while:
+	rst	pop_rst
+	push	bc
+	rst	pop_rst
+while_l:push	bc
+	call	jpbc		; pred
+	jr	c, end_while
+	exx
+	pop	hl		; HL = pred
+	ex	(sp), hl	; HL = body, stack pred
+	push	hl		; stack body
+	exx
+	pop	bc
+	push	bc
+	call	jpbc		; body
+	exx
+	pop	hl		; HL = body
+	ex	(sp), hl	; HL = pred, stack body
+	push	hl		; stack pred
+	exx
+	pop	bc
+	jr	nc, while_l
+	pop	bc		; discard body
+	ret			; body failure
+end_while:
+	pop	bc		; discard pred
+	pop	bc		; discard body
+	and	a		; clear CF
+	ret
 
 ; ( a b ( b -( e )- c ) ( a -( f )- c ) -( e f )- c )
 do_or:	rst	pop_rst
@@ -672,33 +697,25 @@ do_stroke:	dec	de
 		inc	de
 		ret
 
-
-; ( S8 -( emit )- )
-do_writeln:	rst	vm_rst
-		defb	write
-		defb	litN8
-		defb	  0x0A
-		defb	tail
-		defb	  emit
-
-; ( -( key )- S8 )
-do_readln:	rst	vm_rst
-		defb	zero
+; ( S8 S8 -( fail )- )
+do_verbatim:	defb	vm_rst
 		defb	litE
-		defb	  end_readln - start_readln
-start_readln:		rst	vm_rst
-			defb	key
+		defb	  end_sameLen - do_sameLen
+do_sameLen:		rst	vm_rst
+			defb	dup
+			defb	local
+			defb	  -5
+			defb	fetchN8
+			defb	eq
+end_sameLen:	defb	litE
+		defb	  end_S8drop2 - do_S8drop2
+do_S8drop2:		rst	vm_rst
 			defb	litN8
-			defb	  0x0A
-			defb	neq
-			defb	append
-			defb	  0
-			defb	tailself
-			defb	  start_readln - $
-end_readln:	defb	tick
-		defb	  string
-		defb	tail
-		defb	  or
+			defb	  3 + 3
+			defb	rain
+			defb	fail
+end_S8drop2:	defb	or
+		
 
 ; ( S8 -( pend )- maybe S8:words N8:token S8:word N8:wordType )
 do_words:	rst	vm_rst
@@ -749,6 +766,14 @@ words_a_e:		defb	or
 			defb	tailpend
 words_g_e:	defb	tail
 		defb	  call
+
+; ( N8 S8 -- S8)
+do_name:	rst	vm_rst
+		
+
+; ( S8 S8 -- N8 )
+do_index:	rst	vm_rst
+		
 
 	include	"words.asm"
 	include	"compiler.asm"
