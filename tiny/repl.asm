@@ -26,6 +26,7 @@ end_wordList:	defb	emptyE
 		defb	tick
 		defb	  srcWords
 		defb	name
+		defb	drop			; word class
 		defb	writeln
 
 ; Test decompiler

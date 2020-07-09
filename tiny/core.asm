@@ -874,24 +874,24 @@ words_g_e:	defb	tail
 words_l:	defb	fail
 		defb	  -4
 
-; ( N8 E;vocab -- S8)
+; ( N8;idx E;voc -- S8;wrd N8;cls )
 do_name:	rst	vm_rst
+		defb	zero
 		defb	local
-		defb	  -3
-		defb	fetchN8
+		defb	  -4			; idx
+		defb	fetchN8			; idx2
 		defb	local
-		defb	  -3
+		defb	  -4			; voc
 		defb	fetchE
 		defb	litE
 		defb	  s_name_end - s_name
 s_name:			rst	vm_rst
 			defb	call
-			defb	drop		; word class
 			defb	local
-			defb	  -4
+			defb	  -5		; idx3
 			defb	fetchN8
 			defb	local
-			defb	  -12
+			defb	  -10		; idx2
 			defb	fetchN8
 			defb	tick
 			defb	  eq
@@ -899,11 +899,14 @@ s_name:			rst	vm_rst
 			defb	  tok_mism_end - tok_mism
 tok_mism:			rst	vm_rst
 				defb	fail
-				defb	  -3
+				defb	  -4
 tok_mism_end:		defb	or
 			defb	drop		; token number
 			defb	local
-			defb	  -11
+			defb	  -10		; cls
+			defb	N8store
+			defb	local
+			defb	  -12		; wrd
 			defb	S8store
 			defb	fail
 			defb	  0
@@ -912,9 +915,17 @@ s_name_end:	defb	tick
 		defb	tail
 		defb	  or
 
-; ( S8 S8 -- N8 )
+; ( S8 E -- N8 )
 do_index:	rst	vm_rst
-		
+		defb	zero
+		defb	local
+		defb	  -3
+		defb	fetchE
+		defb	litE
+		defb	  s_index_end - s_index
+s_index:		rst	vm_rst
+			defb	call
+s_index_end:		
 
 	include	"words.asm"
 	include	"compiler.asm"
