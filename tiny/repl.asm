@@ -15,7 +15,7 @@ do_wordList:		rst	vm_rst
 			defb	srcWords
 			defb	drop		; word class
 			defb	writeln
-			defb	fail
+			defb	fail0
 end_wordList:	defb	emptyE
 		defb	or
 

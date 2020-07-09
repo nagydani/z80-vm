@@ -104,6 +104,10 @@ emptyE:	equ	($ - core_tab - 1) / 2
 eq:	equ	($ - core_tab - 1) / 2
 	defw	do_eq
 
+; ( -( fail )- )
+fail0:	equ     ($ - core_tab - 1) / 2
+	defw	do_fail0
+
 ; ( N8 N8 -( fail )- maybe N8 )
 neq:	equ	($ - core_tab - 1) / 2
 	defw	do_neq
@@ -240,7 +244,12 @@ src_last:equ	($ - core_tab - 1) / 2
 ; ---
 
 ; ( -( fail )- )
-do_fail:scf
+do_fail:ld	c, (hl)
+	inc	hl
+	ld	b, 0xFF
+	ex	de, hl
+	add	hl, bc
+	ex	de, hl
 
 ; ( -- )
 do_nop:	ret
@@ -364,7 +373,7 @@ do_one_plus:
 	jr	nz, N8ok
 N8fail:	xor	a
 	cp	(hl)
-	jr	z, do_fail
+	jr	z, do_fail0
 	ld	c, (hl)
 	ld	b, a
 	add	hl, bc
@@ -443,6 +452,7 @@ pushBC:	ex	de, hl
 do_eq:	rst	cmp_rst
 	ret	z
 f_eq:	dec	de
+do_fail0:
 	scf
 	ret
 
@@ -496,10 +506,8 @@ chop_nc:inc	hl
 	ld	a, (bc)
 	jr	pushA
 
-f_bite:	defb	drop
-	defb	drop
-	defb	drop
-	defb	fail
+f_bite:	defb	fail
+	defb	  -3
 
 ; ( ( a -( e )- b ) -( tail pend )- )
 do_tailpend:
@@ -760,25 +768,51 @@ do_stroke:	dec	de
 		inc	de
 		ret
 
-; ( S8 S8 -( fail )- )
-do_verbatim:	defb	vm_rst
+; ( S8 S8 -( fail )- maybe S8 )
+do_verbatim:	rst	vm_rst
+		defb	local
+		defb	  -4
+		defb	tick
+		defb	  eq
 		defb	litE
-		defb	  end_sameLen - do_sameLen
-do_sameLen:		rst	vm_rst
-			defb	dup
+		defb	  len_mism_end - len_mism
+len_mism:		rst	vm_rst
+			defb	fail
+			defb	  -5
+len_mism_end:	defb	or
+		defb	litE
+		defb	local
+		defb	  -6
+		defb	fetchS8
+		defb	  S8check_end - S8check
+S8check:		rst	vm_rst
+			defb	bite
+			defb	local
+			defb	  -7
+			defb	fetchS8
+			defb	bite
 			defb	local
 			defb	  -5
 			defb	fetchN8
+S8check_end:	defb	litE
+		defb	  S8match_end - S8match
+S8match:		defb	vm_rst
 			defb	eq
-end_sameLen:	defb	litE
-		defb	  end_S8drop2 - do_S8drop2
-do_S8drop2:		rst	vm_rst
-			defb	litN8
-			defb	  3 + 3
-			defb	rain
+			defb	drop
+			defb	local
+			defb	  -7
+			defb	S8store
+			defb	drop
+S8match_end:	defb	tick
+		defb	  while
+		defb	litE
+		defb	  S8mism_end - S8mism
+S8mism:			rst	vm_rst
 			defb	fail
-end_S8drop2:	defb	or
-		
+			defb	  -13
+S8mism_end:	defb	tail
+		defb	  or
+
 
 ; ( S8 -( pend )- maybe S8:words N8:token S8:word N8:wordType )
 do_words:	rst	vm_rst

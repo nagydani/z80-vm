@@ -174,6 +174,7 @@ do_seeRawFn:	rst	vm_rst
 tailRaw:		defm	"~raw"
 end_tailRaw:	defb	writeln
 		defb	fail
+		defb	  0
 end_seeRawFn:	equ	$
 	defb	or
 	defb	drop		; comparison

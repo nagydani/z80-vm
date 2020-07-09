@@ -126,6 +126,8 @@ core_words:
 	defb	fn
 	defb	"=!"
 	defb	fn
+	defb	"~fail"
+	defb	fn
 	defb	"="
 	defb	fn
 	defb	"{}"
@@ -175,7 +177,7 @@ core_words:
 	defb	"ok"
 	defb	fn
 	defb	"~fail"
-	defb	fn
+	defb	varRef
 end_core_words:	equ	$
 	defb	tail
 	defb	  words
