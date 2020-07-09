@@ -15,16 +15,18 @@ do_wordList:		rst	vm_rst
 			defb	srcWords
 			defb	drop		; word class
 			defb	writeln
-			defb	fail0
+			defb	fail
+			defb	  0
 end_wordList:	defb	emptyE
 		defb	or
 
 ; Test name
-;		defb	litN8
-;		defb	  name
-;		defb	coreWords
-;		defb	name
-;		defb	writeln
+		defb	litN8
+		defb	  name
+		defb	tick
+		defb	  srcWords
+		defb	name
+		defb	writeln
 
 ; Test decompiler
 ;		defb	coreWords

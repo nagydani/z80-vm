@@ -68,6 +68,14 @@ drop:	equ	($ - core_tab - 1) / 2
 dup:	equ	($ - core_tab - 1) / 2
 	defw	do_dup
 
+; ( N8 N8 -( fail )- maybe N8 )
+eq:	equ	($ - core_tab - 1) / 2
+	defw	do_eq
+
+; ( N8 N8 -( fail )- maybe N8 )
+neq:	equ	($ - core_tab - 1) / 2
+	defw	do_neq
+
 ; ( V8 C8 -( fail )- V8 )
 append:	equ	($ - core_tab - 1) / 2
 	defw	do_append
@@ -79,6 +87,10 @@ one_plus:equ	($ - core_tab - 1) / 2
 ; ( N8 -( fail )- maybe N8 )
 one_minus:equ	($ - core_tab - 1) / 2
 	defw	do_one_minus
+
+; ( -- E )
+emptyE:	equ	($ - core_tab - 1) / 2
+	defw	do_emptyE
 
 ; ( -- N8 )
 zero:	equ	($ - core_tab - 1) / 2
@@ -95,22 +107,6 @@ var:	equ	($ - core_tab - 1) / 2
 ; ( -- A )
 local:	equ	($ - core_tab - 1) / 2
 	defw	do_local
-
-; ( -- E )
-emptyE:	equ	($ - core_tab - 1) / 2
-	defw	do_emptyE
-
-; ( N8 N8 -( fail )- maybe N8 )
-eq:	equ	($ - core_tab - 1) / 2
-	defw	do_eq
-
-; ( -( fail )- )
-fail0:	equ     ($ - core_tab - 1) / 2
-	defw	do_fail0
-
-; ( N8 N8 -( fail )- maybe N8 )
-neq:	equ	($ - core_tab - 1) / 2
-	defw	do_neq
 
 ; ( S8 -( fail ) -- maybe S8 N8 )
 bite:	equ	($ - core_tab - 1) / 2
@@ -214,6 +210,7 @@ words:	equ	($ - core_tab - 1) / 2
 
 ; ( N8 S8 -- S8 )
 name:	equ	($ - core_tab - 1) / 2
+	defw	do_name
 
 ; ( S8 S8 -- N8 )
 index:	equ	($ - core_tab - 1) / 2
@@ -244,8 +241,11 @@ src_last:equ	($ - core_tab - 1) / 2
 ; ---
 
 ; ( -( fail )- )
-do_fail:ld	c, (hl)
+do_fail:ld	a, (hl)
 	inc	hl
+	or	a
+	jr	z, do_fail0
+	ld	c, a
 	ld	b, 0xFF
 	ex	de, hl
 	add	hl, bc
@@ -359,6 +359,20 @@ do_dup:	dec	de
 	inc	de
 	ret
 
+; ( N8 N8 -( fail )- maybe N8 )
+do_eq:	rst	cmp_rst
+	ret	z
+f_eq:	dec	de
+do_fail0:
+	scf
+	ret
+
+; ( N8 N8 -( fail )- maybe N8 )
+do_neq:	rst	cmp_rst
+	jr	z, f_eq
+	and	a
+	ret
+
 ; ( V8 C8 -( failOver )- V8 |maybe V8+ )
 do_append:
 	rst	vm_rst
@@ -389,6 +403,17 @@ do_one_minus:
 N8ok:	inc	hl
 pushA:	ld	(de), a
 	inc	de
+	ret
+
+; ( -- E )
+do_emptyE:
+	ld	bc, do_nop
+pushBC:	ex	de, hl
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+	inc	hl
+	ex	de, hl
 	ret
 
 ; ( -- N8 )
@@ -436,31 +461,6 @@ do_var:	ld	a, (hl)
 	exx
 	pop	bc
 	jr	pushBC
-
-; ( -- E )
-do_emptyE:
-	ld	bc, do_nop
-pushBC:	ex	de, hl
-	ld	(hl), c
-	inc	hl
-	ld	(hl), b
-	inc	hl
-	ex	de, hl
-	ret
-
-; ( N8 N8 -( fail )- maybe N8 )
-do_eq:	rst	cmp_rst
-	ret	z
-f_eq:	dec	de
-do_fail0:
-	scf
-	ret
-
-; ( N8 N8 -( fail )- maybe N8 )
-do_neq:	rst	cmp_rst
-	jr	z, f_eq
-	and	a
-	ret
 
 ; ( S8 -( fail )- maybe S8 N8 )
 do_bite:rst	vm_rst
@@ -864,18 +864,42 @@ words_a_e:		defb	or
 words_g_e:	defb	tail
 		defb	  call
 
-; ( N8 S8 -- S8)
+; ( N8 E;vocab -- S8)
 do_name:	rst	vm_rst
-		defb	words
-		defb	drop	; word class
 		defb	local
-		defb	  -4	; token of this word
+		defb	  -3
+		defb	fetchN8
 		defb	local
-		defb	  -7	; token given
-		defb	eq
-		defb	drop
-		DEFB	cpu
-		HALT
+		defb	  -3
+		defb	fetchE
+		defb	litE
+		defb	  s_name_end - s_name
+s_name:			rst	vm_rst
+			defb	call
+			defb	drop		; word class
+			defb	local
+			defb	  -4
+			defb	fetchN8
+			defb	local
+			defb	  -11
+			defb	fetchN8
+			defb	tick
+			defb	  eq
+			defb	litE
+			defb	  tok_mism_end - tok_mism
+tok_mism:			rst	vm_rst
+				defb	fail
+				defb	  -3
+tok_mism_end:		defb	or
+			defb	drop		; token number
+			defb	local
+			defb	  -14
+			defb	S8store
+			defb	fail
+			defb	  0
+s_name_end:	defb	emptyE
+		defb	tail
+		defb	  or
 
 ; ( S8 S8 -- N8 )
 do_index:	rst	vm_rst

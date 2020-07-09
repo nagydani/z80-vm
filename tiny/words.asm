@@ -124,14 +124,6 @@ core_words:
 	defb	fn
 	defb	"bite"
 	defb	fn
-	defb	"=!"
-	defb	fn
-	defb	"~fail"
-	defb	fn
-	defb	"="
-	defb	fn
-	defb	"{}"
-	defb	fn
 	defb	"local"
 	defb	fn
 	defb	"var"
@@ -140,11 +132,17 @@ core_words:
 	defb	fn
 	defb	"0"
 	defb	fn
+	defb	"{}"
+	defb	fn
 	defb	"1-"
 	defb	failOver
 	defb	"1+"
 	defb	failOver
 	defb	","
+	defb	fn
+	defb	"=!"
+	defb	fn
+	defb	"="
 	defb	fn
 	defb	"dup"
 	defb	fn
