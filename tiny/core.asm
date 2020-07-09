@@ -194,7 +194,7 @@ words:	equ	($ - core_tab - 1) / 2
 
 ; ( S8 -- N8 )
 index:	equ	($ - core_tab - 1) / 2
-	defb	do_index
+	defw	do_index
 
 ; ( -- S8 )
 coreWords:equ     ($ - core_tab - 1) / 2
