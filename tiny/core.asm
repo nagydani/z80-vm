@@ -184,6 +184,18 @@ S8store:equ	($ - core_tab - 1) / 2
 tryWith:equ	($ - core_tab - 1) / 2
 	defw	do_tryWith
 
+; ( S8 -( emit )- )
+write:	equ     ($ - core_tab - 1) / 2
+	defw	do_write
+
+; ( S8 -( emit )- )
+writeln:equ     ($ - core_tab - 1) / 2
+	defw	do_writeln
+
+; ( -( key )- S8 )
+readln:	equ     ($ - core_tab - 1) / 2
+	defw	do_readln
+
 ; ( N8 -( fail )- N8 )
 stroke:	equ	($ - core_tab - 1) / 2
 	defw	do_stroke
@@ -686,6 +698,42 @@ do_tryWith:	push	ix
 		call	do_call
 		pop	ix
 		ret
+
+; ( S8 -( emit )- )
+do_write:	rst	vm_rst
+		defb	tick
+		defb	  bite
+		defb	tick
+		defb	  emit
+		defb	tail
+		defb	  while
+
+; ( S8 -( emit )- )
+do_writeln:	rst	vm_rst
+		defb	write
+		defb	litN8
+		defb	  0x0A
+		defb	tail
+		defb	  emit
+
+; ( -( key )- S8 )
+do_readln:	rst	vm_rst
+		defb	zero
+		defb	litE
+		defb	  end_readln - start_readln
+start_readln:		rst	vm_rst
+			defb	key
+			defb	litN8
+			defb	  0x0A
+			defb	neq
+			defb	append
+			defb	  0
+			defb	tailself
+			defb	  start_readln - $
+end_readln:	defb	tick
+		defb	  string
+		defb	tail
+		defb	  or
 
 ; ( N8 -( fail )- C8 )
 do_stroke:	dec	de
