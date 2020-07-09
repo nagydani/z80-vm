@@ -821,7 +821,7 @@ do_words:	rst	vm_rst
 		defb	  words_g_e - words_g
 words_g:		rst	vm_rst
 			defb	one_minus
-			defb	  0
+			defb	  words_l - $
 			defb	local
 			defb	  -4		; current word
 			defb	fetchS8		; fetch it
@@ -871,6 +871,9 @@ words_a_e:		defb	or
 words_g_e:	defb	tail
 		defb	  call
 
+words_l:	defb	fail
+		defb	  -4
+
 ; ( N8 E;vocab -- S8)
 do_name:	rst	vm_rst
 		defb	local
@@ -904,10 +907,10 @@ tok_mism_end:		defb	or
 			defb	S8store
 			defb	fail
 			defb	  0
-s_name_end:	defb	emptyE
-		defb	or
-		DEFB	cpu
-		HALT
+s_name_end:	defb	tick
+		defb	  drop
+		defb	tail
+		defb	  or
 
 ; ( S8 S8 -- N8 )
 do_index:	rst	vm_rst
