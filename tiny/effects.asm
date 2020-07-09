@@ -1,4 +1,4 @@
-emit:	equ	core_last
+emit:	equ	src_last
 	defb	litE
 	defb	  end_emit - do_emit
 ; ( C8 -( emit fail )- )

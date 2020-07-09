@@ -22,17 +22,22 @@ varRef:	equ	words_first + 9
 
 raw:	equ	words_first + 10
 
-do_coreWords:
+
+do_srcWords:
 	rst	vm_rst
 	defb	litS8
-	defb	  end_core_words - core_words
-core_words:
-	defb	core_last
+	defb	  end_src_words - src_words
+src_words:
+	defb	src_last
 	defb	"see"
 	defb	fn
 	defb	"comp"
 	defb	fn
-	defb	"coreWords"
+	defb	"coreWords:"
+	defb	fn
+	defb	"ioWords:"
+	defb	fn
+	defb	"srcWords:"
 	defb	fn
 	defb	"index"
 	defb	fn
@@ -44,12 +49,43 @@ core_words:
 	defb	fn
 	defb	"stroke"
 	defb	fn
+end_src_words:	equ	$
+	defb	tick
+	defb	  words
+	defb	tick
+	defb	  ioWords
+	defb	tail
+	defb	  or
+
+
+
+do_ioWords:
+	rst	vm_rst
+	defb	litS8
+	defb	  end_io_words - io_words
+io_words:
+	defb	io_last
 	defb	"readln"
 	defb	fn
 	defb	"writeln"
 	defb	fn
 	defb	"write"
 	defb	fn
+end_io_words:	equ	$
+	defb	tick
+	defb	  words
+	defb	tick
+	defb	  coreWords
+	defb	tail
+	defb	  or
+
+
+do_coreWords:
+	rst	vm_rst
+	defb	litS8
+	defb	  end_core_words - core_words
+core_words:
+	defb	core_last
 	defb	"tryWith"
 	defb	fnRef
 	defb	"let$"
@@ -142,4 +178,5 @@ core_words:
 	defb	fn
 end_core_words:	equ	$
 	defb	tail
-	defb	  ok
+	defb	  words
+

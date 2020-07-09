@@ -9,16 +9,22 @@ hello:		defm	  "Ok"
 end_hello:	defb	writeln
 
 ; Test words generator
-		defb	coreWords
 		defb	litE
 		defb	  end_wordList - do_wordList
 do_wordList:		rst	vm_rst
-			defb	words
+			defb	srcWords
 			defb	drop		; word class
 			defb	writeln
 			defb	fail
 end_wordList:	defb	emptyE
 		defb	or
+
+; Test name
+;		defb	litN8
+;		defb	  name
+;		defb	coreWords
+;		defb	name
+;		defb	writeln
 
 ; Test decompiler
 ;		defb	coreWords

@@ -6,7 +6,7 @@
 start:	ld	hl, core_tab
 	ld	(EFFECT), hl
 	ld	hl, effects_tab
-	ld	(hl), core_last
+	ld	(hl), src_last
 	ld	c, l
 	ld	b, h
 	inc	hl

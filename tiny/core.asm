@@ -184,17 +184,21 @@ S8store:equ	($ - core_tab - 1) / 2
 tryWith:equ	($ - core_tab - 1) / 2
 	defw	do_tryWith
 
+core_last:equ	($ - core_tab - 1) / 2
+
 ; ( S8 -( emit )- )
-write:	equ     ($ - core_tab - 1) / 2
+write:	equ	($ - core_tab - 1) / 2
 	defw	do_write
 
 ; ( S8 -( emit )- )
-writeln:equ     ($ - core_tab - 1) / 2
+writeln:equ	($ - core_tab - 1) / 2
 	defw	do_writeln
 
 ; ( -( key )- S8 )
-readln:	equ     ($ - core_tab - 1) / 2
+readln:	equ	($ - core_tab - 1) / 2
 	defw	do_readln
+
+io_last:equ	($ - core_tab - 1) / 2
 
 ; ( N8 -( fail )- N8 )
 stroke:	equ	($ - core_tab - 1) / 2
@@ -204,9 +208,20 @@ stroke:	equ	($ - core_tab - 1) / 2
 words:	equ	($ - core_tab - 1) / 2
 	defw	do_words
 
-; ( S8 -- N8 )
+; ( N8 S8 -- S8 )
+name:	equ	($ - core_tab - 1) / 2
+
+; ( S8 S8 -- N8 )
 index:	equ	($ - core_tab - 1) / 2
 	defw	do_index
+
+; ( -- S8 )
+srcWords:equ     ($ - core_tab - 1) / 2
+	defw	do_srcWords
+
+; ( -- S8 )
+ioWords:equ     ($ - core_tab - 1) / 2
+	defw	do_ioWords
 
 ; ( -- S8 )
 coreWords:equ     ($ - core_tab - 1) / 2
@@ -220,7 +235,7 @@ comp:	equ	($ - core_tab - 1) / 2
 see:	equ	($ - core_tab - 1) / 2
 	defw do_see
 
-core_last:equ	($ - core_tab - 1) / 2
+src_last:equ	($ - core_tab - 1) / 2
 
 ; ---
 
@@ -817,7 +832,16 @@ words_g_e:	defb	tail
 
 ; ( N8 S8 -- S8)
 do_name:	rst	vm_rst
-		
+		defb	words
+		defb	drop	; word class
+		defb	local
+		defb	  -4	; token of this word
+		defb	local
+		defb	  -7	; token given
+		defb	eq
+		defb	drop
+		DEFB	cpu
+		HALT
 
 ; ( S8 S8 -- N8 )
 do_index:	rst	vm_rst
