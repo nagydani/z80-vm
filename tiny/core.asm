@@ -5,6 +5,11 @@ core_tab:
 	defb	0			; first code
 
 ; ( -( fail )- )
+
+failor:	equ	($ - core_tab - 1) / 2
+	defw	do_failor
+
+; ( -( fail )- )
 fail:	equ	($ - core_tab - 1) / 2
 	defw	do_fail
 
@@ -239,6 +244,13 @@ see:	equ	($ - core_tab - 1) / 2
 src_last:equ	($ - core_tab - 1) / 2
 
 ; ---
+
+; ( -( fail )- )
+do_failor:
+	call	do_call
+	inc	hl
+	ret	nc
+	dec	hl
 
 ; ( -( fail )- )
 do_fail:ld	a, (hl)
@@ -774,12 +786,8 @@ do_verbatim:	rst	vm_rst
 		defb	  -4
 		defb	tick
 		defb	  eq
-		defb	litE
-		defb	  len_mism_end - len_mism
-len_mism:		rst	vm_rst
-			defb	fail
-			defb	  -5
-len_mism_end:	defb	or
+		defb	failor
+		defb	  -5
 		defb	litE
 		defb	local
 		defb	  -6
@@ -832,12 +840,8 @@ words_g:		rst	vm_rst
 			defb	fetchS8		; fetch it
 			defb	tick
 			defb	  bite
-			defb	litE
-			defb	  words_f_e - words_f
-words_f:			rst	vm_rst
-				defb	fail
-				defb	  -7
-words_f_e:		defb	or
+			defb	failor
+			defb	  -7
 			defb	litE
 			defb	  words_n_e - words_n
 words_n:			rst	vm_rst
@@ -895,12 +899,8 @@ s_name:			rst	vm_rst
 			defb	fetchN8
 			defb	tick
 			defb	  eq
-			defb	litE
-			defb	  tok_mism_end - tok_mism
-tok_mism:			rst	vm_rst
-				defb	fail
-				defb	  -4
-tok_mism_end:		defb	or
+			defb	failor
+			defb	  -4
 			defb	drop		; token number
 			defb	local
 			defb	  -10		; cls

@@ -176,6 +176,8 @@ core_words:
 	defb	fn
 	defb	"~fail"
 	defb	varRef
+	defb	"'fail|"
+	defb	varRef
 end_core_words:	equ	$
 	defb	tail
 	defb	  words
