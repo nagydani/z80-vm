@@ -53,6 +53,10 @@ tickself: equ	($ - core_tab - 1) / 2
 tick:	equ	($ - core_tab - 1) / 2
 	defw	do_tick
 
+; ( a -- b a )
+make:	equ	($ - core_tab - 1) / 2
+	defw	do_make
+
 ; ( N8 -- E )
 token:	equ	($ - core_tab - 1) / 2
 	defw	do_token
@@ -322,6 +326,29 @@ a_tick:	push	de
 	exx
 	pop	bc
 	jr	pushBC
+
+
+; ( a -- b a )
+do_make:ld	a, (hl)
+	inc	hl
+	ld	c, (hl)
+	inc	hl
+	ld	b, 0
+	push	hl
+	dec	de
+	ld	l, e
+	ld	h, d
+	add	hl, bc
+	push	hl
+	or	a
+	jr	z, make0
+	ld	c, a
+	ex	de, hl
+	lddr
+make0:	pop	de
+	inc	de
+	pop	hl
+	ret
 
 ; ( N8 -- E )
 do_token:dec	de
@@ -880,13 +907,8 @@ words_l:	defb	fail
 
 ; ( N8;idx E;voc -- S8;wrd N8;cls )
 do_name:	rst	vm_rst
-		defb	zero
-		defb	local
-		defb	  -4			; idx
-		defb	fetchN8			; idx2
-		defb	local
-		defb	  -4			; voc
-		defb	fetchE
+		defb	make
+		defb	  3, 4
 		defb	litE
 		defb	  s_name_end - s_name
 s_name:			rst	vm_rst

@@ -48,6 +48,10 @@ see_voc:	defb	0x80
 	defw	do_see_varRef
 
 ; ( -( emit )- )
+; makeRef
+	defw	do_see_makeRef
+
+; ( -( emit )- )
 ; raw
 	defw	do_see_raw
 
@@ -127,6 +131,7 @@ do_see_fnRef:
 	defb	  fn
 
 do_see_varRef:
+do_see_makeRef:
 do_see_raw:
 
 ; ( S8 -( emit )- )

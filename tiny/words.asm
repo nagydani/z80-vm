@@ -20,7 +20,9 @@ fnRef:	equ	words_first + 8
 
 varRef:	equ	words_first + 9
 
-raw:	equ	words_first + 10
+makeRef:equ	words_first + 10
+
+raw:	equ	words_first + 11
 
 
 do_srcWords:
@@ -154,6 +156,8 @@ core_words:
 	defb	fnRef
 	defb	"token"
 	defb	fn
+	defb	"make"
+	defb	makeRef
 	defb	"'"
 	defb	fnRef
 	defb	"'self"

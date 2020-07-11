@@ -48,6 +48,10 @@ comp_voc:	defb	words_first
 	defw	do_varRef
 
 ; ( -( key emit )- )
+; makeRef
+	defw	do_makeRef
+
+; ( -( key emit )- )
 ; raw
 	defw	do_raw
 
@@ -67,6 +71,7 @@ do_failOver:
 do_fnRef:
 do_selfRef:
 do_varRef:
+do_makeRef:
 do_raw:
 
 ; ( -( key )- S8 )
