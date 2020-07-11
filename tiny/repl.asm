@@ -30,9 +30,10 @@ end_wordList:	defb	emptyE
 		defb	writeln
 
 ; Test decompiler
-;		defb	coreWords
 ;		defb	tick
 ;		defb	  writeln
+;		defb	tick
+;		defb	  coreWords
 ;		defb	see
 
 ; Test readln and writeln

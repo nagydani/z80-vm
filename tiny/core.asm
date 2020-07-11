@@ -209,11 +209,15 @@ readln:	equ	($ - core_tab - 1) / 2
 
 io_last:equ	($ - core_tab - 1) / 2
 
-; ( N8 -( fail )- N8 )
+; ( N8 -( fail )- maybe N8 )
 stroke:	equ	($ - core_tab - 1) / 2
 	defw	do_stroke
 
-; ( S8 -( pend )- maybe S8:words N8:token S8:word N8:wordType )
+; ( S8 S8 -( fail )- maybe S8 )
+verbatim:equ	($ - core_tab - 1) / 2
+	defw	do_verbatim
+
+; ( S8 -( pend )- maybe S8;wrds :: N8;tkn S8;wrd N8;cls )
 words:	equ	($ - core_tab - 1) / 2
 	defw	do_words
 
@@ -849,7 +853,7 @@ S8mism_end:	defb	tail
 		defb	  or
 
 
-; ( S8 -( pend )- maybe S8:words N8:token S8:word N8:wordType )
+; ( S8 -( pend )- maybe S8;wrds :: N8;tkn S8;wrd N8;cls )
 do_words:	rst	vm_rst
 		defb	bite
 		defb	litE
@@ -914,15 +918,15 @@ do_name:	rst	vm_rst
 s_name:			rst	vm_rst
 			defb	call
 			defb	local
-			defb	  -5		; idx3
+			defb	  -5		; tkn
 			defb	fetchN8
 			defb	local
-			defb	  -10		; idx2
+			defb	  -10		; idx
 			defb	fetchN8
 			defb	tick
 			defb	  eq
 			defb	failor
-			defb	  -4
+			defb	  -4		; ::
 			defb	drop		; token number
 			defb	local
 			defb	  -10		; cls
@@ -937,17 +941,38 @@ s_name_end:	defb	tick
 		defb	tail
 		defb	  or
 
-; ( S8 E -- N8 )
+; ( S8;nam E;voc -- N8;idx N8;cls )
 do_index:	rst	vm_rst
-		defb	zero
-		defb	local
-		defb	  -3
-		defb	fetchE
+		defb	make
+		defb	  5, 2
 		defb	litE
 		defb	  s_index_end - s_index
 s_index:		rst	vm_rst
 			defb	call
-s_index_end:		
+			defb	local
+			defb	  -4		; wrd
+			defb	fetchS8
+			defb	local
+			defb	  -14		; nam
+			defb	fetchS8
+			defb	tick
+			defb	  verbatim
+			defb	failor
+			defb	  -4		; ::
+			defb	drop
+			defb	drop
+			defb	drop		; TODO: strDrop
+			defb	local
+			defb	  -10		; cls
+			defb	N8store
+			defb	drop
+			defb	drop
+			defb	drop		; TODO: strDrop
+			defb	local
+			defb	  -13		; idx
+			defb	N8store
+			
+s_index_end:	
 
 	include	"words.asm"
 	include	"compiler.asm"
