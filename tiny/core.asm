@@ -217,7 +217,7 @@ stroke:	equ	($ - core_tab - 1) / 2
 verbatim:equ	($ - core_tab - 1) / 2
 	defw	do_verbatim
 
-; ( S8 -( pend )- maybe S8;wrds :: N8;tkn S8;wrd N8;cls )
+; ( S8 -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 words:	equ	($ - core_tab - 1) / 2
 	defw	do_words
 
@@ -815,14 +815,15 @@ do_stroke:	dec	de
 do_verbatim:	rst	vm_rst
 		defb	local
 		defb	  -4
+		defb	fetchN8
 		defb	tick
 		defb	  eq
 		defb	failor
 		defb	  -5
-		defb	litE
 		defb	local
 		defb	  -6
 		defb	fetchS8
+		defb	litE
 		defb	  S8check_end - S8check
 S8check:		rst	vm_rst
 			defb	bite
@@ -832,28 +833,28 @@ S8check:		rst	vm_rst
 			defb	bite
 			defb	local
 			defb	  -5
-			defb	fetchN8
+			defb	tail
+			defb	  fetchN8
 S8check_end:	defb	litE
 		defb	  S8match_end - S8match
-S8match:		defb	vm_rst
+S8match:		rst	vm_rst
 			defb	eq
 			defb	drop
 			defb	local
-			defb	  -7
+			defb	  -10
 			defb	S8store
-			defb	drop
+			defb	tail
+			defb	  drop
 S8match_end:	defb	tick
 		defb	  while
-		defb	litE
-		defb	  S8mism_end - S8mism
-S8mism:			rst	vm_rst
-			defb	fail
-			defb	  -13
-S8mism_end:	defb	tail
-		defb	  or
+		defb	failor
+		defb	  -13
+		defb	drop
+		defb	drop
+		defb	tail
+		defb	drop		; TODO: S8drop
 
-
-; ( S8 -( pend )- maybe S8;wrds :: N8;tkn S8;wrd N8;cls )
+; ( S8 -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 do_words:	rst	vm_rst
 		defb	bite
 		defb	litE
@@ -937,7 +938,7 @@ s_name:			rst	vm_rst
 			defb	fail
 			defb	  0
 s_name_end:	defb	tick
-		defb	  drop
+		defb	  drop			; tkn
 		defb	tail
 		defb	  or
 
@@ -963,16 +964,26 @@ s_index:		rst	vm_rst
 			defb	drop
 			defb	drop		; TODO: strDrop
 			defb	local
-			defb	  -10		; cls
+			defb	  -12		; cls
 			defb	N8store
 			defb	drop
 			defb	drop
 			defb	drop		; TODO: strDrop
+			defb	dup		; tkn
 			defb	local
-			defb	  -13		; idx
+			defb	  -10		; idx
 			defb	N8store
-			
-s_index_end:	
+			defb	fail
+			defb	  0
+s_index_end:	defb	litE
+		defb	  e_index_end - e_index
+e_index:		rst	vm_rst
+			defb	drop
+			defb	drop
+			defb	tail
+			defb	  drop		; TODO: strDrop
+e_index_end:	defb	tail
+		defb	  or
 
 	include	"words.asm"
 	include	"compiler.asm"

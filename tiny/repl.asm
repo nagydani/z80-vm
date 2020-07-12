@@ -22,7 +22,21 @@ end_wordList:	defb	emptyE
 
 ; Test name
 		defb	backtick
-		defb	  ok
+		defb	  index
+		defb	tick
+		defb	  srcWords
+		defb	name
+		defb	drop			; word class
+		defb	writeln
+
+; Test index
+		defb	litS8
+		defb	  end_testwrd - testwrd
+testwrd:	defm	  "index"
+end_testwrd:	defb	tick
+		defb	  srcWords
+		defb	index
+		defb	drop			; word class
 		defb	tick
 		defb	  srcWords
 		defb	name
