@@ -114,6 +114,46 @@ do_tailemit:
 do_see_printable:
 
 do_see_quote:
+	rst	vm_rst
+	defb	writesp
+	defb	bite
+	defb	swap
+	defb	drop
+	defb	local
+	defb	  -3
+	defb	fetchS8
+	defb	tick
+	defb	  bite
+	defb	litE
+	defb	  e_c_quote - c_quote
+c_quote:	rst	vm_rst
+		defb	litE
+		defb	  e_quote - s_quote
+s_quote:		rst	vm_rst
+			defb	dup
+			defb	stroke
+			defb	drop
+			defb	tail
+			defb	  emit
+e_quote:	defb	litE
+		defb	  e_nonpr - s_nonpr
+s_nonpr:		rst	vm_rst
+			defb	litS8
+			defb	  e_q - s_q
+s_q:			defb	  "\"..", 0x0A, "\""
+e_q:			defb	writesp
+			defb	tail
+			DEFB	  drop		; TODO print ascii code
+e_nonpr:	defb	tail
+		defb	  or
+e_c_quote:	equ	$
+	defb	while
+	defb	ascii
+	defb	  "\""
+	defb	emit
+	defb	cr
+	defb	tail
+	defb	  adv
 
 do_see_brace:
 	rst	vm_rst

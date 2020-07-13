@@ -47,7 +47,7 @@ end_hello:	defb	writeln
 		defb	tick
 		defb	  effWords
 		defb	tick
-		defb	  readln
+		defb	  effWords
 		defb	see
 
 ; Test readln and writeln
