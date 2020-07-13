@@ -12,18 +12,46 @@ voc:	equ	words_first + 4
 
 fn:	equ	words_first + 5
 
-failOver:equ	words_first + 6
+tailFn:	equ	words_first + 6
 
-selfRef:equ	words_first + 7
+failOver:equ	words_first + 7
 
-fnRef:	equ	words_first + 8
+selfRef:equ	words_first + 8
 
-varRef:	equ	words_first + 9
+tailSelfRef:equ	words_first + 9
 
-makeRef:equ	words_first + 10
+fnRef:	equ	words_first + 10
 
-raw:	equ	words_first + 11
+tailFnRef:equ	words_first + 11
 
+varRef:	equ	words_first + 12
+
+tailVarRef:equ	words_first + 13
+
+makeRef:equ	words_first + 14
+
+raw:	equ	words_first + 15
+
+
+do_effWords:
+	rst	vm_rst
+	defb	litS8
+	defb	  end_eff_words - eff_words
+eff_words:
+	defb	effects_last
+	defb	"seeRaw"
+	defb	fn
+	defb	"key"
+	defb	fn
+	defb	"emit"
+	defb	fn
+end_eff_words:equ	$
+	defb	tick
+	defb	  words
+	defb	tick
+	defb	  srcWords
+	defb	tail
+	defb	  or
 
 do_srcWords:
 	rst	vm_rst
@@ -40,6 +68,8 @@ src_words:
 	defb	"ioWords:"
 	defb	fn
 	defb	"srcWords:"
+	defb	fn
+	defb	"effWords:"
 	defb	fn
 	defb	"index"
 	defb	fn
@@ -70,6 +100,8 @@ io_words:
 	defb	"readln"
 	defb	fn
 	defb	"writeln"
+	defb	fn
+	defb	"cr"
 	defb	fn
 	defb	"write"
 	defb	fn
@@ -123,13 +155,15 @@ core_words:
 	defb	"scan:"
 	defb	fn
 	defb	"~:"
-	defb	fn
+	defb	tailFn
 	defb	"chop"
 	defb	fn
 	defb	"bite"
 	defb	fn
-	defb	"local"
+	defb	"adv"
 	defb	fn
+	defb	"local"
+	defb	varRef
 	defb	"var"
 	defb	varRef
 	defb	"swap"
@@ -143,7 +177,7 @@ core_words:
 	defb	"1+"
 	defb	failOver
 	defb	","
-	defb	fn
+	defb	failOver
 	defb	"=!"
 	defb	fn
 	defb	"="
@@ -172,16 +206,16 @@ core_words:
 	defb	fnRef
 	defb	"ascii"
 	defb	printable
-	defb	"~raw"
+;	defb	"~raw"
 	defb	raw
 	defb	"~self"
-	defb	selfRef
+	defb	tailSelfRef
 	defb	"~"
-	defb	fnRef
+	defb	tailFnRef
 	defb	"ok"
 	defb	fn
 	defb	"~fail"
-	defb	varRef
+	defb	tailVarRef
 	defb	"'fail|"
 	defb	varRef
 end_core_words:	equ	$

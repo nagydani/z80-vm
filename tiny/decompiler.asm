@@ -32,8 +32,8 @@ see_voc:	defb	0x80
 	defw	do_see_fn
 
 ; ( -( emit )- )
-; fnRef
-	defw	do_see_fnRef
+; tailFn
+	defw	do_see_tailFn
 
 ; ( -( emit )- )
 ; failOver
@@ -44,8 +44,24 @@ see_voc:	defb	0x80
 	defw	do_see_selfRef
 
 ; ( -( emit )- )
+; tailSelfRef
+	defw	do_see_tailSelfRef
+
+; ( -( emit )- )
+; fnRef
+	defw	do_see_fnRef
+
+; ( -( emit )- )
+; tailFnRef
+	defw	do_see_tailFnRef
+
+; ( -( emit )- )
 ; varRef
 	defw	do_see_varRef
+
+; ( -( emit )- )
+; tailVarRef
+	defw	do_see_tailVarRef
 
 ; ( -( emit )- )
 ; makeRef
@@ -59,34 +75,36 @@ see_voc:	defb	0x80
 writesp:	equ     ($ - see_voc - 1) / 2 + words_first
 	defw	do_writesp
 
-; ( N8 S8 -( emit )- )
-see_word:	equ	($ - see_voc - 1) / 2 + words_first
-	defw	do_see_word
-
 ; ---
 
 do_see_number:
 	rst	vm_rst
 	defb	write
 	defb	bite
+	defb	swap
+	defb	drop
 	defb	cpu
 	dec	de
 	xor	a
 	ex	de, hl
-	rrd
+	rld
 	inc	hl
 	ld	(hl), a
-	inc	hl
-	ex	de, hl
 	call	do_see_digit
+	ex	de, hl
+	dec	hl
+	rrd
+	call	do_see_digit
+	rst	vm_rst
+	defb	tail
+	defb	  cr
 do_see_digit:
-	dec	de
+	ex	de, hl
 	ld	a, (de)
-	add	a, 0x80
 	daa
+	add	a, 0xF0
 	adc	a, 0x40
-	daa
-	and	a
+do_tailemit:
 	ld	(de), a
 	inc	de
 	rst	vm_rst
@@ -98,14 +116,24 @@ do_see_printable:
 do_see_quote:
 
 do_see_brace:
-	defb	vm_rst
+	rst	vm_rst
 	defb	writeln
-;	defb	varS8
-	defb	  -2
-	defb	bite		; length
-;	defb	varE
-	defb	  +5		; quotation
-	
+	defb	bite
+	defb	swap
+	defb	drop
+	defb	local
+	defb	  -5
+	defb	fetchE
+	defb	local
+	defb	  -5
+	defb	fetchE
+	defb	see
+	defb	ascii
+	defb	  "}"
+	defb	emit
+	defb	cr
+	defb	tail
+	defb	  adv
 
 do_see_voc:
 	
@@ -116,23 +144,55 @@ do_see_fn:
 	defb	tail
 	defb	  drop
 
+do_see_tailFn:
+	rst	vm_rst
+	defb	fn
+	defb	fail
+	defb	  -4
+
 do_see_failOver:
 do_see_selfRef:
+	rst	vm_rst
+	defb	writeln
+	defb	bite
+	defb	drop
+	defb	tail
+	defb	  drop
+
+do_see_tailSelfRef:
+	rst	vm_rst
+	defb	selfRef
+	defb	fail
+	defb	  -4
 
 do_see_fnRef:
 	rst	vm_rst
 	defb	writesp
 	defb	bite
-;	defb	varS8
-	defb	  -6
-	defb	see_word
+	defb	swap
+	defb	drop
+	defb	local
+	defb	  -5
+	defb	fetchE
+	defb	name
 	defb	drop
 	defb	tail
-	defb	  fn
+	defb	  writeln
+
+do_see_tailFnRef:
+	rst	vm_rst
+	defb	fnRef
+	defb	fail
+	defb	  -4
 
 do_see_varRef:
+do_see_tailVarRef:
 do_see_makeRef:
+
 do_see_raw:
+	rst	vm_rst
+	defb	tail
+	defb	  seeRaw
 
 ; ( S8 -( emit )- )
 do_writesp:
@@ -143,60 +203,38 @@ do_writesp:
 	defb	tail
 	defb	  emit
 
-; ( N8:token S8:words -( fail pend )- S8:word N8:wordClass )
-do_see_word:
-	rst	vm_rst
-	defb	words
-	defb	drop
-;	defb	varN8
-	defb	  -1
-;	defb	varN8
-	defb	  -5
-	defb	eq
-	defb	tail
-	defb	  drop
-
 ; ---
 
 end_see_voc:	equ	$
 
-; ( S8 E -( emit )- )
-;	defb	locals
-	defb	  -5
+; ( E E -( emit fail )- )
 	defb	litN8
 	defb	  1
 	defb	bite
-;	defb	litN8
+	defb	litN8
 		  rst	vm_rst
 	defb	tick
 	defb	  eq
-	defb	litE
-	defb	  end_seeRawFn - do_seeRawFn
-do_seeRawFn:	rst	vm_rst
-		defb	drop
-		defb	litS8
-		defb	  end_tailRaw - tailRaw
-tailRaw:		defm	"~raw"
-end_tailRaw:	defb	writeln
-		defb	fail
-		defb	  0
-end_seeRawFn:	equ	$
+	defb	tick
+	defb	  seeRaw
 	defb	or
 	defb	drop		; comparison
 	defb	drop		; zero
 	defb	litE
 	defb	  do_fnScan_end - do_fnScan
-; ( S8 E -( fail emit )- S8 S8 S8 N8)
+; ( E E -( fail emit )- S8 S8 S8 N8)
 do_fnScan:	rst	vm_rst
 		defb	litN8
 		defb	  2
 		defb	bite
-;		defb	varS8
-		defb	  -5		; words
-		defb	see_word
+		defb	local
+		defb	  -6
+		defb	fetchE
+		defb	name
 		defb	token
 		defb	call
-		defb	fail
+		defb	tailself
+		defb	  do_fnScan - $
 do_fnScan_end:	equ	$
 	defb	emptyE
 	defb	tail

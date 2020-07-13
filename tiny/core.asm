@@ -117,6 +117,10 @@ var:	equ	($ - core_tab - 1) / 2
 local:	equ	($ - core_tab - 1) / 2
 	defw	do_local
 
+; ( A N8 -( overrun )- A )
+adv:	equ     ($ - core_tab - 1) / 2
+	defw	do_adv
+
 ; ( S8 -( fail ) -- maybe S8 N8 )
 bite:	equ	($ - core_tab - 1) / 2
 	defw	do_bite
@@ -203,6 +207,10 @@ core_last:equ	($ - core_tab - 1) / 2
 write:	equ	($ - core_tab - 1) / 2
 	defw	do_write
 
+; ( -( emit )- )
+cr:	equ	($ - core_tab - 1) / 2
+	defw	do_cr
+
 ; ( S8 -( emit )- )
 writeln:equ	($ - core_tab - 1) / 2
 	defw	do_writeln
@@ -233,15 +241,19 @@ name:	equ	($ - core_tab - 1) / 2
 index:	equ	($ - core_tab - 1) / 2
 	defw	do_index
 
-; ( -- S8 )
+; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
+effWords:equ	($ - core_tab - 1) / 2
+	defw	do_effWords
+
+; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 srcWords:equ     ($ - core_tab - 1) / 2
 	defw	do_srcWords
 
-; ( -- S8 )
+; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 ioWords:equ     ($ - core_tab - 1) / 2
 	defw	do_ioWords
 
-; ( -- S8 )
+; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 coreWords:equ     ($ - core_tab - 1) / 2
 	defw	do_coreWords
 
@@ -480,18 +492,6 @@ do_swap:ex	de, hl
 	ex	de, hl
 	ret
 
-; ( -- A )
-do_local:
-	ld	a, (hl)
-	inc	hl
-	add	a, e
-	ld	c, a
-	ld	a, 0xFF
-	adc	a, d
-	ld	b, a
-	and	a
-	jr	pushBC
-
 ; ( -( var )- A )
 do_var:	ld	a, (hl)
 	inc	hl
@@ -508,6 +508,28 @@ do_var:	ld	a, (hl)
 	exx
 	pop	bc
 	jr	pushBC
+
+; ( -- A )
+do_local:
+	ld	a, (hl)
+	inc	hl
+	add	a, e
+	ld	c, a
+	ld	a, 0xFF
+	adc	a, d
+	ld	b, a
+	and	a
+	jr	pushBC
+
+; ( A N8 -( overrun )- A )
+do_adv:	dec	de
+	ld	a, (de)
+	rst	pop_rst
+	adc	a, c
+	ld	c, a
+	jr	nc, adv_nc
+	inc	b
+adv_nc:	jr	pushBC
 
 ; ( S8 -( fail )- maybe S8 N8 )
 do_bite:rst	vm_rst
@@ -692,12 +714,19 @@ do_use:	ld	c, (hl)
 	exx
 	pop	hl		; HL = new vocab
 	pop	de		; DE = return address
+	pop	af		; AF = threading address
 	push	bc		; stack old vocab
 	ld	c, l
 	ld	b, h		; set new vocab
-	call	jpdep
+	call	setvoc
 disuse:	exx
 	pop	bc		; restore old vocab
+	exx
+	ret
+
+setvoc:	push	af
+	and	a
+	push	de
 	exx
 	ret
 
@@ -784,13 +813,18 @@ do_write:	rst	vm_rst
 		defb	tail
 		defb	  while
 
-; ( S8 -( emit )- )
-do_writeln:	rst	vm_rst
-		defb	write
+; ( -( emit )- )
+do_cr:		rst	vm_rst
 		defb	litN8
 		defb	  0x0A
 		defb	tail
 		defb	  emit
+
+; ( S8 -( emit )- )
+do_writeln:	rst	vm_rst
+		defb	write
+		defb	tail
+		defb	  cr
 
 ; ( -( key )- S8 )
 do_readln:	rst	vm_rst

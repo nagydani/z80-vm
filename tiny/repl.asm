@@ -9,46 +9,46 @@ hello:		defm	  "Ok"
 end_hello:	defb	writeln
 
 ; Test words generator
-		defb	litE
-		defb	  end_wordList - do_wordList
-do_wordList:		rst	vm_rst
-			defb	srcWords
-			defb	drop		; word class
-			defb	writeln
-			defb	fail
-			defb	  0
-end_wordList:	defb	emptyE
-		defb	or
+;		defb	litE
+;		defb	  end_wordList - do_wordList
+;do_wordList:		rst	vm_rst
+;			defb	effWords
+;			defb	drop		; word class
+;			defb	writeln
+;			defb	fail
+;			defb	  0
+;end_wordList:	defb	emptyE
+;		defb	or
 
 ; Test name
-		defb	backtick
-		defb	  index
-		defb	tick
-		defb	  srcWords
-		defb	name
-		defb	drop			; word class
-		defb	writeln
+;		defb	backtick
+;		defb	  index
+;		defb	tick
+;		defb	  effWords
+;		defb	name
+;		defb	drop			; word class
+;		defb	writeln
 
 ; Test index
-		defb	litS8
-		defb	  end_testwrd - testwrd
-testwrd:	defm	  "index"
-end_testwrd:	defb	tick
-		defb	  srcWords
-		defb	index
-		defb	drop			; word class
-		defb	tick
-		defb	  srcWords
-		defb	name
-		defb	drop			; word class
-		defb	writeln
+;		defb	litS8
+;		defb	  end_testwrd - testwrd
+;testwrd:	defm	  "index"
+;end_testwrd:	defb	tick
+;		defb	  effWords
+;		defb	index
+;		defb	drop			; word class
+;		defb	tick
+;		defb	  effWords
+;		defb	name
+;		defb	drop			; word class
+;		defb	writeln
 
 ; Test decompiler
-;		defb	tick
-;		defb	  writeln
-;		defb	tick
-;		defb	  coreWords
-;		defb	see
+		defb	tick
+		defb	  effWords
+		defb	tick
+		defb	  readln
+		defb	see
 
 ; Test readln and writeln
 		defb	readln
