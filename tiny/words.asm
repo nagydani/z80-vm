@@ -116,6 +116,8 @@ core_words:
 	defb	fn
 	defb	"call"
 	defb	fn
+	defb	"drip"
+	defb	fn
 	defb	"rain"
 	defb	fn
 	defb	"scan:"

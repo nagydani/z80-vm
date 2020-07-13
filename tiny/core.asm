@@ -137,6 +137,10 @@ scan:	equ	($ - core_tab - 1) / 2
 rain:	equ	($ - core_tab - 1) / 2
 	defw	do_rain
 
+; ( S8 -- )
+drip:	equ	($ - core_tab - 1) / 2
+	defw	do_drip
+
 ; ( a ( a -( e )- b ) -( e )- b )
 call:	equ	($ - core_tab - 1) / 2
 	defw	do_call
@@ -601,6 +605,12 @@ rain_l:	or	a
 	dec	a
 	jr	rain_l
 
+; ( S8 -- )
+do_drip:dec	de
+	dec	de
+	dec	de
+	ret
+
 ; ( a ( a -( e )- b ) -( e )- b )
 do_call:rst	pop_rst
 	push	bc
@@ -849,10 +859,8 @@ S8match_end:	defb	tick
 		defb	  while
 		defb	failor
 		defb	  -13
-		defb	drop
-		defb	drop
 		defb	tail
-		defb	drop		; TODO: S8drop
+		defb	  drip
 
 ; ( S8 -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 do_words:	rst	vm_rst
@@ -960,15 +968,11 @@ s_index:		rst	vm_rst
 			defb	  verbatim
 			defb	failor
 			defb	  -4		; ::
-			defb	drop
-			defb	drop
-			defb	drop		; TODO: strDrop
+			defb	drip
 			defb	local
 			defb	  -12		; cls
 			defb	N8store
-			defb	drop
-			defb	drop
-			defb	drop		; TODO: strDrop
+			defb	drip
 			defb	dup		; tkn
 			defb	local
 			defb	  -10		; idx
@@ -978,10 +982,8 @@ s_index:		rst	vm_rst
 s_index_end:	defb	litE
 		defb	  e_index_end - e_index
 e_index:		rst	vm_rst
-			defb	drop
-			defb	drop
 			defb	tail
-			defb	  drop		; TODO: strDrop
+			defb	  drip
 e_index_end:	defb	tail
 		defb	  or
 
