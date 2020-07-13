@@ -157,6 +157,10 @@ while:	equ	($ - core_tab - 1) / 2
 or:	equ	($ - core_tab - 1) / 2
 	defw	do_or
 
+; ( a b ( a c -( f )- c d ) ( b -( e )- c maybe d ) -( e f )- c d )
+unless:	equ	($ - core_tab - 1) / 2
+	defw	do_unless
+
 ; ( V8 -- V8 S8 )
 string:	equ	($ - core_tab - 1) / 2
 	defw	do_string
@@ -240,6 +244,14 @@ name:	equ	($ - core_tab - 1) / 2
 ; ( S8 S8 -- N8 )
 index:	equ	($ - core_tab - 1) / 2
 	defw	do_index
+
+; ( S8 E -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
+moreWords:equ	($ - core_tab - 1) / 2
+	defw	do_moreWords
+
+; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
+synWords:equ	($ - core_tab - 1) / 2
+	defw	do_synWords
 
 ; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 effWords:equ	($ - core_tab - 1) / 2
@@ -673,11 +685,21 @@ end_while:
 do_or:	rst	pop_rst
 	push	bc
 	call	do_call
-	ccf
+or_c:	ccf
 	ret	nc
 	pop	bc		; discard other function
 	ccf
 	ret
+
+; ( a b ( a -( f )- c ) ( b -( e )- c ) -( e f )- c )
+do_unless:
+	rst	pop_rst
+	push	bc
+	rst	pop_rst
+	pop	af
+	push	bc
+	call	resuspend
+	jr	or_c
 
 ; ( V8 -- V8 S8 )
 do_string:
@@ -707,6 +729,8 @@ do_string:
 do_use:	ld	c, (hl)
 	inc	hl		; skip length
 	ld	b, 0
+	inc	hl
+	inc	hl		; skip words
 	inc	hl
 	inc	hl		; skip back reference
 	push	hl		; stack new vocab

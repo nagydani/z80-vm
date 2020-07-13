@@ -32,6 +32,59 @@ makeRef:equ	words_first + 14
 
 raw:	equ	words_first + 15
 
+syn_last:equ	words_first + 16
+
+
+do_moreWords:
+	rst	vm_rst
+	defb	tick
+	defb	  words
+	defb	tail
+	defb	  unless
+
+do_synWords:
+	rst	vm_rst
+	defb	litS8
+	defb	  end_syn_words - syn_words
+syn_words:
+	defb	syn_last
+	defb	"p~raw"
+	defb	fn
+	defb	"pMake"
+	defb	fn
+	defb	"p~var"
+	defb	fn
+	defb	"pVar"
+	defb	fn
+	defb	"p~fn"
+	defb	fn
+	defb	"pFn"
+	defb	fn
+	defb	"p~self"
+	defb	fn
+	defb	"pSelf"
+	defb	fn
+	defb	"sFailOver"
+	defb	fn
+	defb	"s~fn"
+	defb	fn
+	defb	"sFn"
+	defb	fn
+	defb	"sVoc"
+	defb	fn
+	defb	"l{"
+	defb	fn
+	defb	"l\""
+	defb	fn
+	defb	"lChar"
+	defb	fn
+	defb	"lNum"
+	defb	fn
+end_syn_words:equ	$
+	defb	tick
+	defb	  effWords
+	defb	tail
+	defb	  moreWords
 
 do_effWords:
 	rst	vm_rst
@@ -47,11 +100,9 @@ eff_words:
 	defb	fn
 end_eff_words:equ	$
 	defb	tick
-	defb	  words
-	defb	tick
 	defb	  srcWords
 	defb	tail
-	defb	  or
+	defb	  moreWords
 
 do_srcWords:
 	rst	vm_rst
@@ -71,6 +122,10 @@ src_words:
 	defb	fn
 	defb	"effWords:"
 	defb	fn
+	defb	"synWords:"
+	defb	fn
+	defb	"moreWords:"
+	defb	fn
 	defb	"index"
 	defb	fn
 	defb	"name"
@@ -83,12 +138,9 @@ src_words:
 	defb	fn
 end_src_words:	equ	$
 	defb	tick
-	defb	  words
-	defb	tick
 	defb	  ioWords
 	defb	tail
-	defb	  or
-
+	defb	  moreWords
 
 
 do_ioWords:
@@ -107,11 +159,9 @@ io_words:
 	defb	fn
 end_io_words:	equ	$
 	defb	tick
-	defb	  words
-	defb	tick
 	defb	  coreWords
 	defb	tail
-	defb	  or
+	defb	  moreWords
 
 
 do_coreWords:
@@ -141,6 +191,8 @@ core_words:
 	defb	"use"
 	defb	voc
 	defb	"toStr"
+	defb	fn
+	defb 	"unless"
 	defb	fn
 	defb 	"|"
 	defb	fn
