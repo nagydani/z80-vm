@@ -170,8 +170,8 @@ do_coreWords:
 	defb	  end_core_words - core_words
 core_words:
 	defb	core_last
-	defb	"tryWith"
-	defb	fnRef
+	defb	"tryAt"
+	defb	fn
 	defb	"let$"
 	defb	fn
 	defb	"letFn"

@@ -4,7 +4,6 @@ do_see:	rst	vm_rst
 	defb	  see_voc - $
 
 ; ---
-
 	defb	litN8
 	defb	  1
 	defb	bite
@@ -17,25 +16,8 @@ do_see:	rst	vm_rst
 	defb	or
 	defb	drop		; comparison
 	defb	drop		; zero
-	defb	litE
-	defb	  do_fnScan_end - do_fnScan
-; ( E E -( fail emit )- S8 S8 S8 N8)
-do_fnScan:	rst	vm_rst
-		defb	litN8
-		defb	  3
-		defb	bite
-		defb	local
-		defb	  -6
-		defb	fetchE
-		defb	name
-		defb	token
-		defb	call
-		defb	tailself
-		defb	  do_fnScan - $
-do_fnScan_end:	equ	$
-	defb	emptyE
 	defb	tail
-	defb	  or
+	defb	  seeVm
 
 do_seeWords:
 	rst	vm_rst
@@ -44,6 +26,8 @@ do_seeWords:
 see_words:
 	defb	see_last
 	defb	"maul"
+	defb	fn
+	defb	"vm"
 	defb	fn
 	defb	"say"
 	defb	fn
@@ -126,10 +110,14 @@ see_voc:defb	0x80
 	defw	do_see_raw
 
 ; ( S8 -( emit )- )
-writesp:	equ     ($ - see_voc - 1) / 2 + words_first
+writesp:equ     ($ - see_voc - 1) / 2 + words_first
 	defw	do_writesp
 
-; ( S8 -( fail )- S8 E)
+; ( E E -( emit )- )
+seeVm:	equ	($ - see_voc - 1) / 2 + words_first
+	defw	do_see_vm
+
+; ( S8 -( fail )- S8 )
 maul:	equ     ($ - see_voc - 1) / 2 + words_first
 	defw	do_maul
 
@@ -140,9 +128,7 @@ see_last:	equ     ($ - see_voc - 1) / 2 + words_first
 do_see_number:
 	rst	vm_rst
 	defb	write
-	defb	bite
-	defb	swap
-	defb	drop
+	defb	maul
 	defb	cpu
 	dec	de
 	xor	a
@@ -153,6 +139,7 @@ do_see_number:
 	call	do_see_digit
 	ex	de, hl
 	dec	hl
+	xor	a
 	rrd
 	call	do_see_digit
 	rst	vm_rst
@@ -174,9 +161,7 @@ do_tailemit:
 do_see_printable:
 	rst	vm_rst
 	defb	writesp
-	defb	bite
-	defb	swap
-	defb	drop
+	defb	maul
 	defb	emit
 	defb	tail
 	defb	  cr
@@ -184,9 +169,7 @@ do_see_printable:
 do_see_quote:
 	rst	vm_rst
 	defb	writesp
-	defb	bite
-	defb	swap
-	defb	drop
+	defb	maul
 	defb	local
 	defb	  -3
 	defb	fetchS8
@@ -226,9 +209,7 @@ e_c_quote:	equ	$
 do_see_brace:
 	rst	vm_rst
 	defb	writeln
-	defb	bite
-	defb	swap
-	defb	drop
+	defb	maul
 	defb	local
 	defb	  -5	; wrds
 	defb	fetchE
@@ -246,43 +227,51 @@ do_see_brace:
 do_see_voc:
 	rst	vm_rst
 	defb	writesp
-	defb	bite
-	defb	swap
-	defb	drop
-	defb	local
-	defb	  -3	; code
-	defb	fetchS8
 	defb	maul
+	defb	make
+	defb	  3, 2
+	defb	adv		; voc
+	defb	litE
+	defb	  end_setVoc - do_setVoc
+do_setVoc:	rst	vm_rst
+		defb	var
+		defb	  -5	; words
+		defb	fetchE
+		defb	litN8
+		defb	  2
+		defb	adv	; lenWords
+		defb	litN8
+		defb	  1
+		defb	maul
+		defb	adv
+		defb	litN8
+		defb	  2
+		defb	bite
+		defb	drop
+		defb	bite
+		defb	var
+		defb	  -5
+		defb	fetchE
+		defb	name
+		defb	drop
+		defb	writeln
+		defb	drip
+		defb	var
+		defb	  -5
+		defb	tail
+		defb	  fetchE
+end_setVoc:	equ	$
 	defb	local
-	defb	  -10	; wrds
-	defb	Estore
-	defb	adv
-	defb	litN8
-	defb	  4
-	defb	adv
-	defb	local
-	defb	  -5	; code
-	defb	Estore
-	defb	drop	; len
-	defb	local
-	defb	  -4
+	defb	  -4		; voc
 	defb	fetchE
-	defb	litN8
-	defb	  2
-	defb	adv
-	defb	litN8
-	defb	  1
-	defb	bite
-	defb	swap
+	defb	tryAt
+	defb	local
+	defb	  -8		; wrds
+	defb	Estore
 	defb	drop
-	defb	adv
-	defb	litN8
-	defb	  2
-	defb	bite
-	defb	drop
-	defb	bite
-	DEFB	cpu
-	HALT
+	defb	drop		; TODO Edrop
+	defb	tail
+	defb	  seeVm
 
 do_see_fn:
 	rst	vm_rst
@@ -314,9 +303,7 @@ do_see_tailSelfRef:
 do_see_fnRef:
 	rst	vm_rst
 	defb	writesp
-	defb	bite
-	defb	swap
-	defb	drop
+	defb	maul
 	defb	local
 	defb	  -5
 	defb	fetchE
@@ -359,28 +346,34 @@ do_writesp:
 	defb	tail
 	defb	  emit
 
-; ( S8 -( fail )- maybe S8 E )
-do_maul:rst	vm_rst
-	defb	make
-	defb	  3, 5
-	defb	tick
-	defb	  bite
-	defb	failor
-	defb	  -5
-	defb	local
-	defb	  -6
-	defb	N8store
-	defb	tick
-	defb	  bite
-	defb	failor
-	defb	  -5
-	defb	local
-	defb	  -5
-	defb	N8store
-	defb	local
-	defb	  -8
+do_see_vm:
+	rst	vm_rst
+	defb	litE
+	defb	  do_fnScan_end - do_fnScan
+; ( E E -( fail emit )- S8 S8 S8 N8)
+do_fnScan:	rst	vm_rst
+		defb	litN8
+		defb	  3
+		defb	bite
+		defb	local
+		defb	  -6
+		defb	fetchE
+		defb	name
+		defb	token
+		defb	call
+		defb	tailself
+		defb	  do_fnScan - $
+do_fnScan_end:	equ	$
+	defb	emptyE
 	defb	tail
-	defb	  S8store
+	defb	  or
+
+; ( S8 -( fail )- S8 )
+do_maul:rst	vm_rst
+	defb	bite
+	defb	swap
+	defb	tail
+	defb	  drop
 
 ; ---
 

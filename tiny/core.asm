@@ -201,9 +201,9 @@ Estore:	equ	($ - core_tab - 1) / 2
 S8store:equ	($ - core_tab - 1) / 2
 	defw	do_S8store
 
-; ( a ( a -( e )- b ) -( e monad )- b )
-tryWith:equ	($ - core_tab - 1) / 2
-	defw	do_tryWith
+; ( a ( a -( e )- b ) A -( e monad )- b )
+tryAt:	equ	($ - core_tab - 1) / 2
+	defw	do_tryAt
 
 core_last:equ	($ - core_tab - 1) / 2
 
@@ -815,11 +815,10 @@ do_S8store:	rst	pop_rst
 		dec	bc
 		jr	do_store2
 
-; ( a ( a -( e )- b ) -( e monad )- b )
-do_tryWith:	push	ix
-		call	vm_tick
-		push	de
-		exx
+; ( a ( a -( e )- b ) A -( e monad )- b )
+do_tryAt:	push	ix
+		rst	pop_rst
+		push	bc
 		pop	ix
 		call	do_call
 		pop	ix
