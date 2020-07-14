@@ -48,33 +48,33 @@ do_synWords:
 	defb	  end_syn_words - syn_words
 syn_words:
 	defb	syn_last
-	defb	"p~raw"
+	defb	"raw~"
 	defb	fn
-	defb	"pMake"
+	defb	"binM"
 	defb	fn
-	defb	"p~var"
+	defb	"var~"
 	defb	fn
-	defb	"pVar"
+	defb	"var"
 	defb	fn
-	defb	"p~fn"
+	defb	"fn~Ref"
 	defb	fn
-	defb	"pFn"
+	defb	"fnRef"
 	defb	fn
-	defb	"p~self"
+	defb	"self~Ref"
 	defb	fn
-	defb	"pSelf"
+	defb	"selfRef"
 	defb	fn
-	defb	"sFailOver"
+	defb	"failOver"
 	defb	fn
-	defb	"s~fn"
+	defb	"defFn~"
 	defb	fn
-	defb	"sFn"
+	defb	"defFn"
 	defb	fn
-	defb	"sVoc"
+	defb	"voc"
 	defb	fn
-	defb	"l{"
+	defb	"lCode"
 	defb	fn
-	defb	"l\""
+	defb	"lStr"
 	defb	fn
 	defb	"lChar"
 	defb	fn
@@ -200,6 +200,8 @@ core_words:
 	defb	fn
 	defb	"call"
 	defb	fn
+	defb	"pass"
+	defb	fn
 	defb	"drip"
 	defb	fn
 	defb	"rain"
@@ -230,6 +232,8 @@ core_words:
 	defb	failOver
 	defb	","
 	defb	failOver
+	defb	">!"
+	defb	fn
 	defb	"=!"
 	defb	fn
 	defb	"="

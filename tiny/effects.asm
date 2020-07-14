@@ -21,14 +21,14 @@ end_key:	equ	$
 seeRaw:	equ	key + 1
 	defb	litE
 	defb	  end_seeRaw - do_seeRaw
-; ( E E -( emit )- )
+; ( E -( emit )- )
 do_seeRaw:	rst	vm_rst
 		defb	litS8
 		defb	  end_seeRawName - seeRawName
 seeRawName:		defb	"~raw"
 end_seeRawName:	defb	writeln
-		defb	fail
-		defb	  -4
+		defb	tail
+		defb	  pass
 end_seeRaw:	equ	$
 
 effects_last:	equ	seeRaw + 1

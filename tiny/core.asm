@@ -85,6 +85,10 @@ eq:	equ	($ - core_tab - 1) / 2
 neq:	equ	($ - core_tab - 1) / 2
 	defw	do_neq
 
+; ( N8 N8 -( fail )- maybe N8 )
+ge:	equ	($ - core_tab - 1) / 2
+	defw	do_ge
+
 ; ( V8 C8 -( fail )- V8 )
 append:	equ	($ - core_tab - 1) / 2
 	defw	do_append
@@ -144,6 +148,10 @@ rain:	equ	($ - core_tab - 1) / 2
 ; ( S8 -- )
 drip:	equ	($ - core_tab - 1) / 2
 	defw	do_drip
+
+; ( E -- )
+pass:	equ	($ - core_tab - 1) / 2
+	defw	do_pass
 
 ; ( a ( a -( e )- b ) -( e )- b )
 call:	equ	($ - core_tab - 1) / 2
@@ -444,6 +452,12 @@ do_neq:	rst	cmp_rst
 	and	a
 	ret
 
+; ( N8 N8 -( fail )- maybe N8 )
+do_ge:	rst	cmp_rst
+	ret	nc
+	dec	de
+	ret
+
 ; ( V8 C8 -( failOver )- V8 |maybe V8+ )
 do_append:
 	rst	vm_rst
@@ -642,6 +656,8 @@ rain_l:	or	a
 
 ; ( S8 -- )
 do_drip:dec	de
+; ( E -- )
+do_pass:
 	dec	de
 	dec	de
 	ret

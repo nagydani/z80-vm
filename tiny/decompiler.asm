@@ -1,4 +1,4 @@
-; ( E;wrds E;code -( fail emit )- )
+; ( E;wrds E;code -( emit )- )
 do_see:	rst	vm_rst
 	defb	use
 	defb	  see_voc - $
@@ -6,18 +6,25 @@ do_see:	rst	vm_rst
 ; ---
 	defb	litN8
 	defb	  1
-	defb	bite
+	defb	maul
 	defb	litN8
 		  rst	vm_rst
-	defb	tick
-	defb	  eq
-	defb	tick
-	defb	  seeRaw
-	defb	or
-	defb	drop		; comparison
-	defb	drop		; zero
+	defb	litE
+	defb	  e_see - s_see
+s_see:		rst	vm_rst
+		defb	eq
+		defb	drop	; comparison
+		defb	tail
+		defb	  seeVm
+e_see:	defb	litE
+	defb	  e_seeRaw - s_seeRaw
+s_seeRaw:	rst	vm_rst
+		defb	seeRaw
+		defb	tail
+		defb	  pass
+e_seeRaw:	equ	$
 	defb	tail
-	defb	  seeVm
+	defb	  or
 
 do_seeWords:
 	rst	vm_rst
@@ -237,6 +244,12 @@ do_setVoc:	rst	vm_rst
 		defb	var
 		defb	  -5	; words
 		defb	fetchE
+		defb	local
+		defb	  -8
+		defb	Estore
+		defb	var
+		defb	  -5	; words
+		defb	fetchE
 		defb	litN8
 		defb	  2
 		defb	adv	; lenWords
@@ -256,22 +269,116 @@ do_setVoc:	rst	vm_rst
 		defb	drop
 		defb	writeln
 		defb	drip
+
+		defb	zero
 		defb	var
 		defb	  -5
+		defb	fetchE
+		defb	litE
+		defb	  end_countVoc - do_countVoc
+do_countVoc:		rst	vm_rst
+			defb	call
+			defb	var
+			defb	  -1
+			defb	fetchN8
+			defb	local
+			defb	  -6
+			defb	fetchN8
+			defb	tick
+			defb	  ge
+			defb	failor
+			defb	  -4
+			defb	drop
+			defb	make
+			defb	  9, 4
+			defb	local
+			defb	  -10
+			defb	N8store
+			defb	local
+			defb	  -12
+			defb	S8store
+			defb	local
+			defb	  -5
+			defb	fetchN8
+			defb	one_plus
+			defb	  0
+			defb	local
+			defb	  -6
+			defb	N8store
+			defb	fail
+			defb	  0
+end_countVoc:	defb	emptyE
+		defb	or
+
+		defb	var
+		defb	  0
+		defb	litE
+		defb	  end_listVoc - do_listVoc
+; ( S8;nam N8;cls N8;num E;tab -( fail emit )- )
+do_listVoc:		rst	vm_rst
+			defb	local
+			defb	  -3
+			defb	fetchN8
+			defb	one_minus
+			defb	  0
+			defb	var
+			defb	  -5
+			defb	fetchE
+			defb	local
+			defb	  -5
+			defb	fetchE
+			defb	fetchE
+			defb	ascii
+			defb	  "{"
+			defb	emit
+			defb	cr
+			defb	see
+			defb	litS8
+			defb	  e_endBody - s_endBody
+s_endBody:		defb	  "} \" "
+e_endBody:		defb	write
+			defb	local
+			defb	  -8
+			defb	fetchS8
+			defb	write
+			defb	ascii
+			defb	  "\""
+			defb	emit
+			defb	litN8
+			defb	  " "
+			defb	emit
+			defb	local
+			defb	  -5
+			defb	fetchN8
+			defb	var
+			defb	  -5
+			defb	fetchE
+			defb	name
+			defb	drop
+			defb	writeln
+			defb	local
+			defb	  -8
+			defb	N8store
+			defb	litN8
+			defb	  2
+			defb	adv
+			defb	local
+			defb	  -6
+			defb	Estore
+			defb	tail
+			defb	  pass
+end_listVoc:	defb	emptyE
 		defb	tail
-		defb	  fetchE
+		defb	  while
+
 end_setVoc:	equ	$
 	defb	local
 	defb	  -4		; voc
 	defb	fetchE
 	defb	tryAt
-	defb	local
-	defb	  -8		; wrds
-	defb	Estore
-	defb	drop
-	defb	drop		; TODO Edrop
+	defb	pass
 	defb	tail
-	defb	  seeVm
+	defb	  drip
 
 do_see_fn:
 	rst	vm_rst
@@ -334,8 +441,11 @@ do_see_makeRef:
 
 do_see_raw:
 	rst	vm_rst
-	defb	tail
-	defb	  seeRaw
+	defb	drip		; empty string dropped
+	defb	drop		; 2 dropped
+	defb	seeRaw
+	defb	fail
+	defb	  -2
 
 ; ( S8 -( emit )- )
 do_writesp:
@@ -360,13 +470,12 @@ do_fnScan:	rst	vm_rst
 		defb	fetchE
 		defb	name
 		defb	token
-		defb	call
-		defb	tailself
-		defb	  do_fnScan - $
+		defb	tail
+		defb	  call
 do_fnScan_end:	equ	$
 	defb	emptyE
 	defb	tail
-	defb	  or
+	defb	  while
 
 ; ( S8 -( fail )- S8 )
 do_maul:rst	vm_rst
