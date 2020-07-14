@@ -121,6 +121,10 @@ var:	equ	($ - core_tab - 1) / 2
 local:	equ	($ - core_tab - 1) / 2
 	defw	do_local
 
+; ( E -( overrun )- E N8 )
+op:	equ	($ - core_tab - 1) / 2
+	defw	do_op
+
 ; ( A N8 -( overrun )- A )
 adv:	equ     ($ - core_tab - 1) / 2
 	defw	do_adv
@@ -546,6 +550,13 @@ do_local:
 	ld	b, a
 	and	a
 	jr	pushBC
+
+; ( E -( overrun )- E N8 )
+do_op:	rst	pop_rst
+	ld	a, (bc)
+	inc	bc
+	call	pushBC
+	jr	pushA
 
 ; ( A N8 -( overrun )- A )
 do_adv:	dec	de

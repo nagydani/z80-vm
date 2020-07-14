@@ -216,6 +216,8 @@ core_words:
 	defb	fn
 	defb	"adv"
 	defb	fn
+	defb	"op"
+	defb	fn
 	defb	"local"
 	defb	varRef
 	defb	"var"

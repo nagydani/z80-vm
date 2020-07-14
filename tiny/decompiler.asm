@@ -30,8 +30,6 @@ do_seeWords:
 	defb	  end_see_words - see_words
 see_words:
 	defb	see_last
-	defb	"op"
-	defb	fn
 	defb	"vm"
 	defb	fn
 	defb	"say"
@@ -121,10 +119,6 @@ writesp:equ     ($ - see_voc - 1) / 2 + words_first
 ; ( E E -( emit )- )
 seeVm:	equ	($ - see_voc - 1) / 2 + words_first
 	defw	do_see_vm
-
-; ( S8 -( fail )- S8 )
-op:	equ     ($ - see_voc - 1) / 2 + words_first
-	defw	do_op
 
 see_last:	equ     ($ - see_voc - 1) / 2 + words_first
 
@@ -466,15 +460,6 @@ do_fnScan_end:	equ	$
 	defb	emptyE
 	defb	tail
 	defb	  while
-
-; ( E -( overrun )- E N8 )
-do_op:	rst	pop_rst
-	ld	a, (bc)
-	inc	bc
-	call	pushBC
-	ld	(de), a
-	inc	de
-	ret
 
 ; ---
 
