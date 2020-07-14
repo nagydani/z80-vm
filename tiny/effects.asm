@@ -28,7 +28,7 @@ do_seeRaw:	rst	vm_rst
 seeRawName:		defb	"~raw"
 end_seeRawName:	defb	writeln
 		defb	fail
-		defb	  4
+		defb	  -4
 end_seeRaw:	equ	$
 
 effects_last:	equ	seeRaw + 1
