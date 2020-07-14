@@ -539,8 +539,9 @@ do_adv:	dec	de
 	rst	pop_rst
 	adc	a, c
 	ld	c, a
-	jr	nc, adv_nc
-	inc	b
+	ld	a, 0
+	adc	a, b
+	ld	b, a
 adv_nc:	jr	pushBC
 
 ; ( S8 -( fail )- maybe S8 N8 )
@@ -726,17 +727,13 @@ do_string:
 	ret
 
 ; ( -( dict )- )
-do_use:	ld	c, (hl)
-	inc	hl		; skip length
-	ld	b, 0
-	inc	hl
-	inc	hl		; skip words
-	inc	hl
-	inc	hl		; skip back reference
-	push	hl		; stack new vocab
-	add	hl, bc
+do_use:	push	hl		; stack here
+	inc	hl		; skip vocab offset
 	exx
-	pop	hl		; HL = new vocab
+	pop	hl		; here
+	ld	e, (hl)
+	ld	d, 0		; DE = vocab offset
+	add	hl, de		; HL = new vocab
 	pop	de		; DE = return address
 	pop	af		; AF = threading address
 	push	bc		; stack old vocab

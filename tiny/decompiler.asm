@@ -1,10 +1,63 @@
 ; ( E;wrds E;code -( fail emit )- )
 do_see:	rst	vm_rst
 	defb	use
-	defb	  end_see_voc - see_voc
-		defw	do_seeWords
-		defw	effects_tab
-see_voc:	defb	0x80
+	defb	  see_voc - $
+
+; ---
+
+	defb	litN8
+	defb	  1
+	defb	bite
+	defb	litN8
+		  rst	vm_rst
+	defb	tick
+	defb	  eq
+	defb	tick
+	defb	  seeRaw
+	defb	or
+	defb	drop		; comparison
+	defb	drop		; zero
+	defb	litE
+	defb	  do_fnScan_end - do_fnScan
+; ( E E -( fail emit )- S8 S8 S8 N8)
+do_fnScan:	rst	vm_rst
+		defb	litN8
+		defb	  3
+		defb	bite
+		defb	local
+		defb	  -6
+		defb	fetchE
+		defb	name
+		defb	token
+		defb	call
+		defb	tailself
+		defb	  do_fnScan - $
+do_fnScan_end:	equ	$
+	defb	emptyE
+	defb	tail
+	defb	  or
+
+do_seeWords:
+	rst	vm_rst
+	defb	litS8
+	defb	  end_see_words - see_words
+see_words:
+	defb	see_last
+	defb	"maul"
+	defb	fn
+	defb	"say"
+	defb	fn
+end_see_words:	equ	$
+	defb	tick
+	defb	  synWords
+	defb	tail
+	defb	  moreWords
+
+; ---
+
+	defw	do_seeWords
+	defw	effects_tab
+see_voc:defb	0x80
 
 ; ---
 
@@ -200,6 +253,34 @@ do_see_voc:
 	defb	  -3	; code
 	defb	fetchS8
 	defb	maul
+	defb	local
+	defb	  -10	; wrds
+	defb	Estore
+	defb	adv
+	defb	litN8
+	defb	  4
+	defb	adv
+	defb	local
+	defb	  -5	; code
+	defb	Estore
+	defb	drop	; len
+	defb	local
+	defb	  -4
+	defb	fetchE
+	defb	litN8
+	defb	  2
+	defb	adv
+	defb	litN8
+	defb	  1
+	defb	bite
+	defb	swap
+	defb	drop
+	defb	adv
+	defb	litN8
+	defb	  2
+	defb	bite
+	defb	drop
+	defb	bite
 	DEFB	cpu
 	HALT
 
@@ -303,53 +384,3 @@ do_maul:rst	vm_rst
 
 ; ---
 
-end_see_voc:	equ	$
-
-; ( E E -( emit fail )- )
-	defb	litN8
-	defb	  1
-	defb	bite
-	defb	litN8
-		  rst	vm_rst
-	defb	tick
-	defb	  eq
-	defb	tick
-	defb	  seeRaw
-	defb	or
-	defb	drop		; comparison
-	defb	drop		; zero
-	defb	litE
-	defb	  do_fnScan_end - do_fnScan
-; ( E E -( fail emit )- S8 S8 S8 N8)
-do_fnScan:	rst	vm_rst
-		defb	litN8
-		defb	  3
-		defb	bite
-		defb	local
-		defb	  -6
-		defb	fetchE
-		defb	name
-		defb	token
-		defb	call
-		defb	tailself
-		defb	  do_fnScan - $
-do_fnScan_end:	equ	$
-	defb	emptyE
-	defb	tail
-	defb	  or
-
-do_seeWords:
-	rst	vm_rst
-	defb	litS8
-	defb	  end_see_words - see_words
-see_words:
-	defb	see_last
-	defb	"maul"
-	defb	fn
-	defb	"say"
-	defb	fn
-end_see_words:	equ	$
-	defb	tick
-	defb	  synWords
-	defb	tail
-	defb	  moreWords
