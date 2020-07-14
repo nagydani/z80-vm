@@ -4,9 +4,7 @@ do_see:	rst	vm_rst
 	defb	  see_voc - $
 
 ; ---
-	defb	litN8
-	defb	  1
-	defb	maul
+	defb	op
 	defb	litN8
 		  rst	vm_rst
 	defb	litE
@@ -32,7 +30,7 @@ do_seeWords:
 	defb	  end_see_words - see_words
 see_words:
 	defb	see_last
-	defb	"maul"
+	defb	"op"
 	defb	fn
 	defb	"vm"
 	defb	fn
@@ -125,8 +123,8 @@ seeVm:	equ	($ - see_voc - 1) / 2 + words_first
 	defw	do_see_vm
 
 ; ( S8 -( fail )- S8 )
-maul:	equ     ($ - see_voc - 1) / 2 + words_first
-	defw	do_maul
+op:	equ     ($ - see_voc - 1) / 2 + words_first
+	defw	do_op
 
 see_last:	equ     ($ - see_voc - 1) / 2 + words_first
 
@@ -135,7 +133,7 @@ see_last:	equ     ($ - see_voc - 1) / 2 + words_first
 do_see_number:
 	rst	vm_rst
 	defb	write
-	defb	maul
+	defb	op
 	defb	cpu
 	dec	de
 	xor	a
@@ -168,7 +166,7 @@ do_tailemit:
 do_see_printable:
 	rst	vm_rst
 	defb	writesp
-	defb	maul
+	defb	op
 	defb	emit
 	defb	tail
 	defb	  cr
@@ -176,7 +174,7 @@ do_see_printable:
 do_see_quote:
 	rst	vm_rst
 	defb	writesp
-	defb	maul
+	defb	op
 	defb	local
 	defb	  -3
 	defb	fetchS8
@@ -216,7 +214,7 @@ e_c_quote:	equ	$
 do_see_brace:
 	rst	vm_rst
 	defb	writeln
-	defb	maul
+	defb	op
 	defb	local
 	defb	  -5	; wrds
 	defb	fetchE
@@ -234,7 +232,7 @@ do_see_brace:
 do_see_voc:
 	rst	vm_rst
 	defb	writesp
-	defb	maul
+	defb	op
 	defb	make
 	defb	  3, 2
 	defb	adv		; voc
@@ -255,7 +253,7 @@ do_setVoc:	rst	vm_rst
 		defb	adv	; lenWords
 		defb	litN8
 		defb	  1
-		defb	maul
+		defb	op
 		defb	adv
 		defb	litN8
 		defb	  2
@@ -381,10 +379,7 @@ end_setVoc:	equ	$
 	defb	  drip
 
 do_see_fn:
-	rst	vm_rst
-	defb	writeln
-	defb	tail
-	defb	  drop
+	jp	do_writeln
 
 do_see_tailFn:
 	rst	vm_rst
@@ -396,8 +391,7 @@ do_see_failOver:
 do_see_selfRef:
 	rst	vm_rst
 	defb	writeln
-	defb	bite
-	defb	drop
+	defb	op
 	defb	tail
 	defb	  drop
 
@@ -410,7 +404,7 @@ do_see_tailSelfRef:
 do_see_fnRef:
 	rst	vm_rst
 	defb	writesp
-	defb	maul
+	defb	op
 	defb	local
 	defb	  -5
 	defb	fetchE
@@ -432,17 +426,15 @@ do_see_tailVarRef:
 do_see_makeRef:
 	rst	vm_rst
 	defb	writeln
-	defb	bite
+	defb	op
 	defb	drop
-	defb	bite
-	defb	drop
+	defb	op
 	defb	tail
 	defb	  drop
 
 do_see_raw:
 	rst	vm_rst
 	defb	drip		; empty string dropped
-	defb	drop		; 2 dropped
 	defb	seeRaw
 	defb	fail
 	defb	  -2
@@ -462,11 +454,9 @@ do_see_vm:
 	defb	  do_fnScan_end - do_fnScan
 ; ( E E -( fail emit )- S8 S8 S8 N8)
 do_fnScan:	rst	vm_rst
-		defb	litN8
-		defb	  3
-		defb	bite
+		defb	op
 		defb	local
-		defb	  -6
+		defb	  -5
 		defb	fetchE
 		defb	name
 		defb	token
@@ -477,12 +467,14 @@ do_fnScan_end:	equ	$
 	defb	tail
 	defb	  while
 
-; ( S8 -( fail )- S8 )
-do_maul:rst	vm_rst
-	defb	bite
-	defb	swap
-	defb	tail
-	defb	  drop
+; ( E -( overrun )- E N8 )
+do_op:	rst	pop_rst
+	ld	a, (bc)
+	inc	bc
+	call	pushBC
+	ld	(de), a
+	inc	de
+	ret
 
 ; ---
 

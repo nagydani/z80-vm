@@ -245,11 +245,11 @@ verbatim:equ	($ - core_tab - 1) / 2
 words:	equ	($ - core_tab - 1) / 2
 	defw	do_words
 
-; ( N8 S8 -- S8 )
+; ( N8 S8 -- S8 N8 )
 name:	equ	($ - core_tab - 1) / 2
 	defw	do_name
 
-; ( S8 S8 -- N8 )
+; ( S8 S8 -- N8 N8 )
 index:	equ	($ - core_tab - 1) / 2
 	defw	do_index
 
