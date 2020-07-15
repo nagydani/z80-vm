@@ -4,15 +4,6 @@
 core_tab:
 	defb	0			; first code
 
-; ( -( fail )- )
-
-failor:	equ	($ - core_tab - 1) / 2
-	defw	do_failor
-
-; ( -( fail )- )
-fail:	equ	($ - core_tab - 1) / 2
-	defw	do_fail
-
 ; ( -- )
 ok:	equ	($ - core_tab - 1) / 2
 	defw	do_nop
@@ -42,26 +33,6 @@ litS8:	equ	($ - core_tab - 1) / 2
 	defw	do_litS8
 
 ; ( -- E )
-tickself: equ	($ - core_tab - 1) / 2
-	defw	do_tickself
-
-; ( -- E )
-tick:	equ	($ - core_tab - 1) / 2
-	defw	do_tick
-
-; ( a -- b a )
-make:	equ	($ - core_tab - 1) / 2
-	defw	do_make
-
-; ( N8 -- E )
-token:	equ	($ - core_tab - 1) / 2
-	defw	do_token
-
-; ( ( a -( e f )- b ) e -( f monad )- b )
-tryTo:	equ	($ - core_tab - 1) / 2
-	defw	do_tryTo
-
-; ( -- E )
 litE:	equ	($ - core_tab - 1) / 2
 	defw	do_litE
 
@@ -72,6 +43,18 @@ drop:	equ	($ - core_tab - 1) / 2
 ; ( N8 -- N8 N8 )
 dup:	equ	($ - core_tab - 1) / 2
 	defw	do_dup
+
+; ( a -- b a )
+make:	equ	($ - core_tab - 1) / 2
+	defw	do_make
+
+; ( -( fail )- )
+failor:	equ	($ - core_tab - 1) / 2
+	defw	do_failor
+
+; ( -( fail )- )
+fail:	equ	($ - core_tab - 1) / 2
+	defw	do_fail
 
 ; ( N8 N8 -( fail )- maybe N8 )
 eq:	equ	($ - core_tab - 1) / 2
@@ -85,6 +68,14 @@ neq:	equ	($ - core_tab - 1) / 2
 ge:	equ	($ - core_tab - 1) / 2
 	defw	do_ge
 
+; ( ( a -( e f )- b ) e -( f monad )- b )
+tryTo:	equ	($ - core_tab - 1) / 2
+	defw	do_tryTo
+
+; ( N8 -- E )
+token:	equ	($ - core_tab - 1) / 2
+	defw	do_token
+
 ; ( V8 C8 -( fail )- V8 )
 append:	equ	($ - core_tab - 1) / 2
 	defw	do_append
@@ -97,13 +88,33 @@ one_plus:equ	($ - core_tab - 1) / 2
 one_minus:equ	($ - core_tab - 1) / 2
 	defw	do_one_minus
 
+; ( -- N8 )
+zero:	equ	($ - core_tab - 1) / 2
+	defw	do_zero
+
+; ( E -( overrun )- E N8 )
+op:	equ	($ - core_tab - 1) / 2
+	defw	do_op
+
+; ( -- E )
+tick:	equ	($ - core_tab - 1) / 2
+	defw	do_tick
+
+; ( -- E )
+tickself: equ	($ - core_tab - 1) / 2
+	defw	do_tickself
+
 ; ( -- E )
 emptyE:	equ	($ - core_tab - 1) / 2
 	defw	do_emptyE
 
-; ( -- N8 )
-zero:	equ	($ - core_tab - 1) / 2
-	defw	do_zero
+; ( S8 -( fail ) -- maybe S8 N8 )
+bite:	equ	($ - core_tab - 1) / 2
+	defw	do_bite
+
+; ( S8 -( fail ) -- maybe S8 N8 )
+chop:	equ	($ - core_tab - 1) / 2
+	defw	do_chop
 
 ; ( N8 N8 -- N8 N8 )
 swap:	equ	($ - core_tab - 1) / 2
@@ -117,21 +128,9 @@ var:	equ	($ - core_tab - 1) / 2
 local:	equ	($ - core_tab - 1) / 2
 	defw	do_local
 
-; ( E -( overrun )- E N8 )
-op:	equ	($ - core_tab - 1) / 2
-	defw	do_op
-
 ; ( A N8 -( overrun )- A )
 adv:	equ     ($ - core_tab - 1) / 2
 	defw	do_adv
-
-; ( S8 -( fail ) -- maybe S8 N8 )
-bite:	equ	($ - core_tab - 1) / 2
-	defw	do_bite
-
-; ( S8 -( fail ) -- maybe S8 N8 )
-chop:	equ	($ - core_tab - 1) / 2
-	defw	do_chop
 
 ; ( ( a -( e )- b ) -( tail pend )- )
 tailpend:equ	($ - core_tab - 1) / 2
@@ -289,34 +288,6 @@ src_last:equ	($ - core_tab - 1) / 2
 
 ; ---
 
-	defb	t_failor - do_failor
-; ( -( fail )- )
-do_failor:
-	call	do_call
-	inc	hl
-	ret	nc
-	dec	hl
-;	jr	do_fail
-	defb	0x3e		; LD A, skip next byte
-
-	defb	t_fail - do_fail
-; ( -( fail )- )
-do_fail:ld	a, (hl)
-	inc	hl
-	or	a
-	jr	z, do_fail0
-	ld	c, a
-	ld	b, 0xFF
-	ex	de, hl
-	add	hl, bc
-	ex	de, hl
-	ret
-
-t_failor:
-t_fail:	defb	0
-	defb	1, fail
-	defb	0
-
 	defb	t_nop - do_nop
 ; ( -- )
 do_nop:	ret
@@ -392,97 +363,6 @@ t_litS8:defb	0
 	defb	0
 	defb	1, S8
 
-	defb	t_tickself - do_tickself
-; ( -- `self )
-do_tickself:
-	call	backBC
-	jr	pushBC
-t_tickself:
-	defb	0
-	defb	0
-	defb	1, backtickself
-
-	defb	t_tick - do_tick
-; ( -- `_ )
-do_tick:call	vm_tick
-a_tick:	push	de
-	exx
-	pop	bc
-	jr	pushBC
-
-t_tick:	defb	0
-	defb	0
-	defb	1, backticknext
-
-	defb	t_make - do_make
-; ( argsSelf -- valsSelf argsSelf )
-do_make:ld	a, (hl)
-	inc	hl
-	ld	c, (hl)
-	inc	hl
-	ld	b, 0
-	push	hl
-	dec	de
-	ld	l, e
-	ld	h, d
-	add	hl, bc
-	push	hl
-	or	a
-	jr	z, make0
-	ld	c, a
-	ex	de, hl
-	lddr
-make0:	pop	de
-	inc	de
-	pop	hl
-	ret
-
-t_make:	defb	1, argSelf
-	defb	0
-	defb	2, valSelf, argSelf
-
-	defb	t_token - do_token
-; ( tok -- `tok )
-do_token:dec	de
-	ld	a, (de)
-	call	vm_tail
-	jr	a_tick
-
-t_token:defb	1, tok
-	defb	0
-	defb	1, backticktok
-
-	defb	t_tryTo - do_tryTo
-; ( func handler _ -( effs func _ \ )- vals func )
-do_tryTo:
-	call	vm_tick		; DE = old handler, HL = effect address + 1
-	push	de		; old handler on stack
-	push	bc		; vocabulary on stack
-	exx
-	rst	pop_rst		; BC = new handler
-	push	bc		; move BC to
-	exx
-	pop	bc		; BC'
-	ld	(hl), b
-	dec	hl
-	ld	(hl), c		; new handler set HL = effect address
-	pop	bc		; restore vocabulary
-	push	hl		; save effect address
-	exx
-	call	do_call		; try function inside the monad
-	exx
-	pop	hl		; effect address
-	pop	de		; old handler
-	ld	(hl), e
-	inc	hl
-	ld	(hl), d		; restore old handler
-	exx
-	ret
-
-t_tryto:defb	3, func, handler, sub
-	defb	4, eff, func, sub, setminus
-	defb	2, val, func
-
 	defb	t_litE - do_litE
 ; ( -- 'code )
 do_litE:rst	token_rst
@@ -514,6 +394,61 @@ t_dup:	defb	1, N8
 	defb	0
 	defb	2, N8, N8
 
+	defb	t_make - do_make
+; ( argsSelf -- valsSelf argsSelf )
+do_make:ld	a, (hl)
+	inc	hl
+	ld	c, (hl)
+	inc	hl
+	ld	b, 0
+	push	hl
+	dec	de
+	ld	l, e
+	ld	h, d
+	add	hl, bc
+	push	hl
+	or	a
+	jr	z, make0
+	ld	c, a
+	ex	de, hl
+	lddr
+make0:	pop	de
+	inc	de
+	pop	hl
+	ret
+
+t_make:	defb	1, argSelf
+	defb	0
+	defb	2, valSelf, argSelf
+
+	defb	t_failor - do_failor
+; ( -( fail )- )
+do_failor:
+	call	do_call
+	inc	hl
+	ret	nc
+	dec	hl
+;	jr	do_fail
+	defb	0x3e		; LD A, skip next byte
+
+	defb	t_fail - do_fail
+; ( -( fail )- )
+do_fail:ld	a, (hl)
+	inc	hl
+	or	a
+	jr	z, do_fail0
+	ld	c, a
+	ld	b, 0xFF
+	ex	de, hl
+	add	hl, bc
+	ex	de, hl
+	ret
+
+t_failor:
+t_fail:	defb	0
+	defb	1, fail
+	defb	0
+
 	defb	t_eq - do_eq
 ; ( N8 N8 -( fail )- maybe N8 )
 do_eq:	rst	cmp_rst
@@ -543,6 +478,48 @@ t_ge:	defb	2, N8, N8
 	defb	1, fail
 	defb	1, N8
 
+; ( func handler _ -( effs func _ \ )- vals func )
+do_tryTo:
+	call	vm_tick		; DE = old handler, HL = effect address + 1
+	push	de		; old handler on stack
+	push	bc		; vocabulary on stack
+	exx
+	rst	pop_rst		; BC = new handler
+	push	bc		; move BC to
+	exx
+	pop	bc		; BC'
+	ld	(hl), b
+	dec	hl
+	ld	(hl), c		; new handler set HL = effect address
+	pop	bc		; restore vocabulary
+	push	hl		; save effect address
+	exx
+	call	do_call		; try function inside the monad
+	exx
+	pop	hl		; effect address
+	pop	de		; old handler
+	ld	(hl), e
+	inc	hl
+	ld	(hl), d		; restore old handler
+	exx
+	ret
+
+t_tryTo:defb	3, func, handler, sub
+	defb	4, eff, func, sub, setminus
+	defb	2, val, func
+
+	defb	t_token - do_token
+; ( tok -- `tok )
+do_token:dec	de
+	ld	a, (de)
+	call	vm_tail
+	jr	a_tick
+
+t_token:defb	1, tok
+	defb	0
+	defb	1, backticktok
+
+	defb	t_tryTo - do_tryTo
 	defb	t_append - do_append
 ; ( V8 N8 -( failOver )- V8 |maybe V8+ )
 do_append:
@@ -592,22 +569,6 @@ t_one_minus:
 	defb	1, failOver
 	defb	3, N8, ormaybe, N8minus
 
-	defb	t_emptyE - do_emptyE
-; ( -- (--) )
-do_emptyE:
-	ld	bc, do_nop
-pushBC:	ex	de, hl
-	ld	(hl), c
-	inc	hl
-	ld	(hl), b
-	inc	hl
-	ex	de, hl
-	ret
-t_emptyE:
-	defb	0
-	defb	0
-	defb	1, emptyFn
-
 	defb	t_zero - do_zero
 ; ( -- N8 )
 do_zero:xor	a
@@ -616,63 +577,6 @@ do_zero:xor	a
 t_zero:	defb	0
 	defb	0
 	defb	1, N8
-
-	defb	t_swap - do_swap
-; ( N8 N8 -- N8 N8 )
-do_swap:ex	de, hl
-	dec	hl
-	ld	b, (hl)
-	dec	hl
-	ld	c, (hl)
-	ld	(hl), b
-	inc	hl
-	ld	(hl), c
-	inc	hl
-	ex	de, hl
-	ret
-
-t_swap:	defb	2, N8, N8
-	defb	0
-	defb	2, N8, N8
-
-	defb	t_var - do_var
-; ( -( var )- A )
-do_var:	ld	a, (hl)
-	inc	hl
-	push	ix
-	exx
-	pop	de
-	ld	l, a
-	add	a, a
-	sbc	a, a
-	ld	h, a
-	add	hl, de
-	and	a		; clear CF
-	push	hl
-	exx
-	pop	bc
-	jr	pushBC
-
-t_var:	defb	0
-	defb	1, var
-	defb	1, addr
-
-	defb	t_local - do_local
-; ( -- A )
-do_local:
-	ld	a, (hl)
-	inc	hl
-	add	a, e
-	ld	c, a
-	ld	a, 0xFF
-	adc	a, d
-	ld	b, a
-	and	a
-	jr	pushBC
-
-t_local:defb	0
-	defb	0
-	defb	1, addr
 
 	defb	t_op - do_op
 ; ( A -( overrun )- A N8 )
@@ -686,21 +590,37 @@ t_op:	defb	1, addr
 	defb	1, overrun
 	defb	2, addr, N8
 
-	defb	t_adv - do_adv
-; ( A N8 -( overrun )- A )
-do_adv:	dec	de
-	ld	a, (de)
-	rst	pop_rst
-	adc	a, c
-	ld	c, a
-	ld	a, 0
-	adc	a, b
-	ld	b, a
-adv_nc:	jr	pushBC
+	defb	t_tick - do_tick
+; ( -- `_ )
+do_tick:call	vm_tick
+a_tick:	push	de
+	exx
+	pop	bc
+	jr	pushBC
 
-t_adv:	defb	2, addr, N8
-	defb	1, overrun
-	defb	1, addr
+t_tick:	defb	0
+	defb	0
+	defb	1, backtick_
+
+	defb	t_tickself - do_tickself
+; ( -- `self )
+do_tickself:
+	call	backBC
+	jr	pushBC
+t_tickself:
+	defb	0
+	defb	0
+	defb	1, backtickself
+
+	defb	t_emptyE - do_emptyE
+; ( -- (--) )
+do_emptyE:
+	ld	bc, do_nop
+	jr	pushBC
+t_emptyE:
+	defb	0
+	defb	0
+	defb	1, emptyFn
 
 	defb	t_bite - do_bite
 ; ( S8 -( fail )- maybe S8 N8 )
@@ -748,10 +668,92 @@ chop_nc:inc	hl
 	ld	a, (bc)
 	jr	pushA
 
+f_bite:	defb	fail
+	defb	  -2
+
 t_chop:
 t_bite:	defb	1, S8
 	defb	1, fail
 	defb	2, S8, N8
+
+	defb	t_swap - do_swap
+; ( N8 N8 -- N8 N8 )
+do_swap:ex	de, hl
+	dec	hl
+	ld	b, (hl)
+	dec	hl
+	ld	c, (hl)
+	ld	(hl), b
+	inc	hl
+	ld	(hl), c
+	inc	hl
+	ex	de, hl
+	ret
+
+t_swap:	defb	2, N8, N8
+	defb	0
+	defb	2, N8, N8
+
+	defb	t_var - do_var
+; ( -( var )- A )
+do_var:	ld	a, (hl)
+	inc	hl
+	push	ix
+	exx
+	pop	de
+	ld	l, a
+	add	a, a
+	sbc	a, a
+	ld	h, a
+	add	hl, de
+	and	a		; clear CF
+	push	hl
+	exx
+	pop	bc
+pushBC:	ex	de, hl
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b
+	inc	hl
+	ex	de, hl
+	ret
+
+t_var:	defb	0
+	defb	1, var
+	defb	1, addr
+
+	defb	t_local - do_local
+; ( -- A )
+do_local:
+	ld	a, (hl)
+	inc	hl
+	add	a, e
+	ld	c, a
+	ld	a, 0xFF
+	adc	a, d
+	ld	b, a
+	and	a
+	jr	pushBC
+
+t_local:defb	0
+	defb	0
+	defb	1, addr
+
+	defb	t_adv - do_adv
+; ( A N8 -( overrun )- A )
+do_adv:	dec	de
+	ld	a, (de)
+	rst	pop_rst
+	adc	a, c
+	ld	c, a
+	ld	a, 0
+	adc	a, b
+	ld	b, a
+adv_nc:	jr	pushBC
+
+t_adv:	defb	2, addr, N8
+	defb	1, overrun
+	defb	1, addr
 
 	defb	t_tailpend - do_tailpend
 ; ( handler -( tail pend )- :: )
@@ -1283,7 +1285,7 @@ words_g_e:	defb	tail
 		defb	  call
 
 words_l:	defb	fail
-		defb	  -4
+		defb	  -3
 
 ; ( S8 -( fail pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 t_words:defb	1, S8
