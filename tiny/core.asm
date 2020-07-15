@@ -966,28 +966,37 @@ words_g:		rst	vm_rst
 			defb	litE
 			defb	  words_n_e - words_n
 words_n:			dec	de
+				ld	a, l
+				ex	af, af'
 				ld	  a, (de)
-words_loop:			add	a, a
-				ret	c
+				add	a, a
+words_loop:			ret	c
 				ex	de, hl
 				dec	hl
+				ld	e, (hl)
 				dec	hl
 				ld	b, (hl)
 				dec	hl
 				ld	c, (hl)
-				ld	a, (bc)
 				dec	hl
+words_lp:			ld	a, (bc)
 				inc	(hl)
 				inc	bc
+				dec	e
+				add	a, a
+				jr	nc, words_lp
 				inc	hl
 				ld	(hl), c
 				inc	hl
 				ld	(hl), b
 				inc	hl
-				dec	(hl)
+				ld	(hl), e
 				inc	hl
 				ex	de, hl
-				jr	words_loop
+				ex	af, af'
+				ld	l, a
+				scf
+				ret
 words_n_e:		defb	litE
 			defb	  words_a_e - words_a
 words_a:			rst	vm_rst
