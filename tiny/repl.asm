@@ -21,7 +21,7 @@ end_hello:	defb	writeln
 ;		defb	or
 
 ; Test name
-;		defb	backtick
+;		defb	litN8
 ;		defb	  index
 ;		defb	tick
 ;		defb	  effWords

@@ -14,7 +14,7 @@ fn:	equ	words_first + 5
 
 tailFn:	equ	words_first + 6
 
-failOver:equ	words_first + 7
+failOverFn:equ	words_first + 7
 
 selfRef:equ	words_first + 8
 
@@ -64,7 +64,7 @@ syn_words:
 	defb	fn
 	defb	"selfRef"
 	defb	fn
-	defb	"failOver"
+	defb	"defBumpFn"
 	defb	fn
 	defb	"defFn~"
 	defb	fn
@@ -186,8 +186,8 @@ core_words:
 	defb	fn
 	defb	"times:"
 	defb	fn
-	defb	"pour"
-	defb	fn
+;	defb	"pour"
+;	defb	fn
 	defb	"use"
 	defb	voc
 	defb	"toStr"
@@ -229,11 +229,11 @@ core_words:
 	defb	"{}"
 	defb	fn
 	defb	"1-"
-	defb	failOver
+	defb	failOverFn
 	defb	"1+"
-	defb	failOver
+	defb	failOverFn
 	defb	","
-	defb	failOver
+	defb	failOverFn
 	defb	">!"
 	defb	fn
 	defb	"=!"
@@ -260,8 +260,6 @@ core_words:
 	defb	quote
 	defb	"0x"
 	defb	number
-	defb	"`"
-	defb	fnRef
 	defb	"ascii"
 	defb	printable
 ;	defb	"~raw"
