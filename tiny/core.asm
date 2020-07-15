@@ -525,7 +525,9 @@ t_token:defb	1, tok
 do_append:
 	rst	vm_rst
 	defb	swap
-	defb	cpu
+	defb	tail
+	defb	  one_plus
+
 t_append:
 	defb	2, V8, N8
 	defb	1, failOver
