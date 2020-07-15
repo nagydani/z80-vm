@@ -245,8 +245,6 @@ do_setVoc:	rst	vm_rst
 		defb	litN8
 		defb	  2
 		defb	adv	; lenWords
-		defb	litN8
-		defb	  1
 		defb	op
 		defb	adv
 		defb	litN8

@@ -114,15 +114,15 @@ src_words:
 	defb	fn
 	defb	"comp"
 	defb	fn
-	defb	"coreWords:"
+	defb	"core:"
 	defb	fn
-	defb	"ioWords:"
+	defb	"io:"
 	defb	fn
-	defb	"srcWords:"
+	defb	"src:"
 	defb	fn
-	defb	"effWords:"
+	defb	"eff:"
 	defb	fn
-	defb	"synWords:"
+	defb	"syntax:"
 	defb	fn
 	defb	"moreWords:"
 	defb	fn
