@@ -965,20 +965,29 @@ words_g:		rst	vm_rst
 			defb	  -7
 			defb	litE
 			defb	  words_n_e - words_n
-words_n:			rst	vm_rst
-				defb	stroke
-				defb	drop
-				defb	local
-				defb	  -4
-				defb	fetchN8
-				defb	one_plus
-				defb	  0
-				defb	local
-				defb	  -5
-				defb	N8store	; increment length
-				defb	bite
-				defb	tailself
-				defb	  words_n - $
+words_n:			dec	de
+				ld	  a, (de)
+words_loop:			add	a, a
+				ret	c
+				ex	de, hl
+				dec	hl
+				dec	hl
+				ld	b, (hl)
+				dec	hl
+				ld	c, (hl)
+				ld	a, (bc)
+				dec	hl
+				inc	(hl)
+				inc	bc
+				inc	hl
+				ld	(hl), c
+				inc	hl
+				ld	(hl), b
+				inc	hl
+				dec	(hl)
+				inc	hl
+				ex	de, hl
+				jr	words_loop
 words_n_e:		defb	litE
 			defb	  words_a_e - words_a
 words_a:			rst	vm_rst
