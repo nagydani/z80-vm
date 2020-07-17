@@ -9,13 +9,21 @@ do_see:	rst	vm_rst
 		  rst	vm_rst
 	defb	litE
 	defb	  e_see - s_see
+	NOP
+	; ( ??? -( ??? )- ??? )
 s_see:		rst	vm_rst
 		defb	eq
 		defb	drop	; comparison
 		defb	tail
 		defb	  seeVm
-e_see:	defb	litE
+e_see:	defb	local
+	defb	  -4
+	defb	tick
+	defb	  tryAt
+	defb	litE
 	defb	  e_seeRaw - s_seeRaw
+	NOP
+	; ( ??? -( ??? )- ??? )
 s_seeRaw:	rst	vm_rst
 		defb	seeRaw
 		defb	tail
@@ -30,6 +38,8 @@ do_seeWords:
 	defb	  end_see_words - see_words
 see_words:
 	defb	see_last
+	defb	"speak"
+	defb	fn
 	defb	"vm"
 	defb	fn
 	defb	"say"
@@ -120,6 +130,10 @@ writesp:equ     ($ - see_voc - 1) / 2 + words_first
 seeVm:	equ	($ - see_voc - 1) / 2 + words_first
 	defw	do_see_vm
 
+; ( E S8 -( emit )- )
+speak:	equ	($ - see_voc - 1) / 2 + words_first
+	defw	do_speak
+
 see_last:	equ     ($ - see_voc - 1) / 2 + words_first
 
 ; ---
@@ -176,9 +190,13 @@ do_see_quote:
 	defb	  bite
 	defb	litE
 	defb	  e_c_quote - c_quote
+	NOP
+	; ( ??? -( ??? )- ??? )
 c_quote:	rst	vm_rst
 		defb	litE
 		defb	  e_quote - s_quote
+		NOP
+		; ( ??? -( ??? )- ??? )
 s_quote:		rst	vm_rst
 			defb	dup
 			defb	stroke
@@ -187,6 +205,8 @@ s_quote:		rst	vm_rst
 			defb	  emit
 e_quote:	defb	litE
 		defb	  e_nonpr - s_nonpr
+		NOP
+		; ( ??? -( ??? )- ??? )
 s_nonpr:		rst	vm_rst
 			defb	litS8
 			defb	  e_q - s_q
@@ -215,13 +235,18 @@ do_see_brace:
 	defb	local
 	defb	  -5	; code
 	defb	fetchE
+	defb	op
+	defb	drop	; skip type
 	defb	see
 	defb	ascii
 	defb	  "}"
 	defb	emit
 	defb	cr
+	defb	adv
+	defb	litN8
+	defb	  1
 	defb	tail
-	defb	  adv
+	defb	  adv	; skip more
 
 do_see_voc:
 	rst	vm_rst
@@ -232,6 +257,8 @@ do_see_voc:
 	defb	adv		; voc
 	defb	litE
 	defb	  end_setVoc - do_setVoc
+	NOP
+	; ( ??? -( ??? )- ??? )
 do_setVoc:	rst	vm_rst
 		defb	var
 		defb	  -5	; words
@@ -266,6 +293,8 @@ do_setVoc:	rst	vm_rst
 		defb	fetchE
 		defb	litE
 		defb	  end_countVoc - do_countVoc
+		NOP
+		; ( ??? -( ??? )- ??? )
 do_countVoc:		rst	vm_rst
 			defb	call
 			defb	var
@@ -304,6 +333,7 @@ end_countVoc:	defb	emptyE
 		defb	  0
 		defb	litE
 		defb	  end_listVoc - do_listVoc
+		NOP
 ; ( S8;nam N8;cls N8;num E;tab -( fail emit )- )
 do_listVoc:		rst	vm_rst
 			defb	local
@@ -444,6 +474,7 @@ do_see_vm:
 	rst	vm_rst
 	defb	litE
 	defb	  do_fnScan_end - do_fnScan
+	NOP
 ; ( E E -( fail emit )- S8 S8 S8 N8)
 do_fnScan:	rst	vm_rst
 		defb	op
@@ -458,6 +489,18 @@ do_fnScan_end:	equ	$
 	defb	emptyE
 	defb	tail
 	defb	  while
+
+do_speak:
+	rst	vm_rst
+	defb	scan
+	defb	local
+	defb	  -6
+	defb	fetchE
+	defb	name
+	defb	drop
+	defb	writesp
+	defb	fail
+	defb	  0
 
 ; ---
 

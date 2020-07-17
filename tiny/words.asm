@@ -26,38 +26,41 @@ N8:	equ	types_first + 0
 S8:	equ	types_first + 1
 addr:	equ	types_first + 2
 func:	equ	types_first + 3
-vocab:	equ	types_first + 4
-state:	equ	types_first + 5
-arg:	equ	types_first + 6
-val:	equ	types_first + 7
-eff:	equ	types_first + 8
-pend:	equ	types_first + 9
-setminus:equ	types_first + 10
-dict:	equ	types_first + 11
-pred:	equ	types_first + 12
-body:	equ	types_first + 13
-forWhile:equ	types_first + 14
-forOr:	equ	types_first + 15
-forUnless:equ	types_first + 16
-handler:equ	types_first + 17
-overrun:equ	types_first + 18
-ormaybe:equ	types_first + 19
-N8plus:	equ	types_first + 20
-N8minus:equ	types_first + 21
-V8:	equ	types_first + 22
-V8plus:	equ	types_first + 23
-tickcode:equ	types_first + 24
-backticktok:equ	types_first + 25
-backtickself:equ types_first + 26
-backtick_:equ	types_first + 27
-tok:	equ	types_first + 28
-argSelf:equ	types_first + 29
-valSelf:equ	types_first + 30
-failOver:equ	types_first + 31
-sub:	equ	types_first + 32
-emptyFn:equ	types_first + 33
-C8:	equ	types_first + 34
-types_last:equ	types_first + 35
+recType:equ	types_first + 4
+V8:	equ	types_first + 5
+C8:	equ	types_first + 6
+N8max:	equ	types_first + 7
+minusOne:equ	types_first + 8
+V8plus:	equ	types_first + 9
+vocab:	equ	types_first + 10
+state:	equ	types_first + 11
+pend:	equ	types_first + 12
+setminus:equ	types_first + 13
+dict:	equ	types_first + 14
+pred:	equ	types_first + 15
+body:	equ	types_first + 16
+forWhile:equ	types_first + 17
+forOr:	equ	types_first + 18
+forUnless:equ	types_first + 19
+handler:equ	types_first + 20
+overrun:equ	types_first + 21
+ormaybe:equ	types_first + 22
+tickcode:equ	types_first + 23
+backticktok:equ	types_first + 24
+backtickself:equ types_first + 25
+backtick_:equ	types_first + 26
+tok:	equ	types_first + 27
+selfArg:equ	types_first + 28
+selfVal:equ	types_first + 29
+failOver:equ	types_first + 30
+sub:	equ	types_first + 31
+emptyFn:equ	types_first + 32
+funcType:equ	types_first + 33
+effSet:	equ	types_first + 34
+funcArg:equ	types_first + 35
+funcEff:equ	types_first + 36
+funcVal:equ	types_first + 37
+types_last:equ	types_first + 38
 
 do_moreWords:
 	rst	vm_rst
@@ -65,6 +68,101 @@ do_moreWords:
 	defb	  words
 	defb	tail
 	defb	  unless
+
+do_typWords:
+	rst	vm_rst
+	defb	litS8
+	defb	  end_typ_words - typ_words
+typ_words:
+	defb	types_last
+	defb	"(?)`val"
+	defb	fn
+	defb	"(?)`eff"
+	defb	fn
+	defb	"(?)`arg"
+	defb	fn
+	defb	"-(?)-"
+	defb	fn
+	defb	"(?)`"
+	defb	fn
+	defb	"(--)"
+	defb	fn
+	defb	"_"
+	defb	fn
+	defb	"bump"
+	defb	fn
+	defb	"'self`val"
+	defb	fn
+	defb	"'self`arg"
+	defb	fn
+	defb	"tok"
+	defb	fn
+	defb	"`_"
+	defb	fn
+	defb	"'self`"
+	defb	fn
+	defb	"`tok"
+	defb	fn
+	defb	"'code"
+	defb	fn
+	defb	"|maybe"
+	defb	fn
+	defb	"overrun"
+	defb	fn
+	defb	"handler"
+	defb	fn
+	defb	"forUnless"
+	defb	fn
+	defb	"for|"
+	defb	fn
+	defb	"forWhile"
+	defb	fn
+	defb	"(body)"
+	defb	fn
+	defb	"(pred)"
+	defb	fn
+	defb	"dict"
+	defb	fn
+	defb	"\\"
+	defb	fn
+	defb	";"
+	defb	fn
+	defb	"eff"
+	defb	fn
+	defb	"val"
+	defb	fn
+	defb	"arg"
+	defb	fn
+	defb	";;"
+	defb	fn
+	defb	"vocab"
+	defb	fn
+	defb	"V8+"
+	defb	fn
+	defb	"[-1]"
+	defb	fn
+	defb	"[256]"
+	defb	fn
+	defb	"C8"
+	defb	fn
+	defb	"V8"
+	defb	fn
+	defb	"[?]"
+	defb	fn
+	defb	"(?)"
+	defb	fn
+	defb	"addr"
+	defb	fn
+	defb	"S8"
+	defb	fn
+	defb	"N8"
+	defb	fn
+end_typ_words:equ	$
+	defb	tick
+	defb	  effWords
+	defb	tail
+	defb	  moreWords
+
 
 do_synWords:
 	rst	vm_rst
@@ -147,6 +245,8 @@ src_words:
 	defb	"eff;"
 	defb	fn
 	defb	"syntax;"
+	defb	fn
+	defb	"typ;"
 	defb	fn
 	defb	"moreWords;"
 	defb	fn
@@ -234,6 +334,14 @@ core_words:
 	defb	fn
 	defb	"~;"
 	defb	tailFn
+	defb	"val"
+	defb	fn
+	defb	"eff"
+	defb	fn
+	defb	"arg"
+	defb	fn
+	defb	"`"
+	defb	fn
 	defb	"adv"
 	defb	fn
 	defb	"local"

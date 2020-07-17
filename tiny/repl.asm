@@ -2,6 +2,8 @@ do_repl:rst	vm_rst
 
 	defb	litE
 	defb	  end_repl - repl
+	NOP
+	; ( ??? -( ??? )- ??? )
 repl:		rst	vm_rst
 		defb	litS8
 		defb	  end_hello - hello
@@ -11,6 +13,8 @@ end_hello:	defb	writeln
 ; Test words generator
 ;		defb	litE
 ;		defb	  end_wordList - do_wordList
+;		NOP
+;		; ( ??? -( ??? )- ??? )
 ;do_wordList:		rst	vm_rst
 ;			defb	effWords
 ;			defb	drop		; word class
@@ -47,7 +51,7 @@ end_hello:	defb	writeln
 		defb	tick
 		defb	  effWords
 		defb	tick
-		defb	  see
+		defb	  verbatim
 		defb	see
 
 ; Test readln and writeln
@@ -61,6 +65,8 @@ end_hello:	defb	writeln
 end_repl:
 	defb	litE
 	defb	  end_failure - failure
+	NOP
+	; ( ??? -( ??? )- ??? )
 failure:	rst	vm_rst
 		defb	litS8
 		defb	  end_fmsg - fmsg
