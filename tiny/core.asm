@@ -273,6 +273,10 @@ moreWords:equ	($ - core_tab - 1) / 2
 	defw	do_moreWords
 
 ; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
+typWords:equ	($ - core_tab - 1) / 2
+	defw	do_typWords
+
+; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 synWords:equ	($ - core_tab - 1) / 2
 	defw	do_synWords
 

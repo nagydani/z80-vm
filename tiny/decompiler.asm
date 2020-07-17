@@ -4,6 +4,37 @@ do_see:	rst	vm_rst
 	defb	  see_voc - $
 
 ; ---
+
+	defb	litE
+	defb	  e_in_type - do_in_type
+	NOP
+	; ( ??? -( ??? )- ??? )
+do_in_type:	rst	vm_rst
+		defb	litS8
+		DEFB	  3
+			DEFB	 "in["	; TODO properly
+		defb	writesp
+		defb	tick
+		defb	  typWords
+		defb	var
+		defb	  0		; code
+		defb	var
+		defb	  -1		; type
+		defb	fetchN8
+		defb	adv
+		defb	tick
+		defb	  seeRec
+		defb	local
+		defb	  -6
+		defb	tryAt
+		defb	tail
+		defb	  pass
+e_in_type:	equ	$
+	defb	local
+	defb	  -4
+	defb	fetchE
+	defb	tryAt
+
 	defb	op
 	defb	litN8
 		  rst	vm_rst
@@ -17,7 +48,7 @@ s_see:		rst	vm_rst
 		defb	tail
 		defb	  seeVm
 e_see:	defb	local
-	defb	  -4
+	defb	  -8		;; wrds
 	defb	tick
 	defb	  tryAt
 	defb	litE
@@ -38,7 +69,11 @@ do_seeWords:
 	defb	  end_see_words - see_words
 see_words:
 	defb	see_last
+	defb	"seeRec"
+	defb	fn
 	defb	"speak"
+	defb	fn
+	defb	"cite"
 	defb	fn
 	defb	"vm"
 	defb	fn
@@ -130,9 +165,17 @@ writesp:equ     ($ - see_voc - 1) / 2 + words_first
 seeVm:	equ	($ - see_voc - 1) / 2 + words_first
 	defw	do_see_vm
 
-; ( E S8 -( emit )- )
+; ( N8 -( emit access )- )
+cite:	equ	($ - see_voc - 1) / 2 + words_first
+	defw	do_cite
+
+; ( S8 -( emit access )- )
 speak:	equ	($ - see_voc - 1) / 2 + words_first
 	defw	do_speak
+
+; ( E -( emit access )- )
+seeRec:	equ	($ - see_voc - 1) / 2 + words_first
+	defw	do_seeRec
 
 see_last:	equ     ($ - see_voc - 1) / 2 + words_first
 
@@ -227,13 +270,13 @@ e_c_quote:	equ	$
 
 do_see_brace:
 	rst	vm_rst
-	defb	writeln
+	defb	writesp
 	defb	op
-	defb	local
-	defb	  -5	; wrds
+	defb	var
+	defb	  0	; wrds
 	defb	fetchE
-	defb	local
-	defb	  -5	; code
+	defb	var
+	defb	  2	; code
 	defb	fetchE
 	defb	op
 	defb	drop	; skip type
@@ -475,14 +518,14 @@ do_see_vm:
 	defb	litE
 	defb	  do_fnScan_end - do_fnScan
 	NOP
-; ( E E -( fail emit )- S8 S8 S8 N8)
+; ( E -( fail emit )- E )
 do_fnScan:	rst	vm_rst
 		defb	op
-		defb	local
-		defb	  -5
+		defb	var
+		defb	  0
 		defb	fetchE
 		defb	name
-		defb	token
+		defb	token	; ( E S8 -( emit )- )
 		defb	tail
 		defb	  call
 do_fnScan_end:	equ	$
@@ -490,17 +533,35 @@ do_fnScan_end:	equ	$
 	defb	tail
 	defb	  while
 
-do_speak:
-	rst	vm_rst
-	defb	scan
-	defb	local
-	defb	  -6
+; ( N8 -( emit var )- )
+do_cite:rst	vm_rst
+	defb	var
+	defb	  0
 	defb	fetchE
 	defb	name
 	defb	drop
-	defb	writesp
+	defb	tail
+	defb	  writesp
+
+do_speak:
+	rst	vm_rst
+	defb	scan
+	defb	cite
 	defb	fail
 	defb	  0
+
+do_seeRec:
+	rst	vm_rst
+	defb	op
+	defb	tick
+	defb	  speak
+	defb	emptyE
+	defb	or
+	defb	ascii
+	defb	  "]"
+	defb	emit
+	defb	tail
+	defb	  cr
 
 ; ---
 

@@ -127,12 +127,6 @@ typ_words:
 	defb	fn
 	defb	";"
 	defb	fn
-	defb	"eff"
-	defb	fn
-	defb	"val"
-	defb	fn
-	defb	"arg"
-	defb	fn
 	defb	";;"
 	defb	fn
 	defb	"vocab"
