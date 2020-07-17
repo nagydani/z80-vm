@@ -138,23 +138,23 @@ src_words:
 	defb	fn
 	defb	"comp"
 	defb	fn
-	defb	"core:"
+	defb	"core;"
 	defb	fn
-	defb	"io:"
+	defb	"io;"
 	defb	fn
-	defb	"src:"
+	defb	"src;"
 	defb	fn
-	defb	"eff:"
+	defb	"eff;"
 	defb	fn
-	defb	"syntax:"
+	defb	"syntax;"
 	defb	fn
-	defb	"moreWords:"
+	defb	"moreWords;"
 	defb	fn
 	defb	"index"
 	defb	fn
 	defb	"name"
 	defb	fn
-	defb	"words:"
+	defb	"words;"
 	defb	fn
 	defb	"verbatim"
 	defb	fn
@@ -208,7 +208,7 @@ core_words:
 	defb	fn
 	defb	"@"
 	defb	fn
-	defb	"times:"
+	defb	"times;"
 	defb	fn
 ;	defb	"pour"
 ;	defb	fn
@@ -230,9 +230,9 @@ core_words:
 	defb	fn
 	defb	"rain"
 	defb	fn
-	defb	"scan:"
+	defb	"scan;"
 	defb	fn
-	defb	"~:"
+	defb	"~;"
 	defb	tailFn
 	defb	"adv"
 	defb	fn
