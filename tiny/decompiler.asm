@@ -1,3 +1,4 @@
+	defb	t_see - do_see
 ; ( E;wrds E;code -( emit )- )
 do_see:	rst	vm_rst
 	defb	use
@@ -71,10 +72,10 @@ do_out_type:	rst	vm_rst
 		defb	litN8
 		defb	  1		; effects
 		defb	local
-		defb	  -6		; wrds
+		defb	  -5		; wrds
 		defb	fetchE
 		defb	local
-		defb	  -6		; code
+		defb	  -5		; code
 		defb	fetchE
 		defb	cant
 		defb	litS8
@@ -100,6 +101,10 @@ e_out_type:	equ	$
 	defb	emit
 	defb	tail
 	defb	  cr
+
+t_see:	defb	2, func, func
+	defb	1, emit
+	defb	0
 
 do_seeWords:
 	rst	vm_rst
@@ -225,6 +230,7 @@ see_last:	equ     ($ - see_voc - 1) / 2 + words_first
 
 ; ---
 
+	NOP
 do_see_number:
 	rst	vm_rst
 	defb	write
@@ -258,6 +264,7 @@ do_tailemit:
 	defb	tail
 	defb	  emit
 
+	NOP
 do_see_printable:
 	rst	vm_rst
 	defb	writesp
@@ -266,6 +273,7 @@ do_see_printable:
 	defb	tail
 	defb	  cr
 
+	NOP
 do_see_quote:
 	rst	vm_rst
 	defb	writesp
@@ -312,6 +320,7 @@ e_c_quote:	equ	$
 	defb	tail
 	defb	  adv
 
+	NOP
 do_see_brace:
 	rst	vm_rst
 	defb	writesp
@@ -337,6 +346,7 @@ do_see_brace:
 	defb	tail
 	defb	  adv	; skip more
 
+	NOP
 do_see_voc:
 	rst	vm_rst
 	defb	writesp
@@ -353,7 +363,7 @@ do_setVoc:	rst	vm_rst
 		defb	  -5	; words
 		defb	fetchE
 		defb	local
-		defb	  -8
+		defb	  -8	; wrds to replace
 		defb	Estore
 		defb	var
 		defb	  -5	; words
@@ -369,7 +379,7 @@ do_setVoc:	rst	vm_rst
 		defb	drop
 		defb	bite
 		defb	var
-		defb	  -5
+		defb	  -5	; words
 		defb	fetchE
 		defb	name
 		defb	drop
@@ -387,10 +397,10 @@ do_setVoc:	rst	vm_rst
 do_countVoc:		rst	vm_rst
 			defb	call
 			defb	var
-			defb	  -1
+			defb	  -1		; first
 			defb	fetchN8
 			defb	local
-			defb	  -6
+			defb	  -6		; 
 			defb	fetchN8
 			defb	tick
 			defb	  ge
@@ -426,12 +436,12 @@ end_countVoc:	defb	emptyE
 ; ( S8;nam N8;cls N8;num E;tab -( fail emit )- )
 do_listVoc:		rst	vm_rst
 			defb	local
-			defb	  -3
+			defb	  -3		; num
 			defb	fetchN8
 			defb	one_minus
 			defb	  0
 			defb	var
-			defb	  -5
+			defb	  -5		; voc
 			defb	fetchE
 			defb	local
 			defb	  -5
@@ -447,7 +457,7 @@ do_listVoc:		rst	vm_rst
 s_endBody:		defb	  "} \" "
 e_endBody:		defb	write
 			defb	local
-			defb	  -8
+			defb	  -10		; name
 			defb	fetchS8
 			defb	write
 			defb	ascii
@@ -457,14 +467,15 @@ e_endBody:		defb	write
 			defb	  " "
 			defb	emit
 			defb	local
-			defb	  -5
+			defb	  -7		; class
 			defb	fetchN8
 			defb	var
 			defb	  -5
 			defb	fetchE
 			defb	name
-			defb	drop
+			defb	drop		; class class
 			defb	writeln
+			defb	pass		; voc
 			defb	local
 			defb	  -8
 			defb	N8store
@@ -489,15 +500,18 @@ end_setVoc:	equ	$
 	defb	tail
 	defb	  drip
 
+	NOP
 do_see_fn:
 	jp	do_writeln
 
+	NOP
 do_see_tailFn:
 	rst	vm_rst
 	defb	fn
 	defb	fail
 	defb	  -2
 
+	NOP
 do_see_failOver:
 do_see_selfRef:
 	rst	vm_rst
@@ -506,12 +520,14 @@ do_see_selfRef:
 	defb	tail
 	defb	  drop
 
+	NOP
 do_see_tailSelfRef:
 	rst	vm_rst
 	defb	selfRef
 	defb	fail
 	defb	  -2
 
+	NOP
 do_see_fnRef:
 	rst	vm_rst
 	defb	writesp
@@ -524,16 +540,22 @@ do_see_fnRef:
 	defb	tail
 	defb	  writeln
 
+	NOP
 do_see_tailFnRef:
 	rst	vm_rst
 	defb	fnRef
 	defb	fail
 	defb	  -2
 
+	NOP
 do_see_varRef:
 	jr	do_see_failOver
+
+	NOP
 do_see_tailVarRef:
 	jr	do_see_tailSelfRef
+
+	NOP
 do_see_makeRef:
 	rst	vm_rst
 	defb	writeln
@@ -543,6 +565,7 @@ do_see_makeRef:
 	defb	tail
 	defb	  drop
 
+	NOP
 do_see_raw:
 	rst	vm_rst
 	defb	drip		; empty string dropped
@@ -550,6 +573,7 @@ do_see_raw:
 	defb	fail
 	defb	  -2
 
+	NOP
 ; ( S8 -( emit )- )
 do_writesp:
 	rst	vm_rst
@@ -559,6 +583,7 @@ do_writesp:
 	defb	tail
 	defb	  emit
 
+	NOP
 ; ( E -( emit )- )
 do_see_vm:
 	rst	vm_rst
@@ -580,6 +605,7 @@ do_fnScan_end:	equ	$
 	defb	tail
 	defb	  while
 
+	NOP
 ; ( N8 -( emit var )- )
 do_cite:rst	vm_rst
 	defb	var
@@ -590,6 +616,7 @@ do_cite:rst	vm_rst
 	defb	tail
 	defb	  writesp
 
+	NOP
 do_speak:
 	rst	vm_rst
 	defb	scan
@@ -597,6 +624,7 @@ do_speak:
 	defb	fail
 	defb	  0
 
+	NOP
 do_seeRec:
 	rst	vm_rst
 	
@@ -607,7 +635,8 @@ do_seeRec:
 	defb	  cr
 
 
-		; ( : tup N8 : voc E : base E -( ??? )- )
+	NOP
+	; ( : tup N8 : voc E : base E -( ??? )- )
 do_cant:	rst	vm_rst
 		defb	var
 		defb	  -1		; type
