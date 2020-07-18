@@ -23,13 +23,16 @@ do_in_type:	rst	vm_rst
 		defb	  cant
 e_in_type:	equ	$
 	defb	local
-	defb	  -4
+	defb	  -4		; code
 	defb	fetchE
 	defb	tryAt
 	defb	ascii, "]"
 	defb	emit
 	defb	cr
 
+	defb	local
+	defb	  -2
+	defb	fetchE
 	defb	op
 	defb	litN8
 		  rst	vm_rst
@@ -43,7 +46,7 @@ s_see:		rst	vm_rst
 		defb	tail
 		defb	  seeVm
 e_see:	defb	local
-	defb	  -8		;; wrds
+	defb	  -10		;; wrds
 	defb	tick
 	defb	  tryAt
 	defb	litE
@@ -56,12 +59,47 @@ s_seeRaw:	rst	vm_rst
 		defb	  pass
 e_seeRaw:	equ	$
 	defb	or
-	defb	litS8
-	DEFB	  5
-	DEFB	  "can-("
-	DEFB	writesp
-	DEFB	cpu
-	HALT
+
+	defb	litE
+	defb	  e_out_type - do_out_type
+	NOP
+do_out_type:	rst	vm_rst
+		defb	litS8
+		DEFB	  5
+		DEFB	  "can-("
+		defb	writesp
+		defb	litN8
+		defb	  1		; effects
+		defb	local
+		defb	  -6		; wrds
+		defb	fetchE
+		defb	local
+		defb	  -6		; code
+		defb	fetchE
+		defb	cant
+		defb	litS8
+		defb	  e_seeOut - seeOut
+seeOut:			defb	")-", 0x0A
+			defb	"out["
+e_seeOut:	DEFB	writesp
+		defb	litN8
+		defb	  2		; out type
+		defb	tick
+		defb	  typWords
+		defb	local
+		defb	  -5		; code
+		defb	fetchE
+		defb	tail
+		defb	  cant
+e_out_type:	equ	$
+	defb	local
+	defb	  -4
+	defb	fetchE
+	defb	tryAt
+	defb	ascii, "]"
+	defb	emit
+	defb	tail
+	defb	  cr
 
 do_seeWords:
 	rst	vm_rst
@@ -281,8 +319,8 @@ do_see_brace:
 	defb	var
 	defb	  0	; wrds
 	defb	fetchE
-	defb	var
-	defb	  2	; code
+	defb	local
+	defb	  -5	; code
 	defb	fetchE
 	defb	op
 	defb	drop	; skip type
@@ -458,7 +496,7 @@ do_see_tailFn:
 	rst	vm_rst
 	defb	fn
 	defb	fail
-	defb	  -4
+	defb	  -2
 
 do_see_failOver:
 do_see_selfRef:
@@ -472,14 +510,14 @@ do_see_tailSelfRef:
 	rst	vm_rst
 	defb	selfRef
 	defb	fail
-	defb	  -4
+	defb	  -2
 
 do_see_fnRef:
 	rst	vm_rst
 	defb	writesp
 	defb	op
-	defb	local
-	defb	  -5
+	defb	var
+	defb	  0		; voc
 	defb	fetchE
 	defb	name
 	defb	drop
@@ -490,7 +528,7 @@ do_see_tailFnRef:
 	rst	vm_rst
 	defb	fnRef
 	defb	fail
-	defb	  -4
+	defb	  -2
 
 do_see_varRef:
 	jr	do_see_failOver
@@ -521,6 +559,7 @@ do_writesp:
 	defb	tail
 	defb	  emit
 
+; ( E -( emit )- )
 do_see_vm:
 	rst	vm_rst
 	defb	litE
