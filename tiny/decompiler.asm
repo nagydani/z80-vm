@@ -12,7 +12,7 @@ do_see:	rst	vm_rst
 do_in_type:	rst	vm_rst
 		defb	litS8
 		DEFB	  3
-			DEFB	 "in["	; TODO properly
+		DEFB	 "in["	; TODO properly
 		defb	writesp
 		defb	tick
 		defb	  typWords
@@ -21,19 +21,41 @@ do_in_type:	rst	vm_rst
 		defb	var
 		defb	  -1		; type
 		defb	fetchN8
-		defb	adv
-		defb	tick
-		defb	  seeRec
-		defb	local
-		defb	  -6
-		defb	tryAt
-		defb	tail
-		defb	  pass
+		defb	zero
+		defb	litE
+		defb	  e_hastype - do_hastype
+		NOP
+		; ( ??? -( ??? )- ??? )
+do_hastype:		rst	vm_rst
+			defb	neq
+			defb	adv
+			defb	tick
+			defb	  seeRec
+			defb	local
+			defb	  -6
+			defb	tryAt
+			defb	tail
+			defb	  pass
+e_hastype:	defb	litE
+		defb	  e_notype - do_notype
+		NOP
+		; ( ??? -( ??? )- ??? )
+do_notype:		RST	vm_rst
+			DEFB	ascii, "?"
+			DEFB	emit
+			DEFB	litN8, " "
+			DEFB	tail
+			DEFB	  emit
+e_notype:	defb	tail
+		defb	  or
 e_in_type:	equ	$
 	defb	local
 	defb	  -4
 	defb	fetchE
 	defb	tryAt
+	defb	ascii, "]"
+	defb	emit
+	defb	cr
 
 	defb	op
 	defb	litN8
@@ -285,6 +307,8 @@ do_see_brace:
 	defb	  "}"
 	defb	emit
 	defb	cr
+	defb	pass
+	defb	pass
 	defb	adv
 	defb	litN8
 	defb	  1
