@@ -14,40 +14,13 @@ do_in_type:	rst	vm_rst
 		DEFB	  3
 		DEFB	 "in["	; TODO properly
 		defb	writesp
+		defb	zero	; tup
 		defb	tick
 		defb	  typWords
 		defb	var
 		defb	  0		; code
-		defb	var
-		defb	  -1		; type
-		defb	fetchN8
-		defb	zero
-		defb	litE
-		defb	  e_hastype - do_hastype
-		NOP
-		; ( ??? -( ??? )- ??? )
-do_hastype:		rst	vm_rst
-			defb	neq
-			defb	adv
-			defb	tick
-			defb	  seeRec
-			defb	local
-			defb	  -6
-			defb	tryAt
-			defb	tail
-			defb	  pass
-e_hastype:	defb	litE
-		defb	  e_notype - do_notype
-		NOP
-		; ( ??? -( ??? )- ??? )
-do_notype:		RST	vm_rst
-			DEFB	ascii, "?"
-			DEFB	emit
-			DEFB	litN8, " "
-			DEFB	tail
-			DEFB	  emit
-e_notype:	defb	tail
-		defb	  or
+		defb	tail
+		defb	  cant
 e_in_type:	equ	$
 	defb	local
 	defb	  -4
@@ -82,8 +55,13 @@ s_seeRaw:	rst	vm_rst
 		defb	tail
 		defb	  pass
 e_seeRaw:	equ	$
-	defb	tail
-	defb	  or
+	defb	or
+	defb	litS8
+	DEFB	  5
+	DEFB	  "can-("
+	DEFB	writesp
+	DEFB	cpu
+	HALT
 
 do_seeWords:
 	rst	vm_rst
@@ -91,6 +69,8 @@ do_seeWords:
 	defb	  end_see_words - see_words
 see_words:
 	defb	see_last
+	defb	"cant"
+	defb	fn
 	defb	"seeRec"
 	defb	fn
 	defb	"speak"
@@ -198,6 +178,10 @@ speak:	equ	($ - see_voc - 1) / 2 + words_first
 ; ( E -( emit access )- )
 seeRec:	equ	($ - see_voc - 1) / 2 + words_first
 	defw	do_seeRec
+
+; ( : tup N8 : voc E : base E -( ??? )- ??? )
+cant:	equ	($ - see_voc - 1) / 2 + words_first
+	defw	do_cant
 
 see_last:	equ     ($ - see_voc - 1) / 2 + words_first
 
@@ -307,8 +291,8 @@ do_see_brace:
 	defb	  "}"
 	defb	emit
 	defb	cr
-	defb	pass
-	defb	pass
+	DEFB	pass
+	DEFB	pass
 	defb	adv
 	defb	litN8
 	defb	  1
@@ -576,16 +560,76 @@ do_speak:
 
 do_seeRec:
 	rst	vm_rst
-	defb	op
-	defb	tick
-	defb	  speak
-	defb	emptyE
-	defb	or
+	
 	defb	ascii
 	defb	  "]"
 	defb	emit
 	defb	tail
 	defb	  cr
+
+
+		; ( : tup N8 : voc E : base E -( ??? )- )
+do_cant:	rst	vm_rst
+		defb	var
+		defb	  -1		; type
+		defb	fetchN8
+		defb	zero
+		defb	litE
+		defb	  e_hastype - do_hastype
+		NOP
+		; ( : tup N8 : voc E : base E N8 [0] -( ??? )- )
+do_hastype:		rst	vm_rst
+			defb	neq
+			defb	adv
+			defb	litE
+			defb	  e_skip_rec - do_skip_rec
+			NOP
+			; ( : tup N8 : voc E : base E -( fail )- E )
+do_skip_rec:			rst	vm_rst
+				defb	local
+				defb	  -5	; tup
+				defb	fetchN8
+				defb	times
+				defb	local
+				defb	  -3	; base
+				defb	fetchE
+				defb	op
+				defb	adv
+				defb	local
+				defb	  -5	; base
+				defb	Estore
+				defb	fail
+				defb	  0
+e_skip_rec:		defb	emptyE
+			defb	or
+			defb	op
+			defb	tick
+			defb	  speak
+			defb	emptyE
+			defb	tick
+			defb	  or
+			defb	local
+			defb	  -11	; voc
+			defb	tryAt
+			defb	pass	; voc
+			defb	tail
+			defb	  drop	; tup
+e_hastype:	defb	litE
+		defb	  e_notype - do_notype
+		NOP
+		; ( : tup N8 : voc E : base E -( emit )- )
+do_notype:		RST	vm_rst
+			DEFB	pass	; base
+			DEFB	pass	; voc
+			DEFB	drop	; tup
+			DEFB	ascii, "?"
+			DEFB	emit
+			DEFB	litN8, " "
+			DEFB	tail
+			DEFB	  emit
+e_notype:	defb	tail
+		defb	  or
+
 
 ; ---
 
