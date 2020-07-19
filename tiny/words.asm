@@ -52,15 +52,14 @@ backtick_:equ	types_first + 26
 tok:	equ	types_first + 27
 selfArg:equ	types_first + 28
 selfVal:equ	types_first + 29
-failOver:equ	types_first + 30
-sub:	equ	types_first + 31
-emptyFn:equ	types_first + 32
-funcType:equ	types_first + 33
-effSet:	equ	types_first + 34
-funcArg:equ	types_first + 35
-funcEff:equ	types_first + 36
-funcVal:equ	types_first + 37
-types_last:equ	types_first + 38
+sub:	equ	types_first + 30
+emptyFn:equ	types_first + 31
+funcType:equ	types_first + 32
+effSet:	equ	types_first + 33
+funcArg:equ	types_first + 34
+funcEff:equ	types_first + 35
+funcVal:equ	types_first + 36
+types_last:equ	types_first + 37
 
 do_moreWords:
 	rst	vm_rst
@@ -88,8 +87,6 @@ typ_words:
 	defb	"(--)"
 	defb	fn
 	defb	"_"
-	defb	fn
-	defb	"bump"
 	defb	fn
 	defb	"'self`val"
 	defb	fn
@@ -358,6 +355,8 @@ core_words:
 	defb	fn
 	defb	"0"
 	defb	fn
+	defb	"~bump"
+	defb	failOverFn
 	defb	"1-"
 	defb	failOverFn
 	defb	"1+"

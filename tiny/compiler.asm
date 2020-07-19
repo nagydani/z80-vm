@@ -33,7 +33,7 @@ comp_voc:	defb	words_first
 
 ; ( -( key emit )- )
 ; failOver
-	defw	do_failOver
+	defw	do_failOverFn
 
 ; ( -( key emit )- )
 ; selfRef
@@ -67,7 +67,7 @@ do_quote:
 do_brace:
 do_voc:
 do_fn:
-do_failOver:
+do_failOverFn:
 do_fnRef:
 do_selfRef:
 do_varRef:

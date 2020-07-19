@@ -88,6 +88,10 @@ one_plus:equ	($ - core_tab - 1) / 2
 one_minus:equ	($ - core_tab - 1) / 2
 	defw	do_one_minus
 
+; ( -( tail )- )
+failOver:equ	($ - core_tab - 1) / 2
+	defw	do_failOver
+
 ; ( -- N8 )
 zero:	equ	($ - core_tab - 1) / 2
 	defw	do_zero
@@ -566,14 +570,7 @@ do_one_plus:
 	ld	a, (de)
 	inc	a
 	jr	nz, N8ok
-N8fail:	xor	a
-	cp	(hl)
-	jr	z, do_fail0
-	ld	c, (hl)
-	ld	b, a
-	add	hl, bc
-	and	a
-	ret
+	jr	do_failOver
 
 t_one_plus:
 	defb	1, N8
@@ -586,7 +583,7 @@ do_one_minus:
 	dec	de
 	ld	a, (de)
 	sub	a, 1
-	jr	c, N8fail
+	jr	c, do_failOver
 N8ok:	inc	hl
 pushA:	ld	(de), a
 	inc	de
@@ -596,6 +593,22 @@ t_one_minus:
 	defb	1, N8
 	defb	1, failOver
 	defb	3, N8, ormaybe, minusOne
+
+	defb	t_failOver - do_failOver
+; ( -( failOver )- )
+do_failOver:
+	xor	a
+	cp	(hl)
+	jr	z, do_fail0
+	ld	c, (hl)
+	ld	b, a
+	add	hl, bc
+	and	a
+	ret
+t_failOver:
+	defb	0
+	defb	1, failOver
+	defb	0
 
 	defb	t_zero - do_zero
 ; ( -- N8 )
