@@ -11,22 +11,22 @@ hello:		defm	  "Ok"
 end_hello:	defb	writeln
 
 ; Test generators
-		defb	litS8
-		defb	  e_teststr - teststr
-teststr:		defb	"ABCDEFG"
-e_teststr:	defb	scan
-		defb	dup
-		defb	emit
-		defb	ascii
-		defb	 "?"
-		defb	emit
-		defb	ascii
-		defb	  "D"
-		defb	eq
-		defb	unpend
-		defb	cr
-		defb	emit
-		defb	cr
+;		defb	litS8
+;		defb	  e_teststr - teststr
+;teststr:		defb	"ABCDEFG"
+;e_teststr:	defb	scan
+;		defb	dup
+;		defb	emit
+;		defb	ascii
+;		defb	 "?"
+;		defb	emit
+;		defb	ascii
+;		defb	  "D"
+;		defb	eq
+;		defb	unpend
+;		defb	cr
+;		defb	emit
+;		defb	cr
 
 ; Test words generator
 ;		defb	litE
@@ -43,27 +43,27 @@ e_teststr:	defb	scan
 ;		defb	or
 
 ; Test name
-		defb	litN8
-		defb	  index
-		defb	tick
-		defb	  effWords
-		defb	name
-		defb	drop			; word class
-		defb	writeln
-
-; Test index
-;		defb	litS8
-;		defb	  end_testwrd - testwrd
-;testwrd:	defm	  "index"
-;end_testwrd:	defb	tick
-;		defb	  effWords
-;		defb	index
-;		defb	drop			; word class
+;		defb	litN8
+;		defb	  index
 ;		defb	tick
 ;		defb	  effWords
 ;		defb	name
 ;		defb	drop			; word class
 ;		defb	writeln
+
+; Test index
+		defb	litS8
+		defb	  end_testwrd - testwrd
+testwrd:	defm	  "index"
+end_testwrd:	defb	tick
+		defb	  effWords
+		defb	index
+		defb	drop			; word class
+		defb	tick
+		defb	  effWords
+		defb	name
+		defb	drop			; word class
+		defb	writeln
 
 ; Test decompiler
 ;		defb	tick

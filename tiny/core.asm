@@ -1433,6 +1433,8 @@ t_words:defb	1, S8
 	defb	t_name - do_name
 ; ( N8;idx E;voc -- S8;wrd N8;cls )
 do_name:	rst	vm_rst
+		defb	make
+		defb	  1 + 2, 3 + 1
 		defb	call
 		defb	local
 		defb	  -5	; tkn
@@ -1445,8 +1447,16 @@ do_name:	rst	vm_rst
 		defb	failor
 		defb	  -4
 		defb	drop
+		defb	unpend
+		defb	local
+		defb	  -10
+		defb	N8store
+		defb	local
+		defb	  -12
+		defb	S8store
+		defb	pass
 		defb	tail
-		defb	  unpend
+		defb	  drip
 
 ; ( N8;idx E;voc -- S8;wrd N8;cls )
 t_name:	defb	2, N8, vocab
@@ -1457,43 +1467,30 @@ t_name:	defb	2, N8, vocab
 ; ( S8;nam E;voc -- N8;idx N8;cls )
 do_index:	rst	vm_rst
 		defb	make
-		defb	  5, 2
-		defb	litE
-		defb	  s_index_end - s_index
-		NOP
-		; ( ??? -( ??? )- ??? )
-s_index:		rst	vm_rst
-			defb	call
-			defb	local
-			defb	  -4		; wrd
-			defb	fetchS8
-			defb	local
-			defb	  -14		; nam
-			defb	fetchS8
-			defb	tick
-			defb	  verbatim
-			defb	failor
-			defb	  -4		; ::
-			defb	drip
-			defb	local
-			defb	  -12		; cls
-			defb	N8store
-			defb	drip
-			defb	dup		; tkn
-			defb	local
-			defb	  -10		; idx
-			defb	N8store
-			defb	fail
-			defb	  0
-s_index_end:	defb	litE
-		defb	  e_index_end - e_index
-		NOP
-		; ( ??? -( ??? )- ??? )
-e_index:		rst	vm_rst
-			defb	tail
-			defb	  drip
-e_index_end:	defb	tail
-		defb	  or
+		defb	  3 + 2, 1 + 1
+		defb	call
+		defb	local
+		defb	  -4	; wrd
+		defb	fetchS8
+		defb	local
+		defb	  -14
+		defb	fetchS8
+		defb	tick
+		defb	  verbatim
+		defb	failor
+		defb	  -4
+		defb	drip
+		defb	unpend
+		defb	local
+		defb	  -12
+		defb	N8store
+		defb	drip
+		defb	local
+		defb	  -9
+		defb	N8store
+		defb	drip
+		defb	tail
+		defb	  drip
 
 ; ( S8;nam E;voc -- N8;idx N8;cls )
 t_index:defb	2, S8, vocab
