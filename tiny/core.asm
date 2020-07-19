@@ -9,6 +9,10 @@ ok:	equ	($ - core_tab - 1) / 2
 	defw	do_nop
 
 ; ( -( tail )- )
+tail2:	equ	($ - core_tab - 1) / 2
+	defw	do_tail2
+
+; ( -( tail )- )
 tail:	equ	($ - core_tab - 1) / 2
 	defw	do_tail
 
@@ -156,7 +160,7 @@ val:	equ	($ - core_tab - 1) / 2
 tailpend:equ	($ - core_tab - 1) / 2
 	defw	do_tailpend
 
-; ( -( !! )- )
+; ( -( \ ~; )- )
 unpend:equ	($ - core_tab - 1) / 2
 	defw	do_unpend
 
@@ -336,6 +340,13 @@ do_tail:pop	bc		; discard return address
 	exx
 	ret
 
+	defb	t_tail2 - do_tail2
+; ( -( tail )- )
+do_tail2:
+	pop	bc		; discard return address
+	pop	hl		; pick up threading
+	ret
+
 	defb	t_tailself - do_tailself
 ; ( -( tail )- )
 do_tailself:
@@ -346,6 +357,7 @@ jpbc:	push	bc
 	ret
 
 t_tail:
+t_tail2:
 t_tailself:
 	defb	0
 	defb	1, tail
@@ -888,7 +900,7 @@ t_tailpend:
 	defb	0
 
 	defb	t_unpend - do_unpend
-; ( -( !! )- )
+; ( -( \ ~; )- )
 do_unpend:
 	exx
 	pop	de	; return
@@ -916,7 +928,7 @@ unp_l:	pop	bc	; discard generator
 
 t_unpend:
 	defb	0
-	defb	1, unpend
+	defb	2, setminus, tailpend
 	defb	0
 
 	defb	t_scan - do_scan

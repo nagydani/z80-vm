@@ -120,9 +120,11 @@ see_words:
 	defb	fn
 	defb	"cite"
 	defb	fn
-	defb	"vm"
+	defb	"tell"
 	defb	fn
 	defb	"say"
+	defb	fn
+	defb	"cr!"
 	defb	fn
 end_see_words:	equ	$
 	defb	tick
@@ -202,6 +204,14 @@ see_voc:defb	0x80
 ; raw
 	defw	do_see_raw
 
+; ( -( tail unpend )- )
+see_tail:equ	($ - see_voc - 1) / 2 + words_first
+	defw	do_see_tail
+
+; ( -( emit fail )- )
+crf:	equ	($ - see_voc - 1) / 2 + words_first
+	defw	do_crf
+
 ; ( S8 -( emit )- )
 writesp:equ     ($ - see_voc - 1) / 2 + words_first
 	defw	do_writesp
@@ -248,9 +258,8 @@ do_see_number:
 	xor	a
 	rrd
 	call	do_see_digit
-	rst	vm_rst
-	defb	tail
-	defb	  cr
+	rst	token_rst
+	defb	crf
 do_see_digit:
 	ex	de, hl
 	ld	a, (de)
@@ -271,7 +280,7 @@ do_see_printable:
 	defb	op
 	defb	emit
 	defb	tail
-	defb	  cr
+	defb	  crf
 
 	NOP
 do_see_quote:
@@ -316,9 +325,9 @@ e_c_quote:	equ	$
 	defb	ascii
 	defb	  "\""
 	defb	emit
-	defb	cr
+	defb	adv
 	defb	tail
-	defb	  adv
+	defb	  crf
 
 	NOP
 do_see_brace:
@@ -337,14 +346,14 @@ do_see_brace:
 	defb	ascii
 	defb	  "}"
 	defb	emit
-	defb	cr
 	DEFB	pass
 	DEFB	pass
 	defb	adv
 	defb	litN8
 	defb	  1
+	defb	adv	; skip more
 	defb	tail
-	defb	  adv	; skip more
+	defb	  crf
 
 	NOP
 do_see_voc:
@@ -496,9 +505,8 @@ end_setVoc:	equ	$
 	defb	  -4		; voc
 	defb	fetchE
 	defb	tryAt
-	defb	pass
-	defb	tail
-	defb	  drip
+	defb	fail
+	defb	  -5
 
 	NOP
 do_see_fn:
@@ -507,9 +515,9 @@ do_see_fn:
 	NOP
 do_see_tailFn:
 	rst	vm_rst
-	defb	fn
-	defb	fail
-	defb	  -2
+	defb	tick
+	defb	  fn
+	defb	see_tail
 
 	NOP
 do_see_failOver:
@@ -517,15 +525,15 @@ do_see_selfRef:
 	rst	vm_rst
 	defb	writeln
 	defb	op
-	defb	tail
-	defb	  drop
+	defb	fail
+	defb	  -1
 
 	NOP
 do_see_tailSelfRef:
 	rst	vm_rst
-	defb	selfRef
-	defb	fail
-	defb	  -2
+	defb	tick
+	defb	  selfRef
+	defb	see_tail
 
 	NOP
 do_see_fnRef:
@@ -538,14 +546,13 @@ do_see_fnRef:
 	defb	name
 	defb	drop
 	defb	tail
-	defb	  writeln
+	defb	  fn
 
 	NOP
 do_see_tailFnRef:
 	rst	vm_rst
 	defb	fnRef
-	defb	fail
-	defb	  -2
+	defb	see_tail
 
 	NOP
 do_see_varRef:
@@ -562,16 +569,31 @@ do_see_makeRef:
 	defb	op
 	defb	drop
 	defb	op
-	defb	tail
-	defb	  drop
+	defb	fail
+	defb	  -1
 
 	NOP
 do_see_raw:
 	rst	vm_rst
 	defb	drip		; empty string dropped
-	defb	seeRaw
+	defb	tail
+	defb	  seeRaw
+
+	NOP
+; ( -( tail unpend )- )
+do_see_tail:
+	rst	vm_rst
+	defb	emptyE
+	defb	or
+	defb	unpend
+	defb	tail2
+
+	NOP
+; ( -( emit fail )- )
+do_crf:	rst	vm_rst
+	defb	cr
 	defb	fail
-	defb	  -2
+	defb	  0
 
 	NOP
 ; ( S8 -( emit )- )
@@ -587,23 +609,14 @@ do_writesp:
 ; ( E -( emit )- )
 do_see_vm:
 	rst	vm_rst
-	defb	litE
-	defb	  do_fnScan_end - do_fnScan
-	NOP
-; ( E -( fail emit )- E )
-do_fnScan:	rst	vm_rst
-		defb	op
-		defb	var
-		defb	  0
-		defb	fetchE
-		defb	name
-		defb	token	; ( E S8 -( emit )- )
-		defb	tail
-		defb	  call
-do_fnScan_end:	equ	$
-	defb	emptyE
+	defb	oppend
+	defb	var
+	defb	  0
+	defb	fetchE
+	defb	name
+	defb	token
 	defb	tail
-	defb	  while
+	defb	  call
 
 	NOP
 ; ( N8 -( emit var )- )

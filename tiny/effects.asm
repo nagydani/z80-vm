@@ -30,16 +30,16 @@ seeRaw:	equ	key + 1
 	defb	litE
 	defb	  end_seeRaw - do_seeRaw
 	defb	  t_seeRaw - do_seeRaw
-; ( E -( emit )- )
+; ( E -( !! emit )- )
 do_seeRaw:	rst	vm_rst
 		defb	litS8
 		defb	  end_seeRawName - seeRawName
 seeRawName:		defb	"~raw"
 end_seeRawName:	defb	writeln
 		defb	tail
-		defb	  pass
+		defb	  unpend
 t_seeRaw:defb	1, addr
-	defb	1, emit
+	defb	2, unpend, emit
 	defb	0
 end_seeRaw:	equ	$
 

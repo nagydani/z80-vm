@@ -11,10 +11,10 @@ hello:		defm	  "Ok"
 end_hello:	defb	writeln
 
 ; Test generators
-		defb	litS8
-		defb	  e_teststr - teststr
-teststr:		defb	"ABCDEFG"
-e_teststr:	equ	$
+;		defb	litS8
+;		defb	  e_teststr - teststr
+;teststr:		defb	"ABCDEFG"
+;e_teststr:	equ	$
 ; Safe string
 ;		defb	local
 ;		defb	  -3
@@ -33,20 +33,20 @@ e_teststr:	equ	$
 ;		defb	emit
 ;		defb	cr
 ; Unsafe string
-		defb	drop
-		defb	oppend
-		defb	dup
-		defb	emit
-		defb	ascii
-		defb	 "?"
-		defb	emit
-		defb	ascii
-		defb	  "D"
-		defb	eq
-		defb	unpend
-		defb	cr
-		defb	emit
-		defb	cr
+;		defb	drop
+;		defb	oppend
+;		defb	dup
+;		defb	emit
+;		defb	ascii
+;		defb	 "?"
+;		defb	emit
+;		defb	ascii
+;		defb	  "D"
+;		defb	eq
+;		defb	unpend
+;		defb	cr
+;		defb	emit
+;		defb	cr
 
 ; Test words generator
 ;		defb	litE
@@ -86,11 +86,11 @@ e_teststr:	equ	$
 ;		defb	writeln
 
 ; Test decompiler
-;		defb	tick
-;		defb	  effWords
-;		defb	tick
-;		defb	  append
-;		defb	see
+		defb	tick
+		defb	  effWords
+		defb	tick
+		defb	  append
+		defb	see
 
 ; Test readln and writeln
 		defb	readln

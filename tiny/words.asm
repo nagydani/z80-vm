@@ -396,6 +396,8 @@ core_words:
 	defb	raw
 	defb	"~self"
 	defb	tailSelfRef
+	defb	"~~"
+	defb	tailFn
 	defb	"~"
 	defb	tailFnRef
 	defb	"ok"
