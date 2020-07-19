@@ -152,9 +152,13 @@ eff:	equ	($ - core_tab - 1) / 2
 val:	equ	($ - core_tab - 1) / 2
 	defw	do_val
 
-; ( ( a -( e )- b ) -( tail pend )- )
+; ( ( a -( e )- b ) -( tailpend )- )
 tailpend:equ	($ - core_tab - 1) / 2
 	defw	do_tailpend
+
+; ( -( !! )- )
+unpend:equ	($ - core_tab - 1) / 2
+	defw	do_unpend
 
 ; ( S8 -( fail pend ) -- maybe S8 N8 )
 scan:	equ	($ - core_tab - 1) / 2
@@ -840,14 +844,14 @@ t_val:	defb	1, funcType
 	defb	1, recType
 
 	defb	t_tailpend - do_tailpend
-; ( handler -( tail pend )- :: )
+; ( handler -( tail, tailpend )- ;; )
 do_tailpend:
 	rst	pop_rst
 	pop	af		; return address
 	pop	hl		; threading address
 	push	bc		; generator
 	call	suspend
-	ccf			; clear failed state
+pending:ccf			; clear failed state
 	ret	nc		; repeat generator on failure
 
 ; resuspend after success
@@ -862,6 +866,7 @@ do_tailpend:
 	ex	(sp), hl	; HL = threading address vs backtrack
 	push	bc		; stack generator
 	call	resuspend
+repending:
 	pop	bc		; BC = generator
 	pop	hl		; HL = threading
 	push	bc
@@ -875,7 +880,39 @@ resuspend:
 
 t_tailpend:
 	defb	1, handler
-	defb	2, tail, pend
+	defb	2, tailpend
+	defb	0
+
+	defb	t_unpend - do_unpend
+; ( -( !! )- )
+do_unpend:
+	exx
+	pop	de	; return
+	pop	hl	; threading
+	exx
+	xor	a
+	pop	bc	; discard pending
+	pop	bc	; discard generator
+	pop	bc	; return address
+	cp	b
+	jr	nz, unp_l
+	ld	a, do_ok
+	cp	c
+	jr	nz, unp_l
+	push	bc
+	exx
+	push	hl	; threading
+	push	de	; return
+	exx
+	ret
+
+unp_l:	pop	bc	; discard generator
+	and	a	; reset CF
+	ret
+
+t_unpend:
+	defb	0
+	defb	1, unpend
 	defb	0
 
 	defb	t_scan - do_scan
@@ -887,7 +924,7 @@ do_scan:rst	vm_rst
 	defb	tailpend
 
 t_scan:	defb	1, S8
-	defb	2, fail, pend
+	defb	2, fail, tailpend
 	defb	3, S8, state, N8
 
 	defb	t_rain - do_rain
@@ -1080,7 +1117,7 @@ do_times:
 	defb	tailpend
 
 t_times:defb	1, N8
-	defb	2, fail, pend
+	defb	2, fail, tailpend
 	defb	2, N8, state
 
 	defb	t_fetchN8 - do_fetchN8
@@ -1388,45 +1425,29 @@ words_g_e:	defb	tail
 words_l:	defb	fail
 		defb	  -3
 
-; ( S8 -( fail pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
+; ( S8 -( fail pend )- maybe S8;wrds N8;tkn ;; S8;wrd N8;cls )
 t_words:defb	1, S8
-	defb	2, fail, pend
+	defb	2, fail, tailpend
 	defb	5, S8, N8, state, S8, N8
 
 	defb	t_name - do_name
 ; ( N8;idx E;voc -- S8;wrd N8;cls )
 do_name:	rst	vm_rst
-		defb	make
-		defb	  3, 4
-		defb	litE
-		defb	  s_name_end - s_name
-		NOP
-		; ( ??? -( ??? )- ??? )
-s_name:			rst	vm_rst
-			defb	call
-			defb	local
-			defb	  -5		; tkn
-			defb	fetchN8
-			defb	local
-			defb	  -10		; idx
-			defb	fetchN8
-			defb	tick
-			defb	  eq
-			defb	failor
-			defb	  -4		; ::
-			defb	drop		; token number
-			defb	local
-			defb	  -10		; cls
-			defb	N8store
-			defb	local
-			defb	  -12		; wrd
-			defb	S8store
-			defb	fail
-			defb	  0
-s_name_end:	defb	tick
-		defb	  drop			; tkn
+		defb	call
+		defb	local
+		defb	  -5	; tkn
+		defb	fetchN8
+		defb	local
+		defb	  -10	; idx
+		defb	fetchN8
+		defb	tick
+		defb	  eq
+		defb	failor
+		defb	  -4
+		defb	drop
 		defb	tail
-		defb	  or
+		defb	  unpend
+
 ; ( N8;idx E;voc -- S8;wrd N8;cls )
 t_name:	defb	2, N8, vocab
 	defb	0

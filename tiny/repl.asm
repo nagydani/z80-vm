@@ -10,6 +10,24 @@ repl:		rst	vm_rst
 hello:		defm	  "Ok"
 end_hello:	defb	writeln
 
+; Test generators
+		defb	litS8
+		defb	  e_teststr - teststr
+teststr:		defb	"ABCDEFG"
+e_teststr:	defb	scan
+		defb	dup
+		defb	emit
+		defb	ascii
+		defb	 "?"
+		defb	emit
+		defb	ascii
+		defb	  "D"
+		defb	eq
+		defb	unpend
+		defb	cr
+		defb	emit
+		defb	cr
+
 ; Test words generator
 ;		defb	litE
 ;		defb	  end_wordList - do_wordList
@@ -25,13 +43,13 @@ end_hello:	defb	writeln
 ;		defb	or
 
 ; Test name
-;		defb	litN8
-;		defb	  index
-;		defb	tick
-;		defb	  effWords
-;		defb	name
-;		defb	drop			; word class
-;		defb	writeln
+		defb	litN8
+		defb	  index
+		defb	tick
+		defb	  effWords
+		defb	name
+		defb	drop			; word class
+		defb	writeln
 
 ; Test index
 ;		defb	litS8
@@ -48,11 +66,11 @@ end_hello:	defb	writeln
 ;		defb	writeln
 
 ; Test decompiler
-		defb	tick
-		defb	  effWords
-		defb	tick
-		defb	  verbatim
-		defb	see
+;		defb	tick
+;		defb	  effWords
+;		defb	tick
+;		defb	  append
+;		defb	see
 
 ; Test readln and writeln
 		defb	readln

@@ -34,7 +34,6 @@ minusOne:equ	types_first + 8
 V8plus:	equ	types_first + 9
 vocab:	equ	types_first + 10
 state:	equ	types_first + 11
-pend:	equ	types_first + 12
 setminus:equ	types_first + 13
 dict:	equ	types_first + 14
 pred:	equ	types_first + 15
@@ -121,8 +120,6 @@ typ_words:
 	defb	"dict"
 	defb	fn
 	defb	"\\"
-	defb	fn
-	defb	";"
 	defb	fn
 	defb	";;"
 	defb	fn
@@ -322,6 +319,8 @@ core_words:
 	defb	"rain"
 	defb	fn
 	defb	"scan;"
+	defb	fn
+	defb	"!!"
 	defb	fn
 	defb	"~;"
 	defb	tailFn
