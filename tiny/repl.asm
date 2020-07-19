@@ -11,10 +11,15 @@ hello:		defm	  "Ok"
 end_hello:	defb	writeln
 
 ; Test generators
-;		defb	litS8
-;		defb	  e_teststr - teststr
-;teststr:		defb	"ABCDEFG"
-;e_teststr:	defb	scan
+		defb	litS8
+		defb	  e_teststr - teststr
+teststr:		defb	"ABCDEFG"
+e_teststr:	equ	$
+; Safe string
+;		defb	local
+;		defb	  -3
+;		defb	fetchS8
+;		defb	scan
 ;		defb	dup
 ;		defb	emit
 ;		defb	ascii
@@ -27,6 +32,21 @@ end_hello:	defb	writeln
 ;		defb	cr
 ;		defb	emit
 ;		defb	cr
+; Unsafe string
+		defb	drop
+		defb	oppend
+		defb	dup
+		defb	emit
+		defb	ascii
+		defb	 "?"
+		defb	emit
+		defb	ascii
+		defb	  "D"
+		defb	eq
+		defb	unpend
+		defb	cr
+		defb	emit
+		defb	cr
 
 ; Test words generator
 ;		defb	litE
@@ -52,18 +72,18 @@ end_hello:	defb	writeln
 ;		defb	writeln
 
 ; Test index
-		defb	litS8
-		defb	  end_testwrd - testwrd
-testwrd:	defm	  "index"
-end_testwrd:	defb	tick
-		defb	  effWords
-		defb	index
-		defb	drop			; word class
-		defb	tick
-		defb	  effWords
-		defb	name
-		defb	drop			; word class
-		defb	writeln
+;		defb	litS8
+;		defb	  end_testwrd - testwrd
+;testwrd:	defm	  "index"
+;end_testwrd:	defb	tick
+;		defb	  effWords
+;		defb	index
+;		defb	drop			; word class
+;		defb	tick
+;		defb	  effWords
+;		defb	name
+;		defb	drop			; word class
+;		defb	writeln
 
 ; Test decompiler
 ;		defb	tick

@@ -164,6 +164,10 @@ unpend:equ	($ - core_tab - 1) / 2
 scan:	equ	($ - core_tab - 1) / 2
 	defw	do_scan
 
+; ( E -( pend ) -- ;; N8 )
+oppend:	equ	($ - core_tab - 1) / 2
+	defw	do_oppend
+
 ; ( V8 -- )
 rain:	equ	($ - core_tab - 1) / 2
 	defw	do_rain
@@ -916,7 +920,7 @@ t_unpend:
 	defb	0
 
 	defb	t_scan - do_scan
-; ( S8 -( fail pend )- maybe S8 :: N8 )
+; ( S8 -( fail pend )- maybe S8 ;; N8 )
 do_scan:rst	vm_rst
 	defb	bite
 	defb	tickself
@@ -926,6 +930,19 @@ do_scan:rst	vm_rst
 t_scan:	defb	1, S8
 	defb	2, fail, tailpend
 	defb	3, S8, state, N8
+
+	defb	t_oppend - do_oppend
+; ( E -( pend )- ;; N8 )
+do_oppend:
+	rst	vm_rst
+	defb	op
+	defb	tickself
+	defb	  do_oppend - $
+	defb	tailpend
+t_oppend:
+	defb	1, addr
+	defb	1, tailpend
+	defb	2, state, N8
 
 	defb	t_rain - do_rain
 ; ( V8 -- )

@@ -318,6 +318,8 @@ core_words:
 	defb	fn
 	defb	"rain"
 	defb	fn
+	defb	"op;"
+	defb	fn
 	defb	"bite;"
 	defb	fn
 	defb	"!!"
