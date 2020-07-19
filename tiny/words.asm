@@ -318,7 +318,7 @@ core_words:
 	defb	fn
 	defb	"rain"
 	defb	fn
-	defb	"scan;"
+	defb	"bite;"
 	defb	fn
 	defb	"!!"
 	defb	fn
