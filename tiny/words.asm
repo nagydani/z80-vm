@@ -34,31 +34,31 @@ minusOne:equ	types_first + 8
 V8plus:	equ	types_first + 9
 vocab:	equ	types_first + 10
 state:	equ	types_first + 11
-setminus:equ	types_first + 13
-dict:	equ	types_first + 14
-pred:	equ	types_first + 15
-body:	equ	types_first + 16
-forWhile:equ	types_first + 17
-forOr:	equ	types_first + 18
-forUnless:equ	types_first + 19
-handler:equ	types_first + 20
-overrun:equ	types_first + 21
-ormaybe:equ	types_first + 22
-tickcode:equ	types_first + 23
-backticktok:equ	types_first + 24
-backtickself:equ types_first + 25
-backtick_:equ	types_first + 26
-tok:	equ	types_first + 27
-selfArg:equ	types_first + 28
-selfVal:equ	types_first + 29
-sub:	equ	types_first + 30
-emptyFn:equ	types_first + 31
-funcType:equ	types_first + 32
-effSet:	equ	types_first + 33
-funcArg:equ	types_first + 34
-funcEff:equ	types_first + 35
-funcVal:equ	types_first + 36
-types_last:equ	types_first + 37
+setminus:equ	types_first + 12
+dict:	equ	types_first + 13
+pred:	equ	types_first + 14
+body:	equ	types_first + 15
+forWhile:equ	types_first + 16
+forOr:	equ	types_first + 17
+forUnless:equ	types_first + 18
+handler:equ	types_first + 19
+overrun:equ	types_first + 20
+ormaybe:equ	types_first + 21
+tickcode:equ	types_first + 22
+backticktok:equ	types_first + 23
+backtickself:equ types_first + 24
+backtick_:equ	types_first + 25
+tok:	equ	types_first + 26
+selfArg:equ	types_first + 27
+selfVal:equ	types_first + 28
+sub:	equ	types_first + 29
+emptyFn:equ	types_first + 30
+funcType:equ	types_first + 31
+effSet:	equ	types_first + 32
+funcArg:equ	types_first + 33
+funcEff:equ	types_first + 34
+funcVal:equ	types_first + 35
+types_last:equ	types_first + 36
 
 do_moreWords:
 	rst	vm_rst
@@ -127,9 +127,9 @@ typ_words:
 	defb	fn
 	defb	"V8+"
 	defb	fn
-	defb	"[-1]"
+	defb	"[1neg]"
 	defb	fn
-	defb	"[256]"
+	defb	"[max]"
 	defb	fn
 	defb	"C8"
 	defb	fn

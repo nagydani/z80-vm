@@ -11,10 +11,10 @@ hello:		defm	  "Ok"
 end_hello:	defb	writeln
 
 ; Test generators
-;		defb	litS8
-;		defb	  e_teststr - teststr
-;teststr:		defb	"ABCDEFG"
-;e_teststr:	equ	$
+		defb	litS8
+		defb	  e_teststr - teststr
+teststr:		defb	"ABCDEFG"
+e_teststr:	equ	$
 ; Safe string
 ;		defb	local
 ;		defb	  -3
@@ -33,20 +33,25 @@ end_hello:	defb	writeln
 ;		defb	emit
 ;		defb	cr
 ; Unsafe string
-;		defb	drop
-;		defb	oppend
-;		defb	dup
-;		defb	emit
-;		defb	ascii
-;		defb	 "?"
-;		defb	emit
-;		defb	ascii
-;		defb	  "D"
-;		defb	eq
-;		defb	unpend
-;		defb	cr
-;		defb	emit
-;		defb	cr
+		defb	local
+		defb	  -3
+		defb	fetchE
+		defb	oppend
+		defb	dup
+		defb	emit
+		defb	ascii
+		defb	 "?"
+		defb	emit
+		defb	ascii
+		defb	  "D"
+		defb	eq
+		defb	unpend
+		defb	cr
+		defb	emit
+		defb	cr
+		defb	pass
+
+		defb	drip
 
 ; Test words generator
 ;		defb	litE
@@ -54,7 +59,7 @@ end_hello:	defb	writeln
 ;		NOP
 ;		; ( ??? -( ??? )- ??? )
 ;do_wordList:		rst	vm_rst
-;			defb	effWords
+;			defb	typWords
 ;			defb	drop		; word class
 ;			defb	writeln
 ;			defb	fail

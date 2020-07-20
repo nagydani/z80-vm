@@ -18,8 +18,6 @@ do_in_type:	rst	vm_rst
 		defb	zero	; tup
 		defb	tick
 		defb	  typWords
-		defb	var
-		defb	  0		; code
 		defb	tail
 		defb	  cant
 e_in_type:	equ	$
@@ -44,8 +42,9 @@ e_in_type:	equ	$
 s_see:		rst	vm_rst
 		defb	eq
 		defb	drop	; comparison
+		defb	seeVm
 		defb	tail
-		defb	  seeVm
+		defb	  pass
 e_see:	defb	local
 	defb	  -10		;; wrds
 	defb	tick
@@ -74,9 +73,6 @@ do_out_type:	rst	vm_rst
 		defb	local
 		defb	  -5		; wrds
 		defb	fetchE
-		defb	local
-		defb	  -5		; code
-		defb	fetchE
 		defb	cant
 		defb	litS8
 		defb	  e_seeOut - seeOut
@@ -87,9 +83,6 @@ e_seeOut:	DEFB	writesp
 		defb	  2		; out type
 		defb	tick
 		defb	  typWords
-		defb	local
-		defb	  -5		; code
-		defb	fetchE
 		defb	tail
 		defb	  cant
 e_out_type:	equ	$
@@ -510,7 +503,9 @@ end_setVoc:	equ	$
 
 	NOP
 do_see_fn:
-	jp	do_writeln
+	rst	vm_rst
+	defb	write
+	defb	crf
 
 	NOP
 do_see_tailFn:
@@ -551,7 +546,8 @@ do_see_fnRef:
 	NOP
 do_see_tailFnRef:
 	rst	vm_rst
-	defb	fnRef
+	defb	tick
+	defb	  fnRef
 	defb	see_tail
 
 	NOP
@@ -649,8 +645,10 @@ do_seeRec:
 
 
 	NOP
-	; ( : tup N8 : voc E : base E -( ??? )- )
+	; ( : tup N8 : voc E -( ??? )- )
 do_cant:	rst	vm_rst
+		defb	var
+		defb	  0		; code
 		defb	var
 		defb	  -1		; type
 		defb	fetchN8
@@ -658,19 +656,19 @@ do_cant:	rst	vm_rst
 		defb	litE
 		defb	  e_hastype - do_hastype
 		NOP
-		; ( : tup N8 : voc E : base E N8 [0] -( ??? )- )
+		; ( : tup N8 : voc E : base E N8 -( ??? )- )
 do_hastype:		rst	vm_rst
 			defb	neq
 			defb	adv
+			defb	local
+			defb	  -5	; tup
+			defb	fetchN8
 			defb	litE
 			defb	  e_skip_rec - do_skip_rec
-			NOP
-			; ( : tup N8 : voc E : base E -( fail )- E )
+				NOP
 do_skip_rec:			rst	vm_rst
-				defb	local
-				defb	  -5	; tup
-				defb	fetchN8
-				defb	times
+				defb	one_minus
+				defb	  0
 				defb	local
 				defb	  -3	; base
 				defb	fetchE
@@ -679,8 +677,8 @@ do_skip_rec:			rst	vm_rst
 				defb	local
 				defb	  -5	; base
 				defb	Estore
-				defb	fail
-				defb	  0
+				defb	tailself
+				defb	  do_skip_rec -$
 e_skip_rec:		defb	emptyE
 			defb	or
 			defb	op

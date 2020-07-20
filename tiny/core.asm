@@ -9,12 +9,12 @@ ok:	equ	($ - core_tab - 1) / 2
 	defw	do_nop
 
 ; ( -( tail )- )
-tail2:	equ	($ - core_tab - 1) / 2
-	defw	do_tail2
-
-; ( -( tail )- )
 tail:	equ	($ - core_tab - 1) / 2
 	defw	do_tail
+
+; ( -( tail )- )
+tail2:	equ	($ - core_tab - 1) / 2
+	defw	do_tail2
 
 ; ( -( tail )- )
 tailself: equ	($ - core_tab - 1) / 2
@@ -528,6 +528,7 @@ t_ge:	defb	2, N8, N8
 	defb	1, fail
 	defb	1, N8
 
+	defb	t_tryTo - do_tryTo
 ; ( func handler _ -( effs func _ \ )- vals func )
 do_tryTo:
 	call	vm_tick		; DE = old handler, HL = effect address + 1
@@ -569,7 +570,6 @@ t_token:defb	1, tok
 	defb	0
 	defb	1, backticktok
 
-	defb	t_tryTo - do_tryTo
 	defb	t_append - do_append
 ; ( V8 N8 -( failOver )- V8 |maybe V8+ )
 do_append:
@@ -862,10 +862,10 @@ t_val:	defb	1, funcType
 	defb	t_tailpend - do_tailpend
 ; ( handler -( tail, tailpend )- ;; )
 do_tailpend:
-	rst	pop_rst
+	rst	pop_rst		; fetch generator
 	pop	af		; return address
 	pop	hl		; threading address
-	push	bc		; generator
+	push	bc		; stack generator
 	call	suspend
 pending:ccf			; clear failed state
 	ret	nc		; repeat generator on failure
@@ -904,26 +904,30 @@ t_tailpend:
 do_unpend:
 	exx
 	pop	de	; return
-	pop	hl	; threading
 	exx
-	xor	a
-	pop	bc	; discard pending
+	pop	bc	; discard threading
+	pop	bc	; BC = pending?
+;	ld	a, pending - 0x100 * (pending / 0x100)
+;	cp	c
+;	jr	nz, unp_x
+;	ld	a, pending / 0x100
+;	cp	b
+;	jr	nz, unp_x
 	pop	bc	; discard generator
-	pop	bc	; return address
+	pop	bc
+	xor	a
 	cp	b
-	jr	nz, unp_l
+	jr	nz,unp_l
 	ld	a, do_ok
 	cp	c
 	jr	nz, unp_l
-	push	bc
-	exx
-	push	hl	; threading
+unp_x:	exx
 	push	de	; return
 	exx
 	ret
 
 unp_l:	pop	bc	; discard generator
-	and	a	; reset CF
+	and	a
 	ret
 
 t_unpend:
