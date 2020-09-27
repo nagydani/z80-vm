@@ -29,36 +29,38 @@ func:	equ	types_first + 3
 recType:equ	types_first + 4
 V8:	equ	types_first + 5
 C8:	equ	types_first + 6
-N8max:	equ	types_first + 7
-minusOne:equ	types_first + 8
-V8plus:	equ	types_first + 9
-vocab:	equ	types_first + 10
-state:	equ	types_first + 11
-setminus:equ	types_first + 12
-dict:	equ	types_first + 13
-pred:	equ	types_first + 14
-body:	equ	types_first + 15
-forWhile:equ	types_first + 16
-forOr:	equ	types_first + 17
-forUnless:equ	types_first + 18
-handler:equ	types_first + 19
-overrun:equ	types_first + 20
-ormaybe:equ	types_first + 21
-tickcode:equ	types_first + 22
-backticktok:equ	types_first + 23
-backtickself:equ types_first + 24
-backtick_:equ	types_first + 25
-tok:	equ	types_first + 26
-selfArg:equ	types_first + 27
-selfVal:equ	types_first + 28
-sub:	equ	types_first + 29
-emptyFn:equ	types_first + 30
-funcType:equ	types_first + 31
-effSet:	equ	types_first + 32
-funcArg:equ	types_first + 33
-funcEff:equ	types_first + 34
-funcVal:equ	types_first + 35
-types_last:equ	types_first + 36
+N8Ref:	equ	types_first + 7
+S8Ref:	equ	types_first + 8
+N8max:	equ	types_first + 9
+minusOne:equ	types_first + 10
+V8plus:	equ	types_first + 11
+vocab:	equ	types_first + 12
+state:	equ	types_first + 13
+setminus:equ	types_first + 14
+dict:	equ	types_first + 15
+pred:	equ	types_first + 16
+body:	equ	types_first + 17
+forWhile:equ	types_first + 18
+forOr:	equ	types_first + 19
+forUnless:equ	types_first + 20
+handler:equ	types_first + 21
+overrun:equ	types_first + 22
+ormaybe:equ	types_first + 23
+tickcode:equ	types_first + 24
+backticktok:equ	types_first + 25
+backtickself:equ types_first + 26
+backtick_:equ	types_first + 27
+tok:	equ	types_first + 28
+selfArg:equ	types_first + 29
+selfVal:equ	types_first + 30
+sub:	equ	types_first + 31
+emptyFn:equ	types_first + 32
+funcType:equ	types_first + 33
+effSet:	equ	types_first + 34
+funcArg:equ	types_first + 35
+funcEff:equ	types_first + 36
+funcVal:equ	types_first + 37
+types_last:equ	types_first + 38
 
 do_moreWords:
 	rst	vm_rst
@@ -282,6 +284,8 @@ do_coreWords:
 	defb	  end_core_words - core_words
 core_words:
 	defb	core_last
+	defb	"+"
+	defb	failOverFn
 	defb	"tryAt"
 	defb	fn
 	defb	"let$"
@@ -368,11 +372,11 @@ core_words:
 	defb	fn
 	defb	"tryTo"
 	defb	fnRef
-	defb	">!"
-	defb	fn
 	defb	"=!"
 	defb	fn
 	defb	"="
+	defb	fn
+	defb	">!"
 	defb	fn
 	defb	"~fail"
 	defb	tailVarRef

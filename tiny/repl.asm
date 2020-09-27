@@ -33,25 +33,25 @@ e_teststr:	equ	$
 ;		defb	emit
 ;		defb	cr
 ; Unsafe string
-		defb	local
-		defb	  -3
-		defb	fetchE
-		defb	oppend
-		defb	dup
-		defb	emit
-		defb	ascii
-		defb	 "?"
-		defb	emit
-		defb	ascii
-		defb	  "D"
-		defb	eq
-		defb	unpend
-		defb	cr
-		defb	emit
-		defb	cr
-		defb	pass
+;		defb	local
+;		defb	  -3
+;		defb	fetchE
+;		defb	oppend
+;		defb	dup
+;		defb	emit
+;		defb	ascii
+;		defb	 "?"
+;		defb	emit
+;		defb	ascii
+;		defb	  "D"
+;		defb	eq
+;		defb	unpend
+;		defb	cr
+;		defb	emit
+;		defb	cr
+;		defb	pass
 
-		defb	drip
+		defb	writeln
 
 ; Test words generator
 ;		defb	litE
@@ -90,12 +90,18 @@ e_teststr:	equ	$
 ;		defb	drop			; word class
 ;		defb	writeln
 
+; Test function type
+		defb	tick
+		defb	  index
+		defb	fnType
+
+
 ; Test decompiler
-		defb	tick
-		defb	  effWords
-		defb	tick
-		defb	  append
-		defb	see
+;		defb	tick
+;		defb	  effWords
+;		defb	tick
+;		defb	  see
+;		defb	see
 
 ; Test readln and writeln
 		defb	readln

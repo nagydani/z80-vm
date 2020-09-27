@@ -61,16 +61,16 @@ fail:	equ	($ - core_tab - 1) / 2
 	defw	do_fail
 
 ; ( N8 N8 -( fail )- maybe N8 )
+ge:	equ	($ - core_tab - 1) / 2
+	defw	do_ge
+
+; ( N8 N8 -( fail )- maybe N8 )
 eq:	equ	($ - core_tab - 1) / 2
 	defw	do_eq
 
 ; ( N8 N8 -( fail )- maybe N8 )
 neq:	equ	($ - core_tab - 1) / 2
 	defw	do_neq
-
-; ( N8 N8 -( fail )- maybe N8 )
-ge:	equ	($ - core_tab - 1) / 2
-	defw	do_ge
 
 ; ( ( a -( e f )- b ) e -( f monad )- b )
 tryTo:	equ	($ - core_tab - 1) / 2
@@ -208,6 +208,10 @@ string:	equ	($ - core_tab - 1) / 2
 use:	equ	($ - core_tab - 1) / 2
 	defw	do_use
 
+; ( -( dict )- )
+expose:	equ	($ - core_tab - 1) / 2
+	defw	do_expose
+
 ;; ( -( pour )- )
 ;pour:	equ	($ - core_tab - 1) / 2
 ;	defw	do_pour
@@ -284,6 +288,10 @@ name:	equ	($ - core_tab - 1) / 2
 index:	equ	($ - core_tab - 1) / 2
 	defw	do_index
 
+; ( ( a -( e )- b ) -( emit )- )
+fnType:	equ	($ - core_tab - 1) / 2
+	defw	do_fnType
+
 ; ( S8 E -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 moreWords:equ	($ - core_tab - 1) / 2
 	defw	do_moreWords
@@ -328,7 +336,9 @@ src_last:equ	($ - core_tab - 1) / 2
 ; ( -- )
 do_nop:	ret
 
-t_nop:	defb	0, 0, 0
+t_nop:	defb	0
+	defb	0
+	defb	0
 
 	defb	t_tail - do_tail
 ; ( -( tail )- )
@@ -356,21 +366,17 @@ do_tailself:
 jpbc:	push	bc
 	ret
 
-t_tail:
-t_tail2:
-t_tailself:
-	defb	0
-	defb	1, tail
-	defb	0
-
 	defb	t_cpu - do_cpu
 ; ( -( tail )- )
 do_cpu:	pop	bc		; discard do_ok
 	ex	(sp), hl
 	ret
 
+t_tail:
+t_tail2:
+t_tailself:
 t_cpu:	defb	0
-	defb	0, tail
+	defb	1, tail
 	defb	0
 
 	defb	t_litN8 - do_litN8
@@ -405,10 +411,10 @@ do_lit:	inc	hl
 
 t_litS8:defb	0
 	defb	0
-	defb	1, S8
+	defb	S8
 
 	defb	t_litE - do_litE
-; ( -- 'code )
+; ( -- E )
 do_litE:ld	a, (hl)
 	inc	hl
 	ex	de, hl
@@ -420,7 +426,7 @@ do_litE:ld	a, (hl)
 
 t_litE:	defb	0
 	defb	0
-	defb	1, tickcode
+	defb	1, func
 
 	defb	t_drop - do_drop
 ; ( N8 -- )
@@ -445,7 +451,7 @@ t_dup:	defb	1, N8
 	defb	2, N8, N8
 
 	defb	t_make - do_make
-; ( argsSelf -- valsSelf argsSelf )
+; ( x -( missingValue )- y x )
 do_make:ld	a, (hl)
 	inc	hl
 	ld	c, (hl)
@@ -468,11 +474,11 @@ make0:	pop	de
 	ret
 
 t_make:	defb	1, selfArg
-	defb	0
+	defb	1, missingValue
 	defb	2, selfVal, selfArg
 
 	defb	t_failor - do_failor
-; ( -( fail )- )
+; ( a ( a -( e )- b )  -( e fail )- maybe b )
 do_failor:
 	call	do_call
 	inc	hl
@@ -481,8 +487,14 @@ do_failor:
 ;	jr	do_fail
 	defb	0x3e		; LD A, skip next byte
 
+t_failor:
+	defb	2, predArg, Pred
+	defb	2, predEff, fail
+	defb	1, predVal
+	defb	0
+
 	defb	t_fail - do_fail
-; ( -( fail )- )
+; ( x -( fail )- )
 do_fail:ld	a, (hl)
 	inc	hl
 	or	a
@@ -494,10 +506,16 @@ do_fail:ld	a, (hl)
 	ex	de, hl
 	ret
 
-t_failor:
-t_fail:	defb	0
+t_fail:	defb	1, funcArg
 	defb	1, fail
 	defb	0
+
+	defb	t_ge - do_ge
+; ( N8 N8 -( fail )- maybe N8 )
+do_ge:	rst	cmp_rst
+	ret	nc
+	dec	de
+	ret
 
 	defb	t_eq - do_eq
 ; ( N8 N8 -( fail )- maybe N8 )
@@ -515,21 +533,15 @@ do_neq:	rst	cmp_rst
 	and	a
 	ret
 
-	defb	t_ge - do_ge
-; ( N8 N8 -( fail )- maybe N8 )
-do_ge:	rst	cmp_rst
-	ret	nc
-	dec	de
-	ret
-
+t_ge:
 t_eq:
-t_neq:
-t_ge:	defb	2, N8, N8
+t_neq:	defb	2, N8, N8
 	defb	1, fail
 	defb	1, N8
+	defb	0
 
 	defb	t_tryTo - do_tryTo
-; ( func handler _ -( effs func _ \ )- vals func )
+; ( a ( a -( e f )- b ) handler -( f )- b )
 do_tryTo:
 	call	vm_tick		; DE = old handler, HL = effect address + 1
 	push	de		; old handler on stack
@@ -555,12 +567,12 @@ do_tryTo:
 	exx
 	ret
 
-t_tryTo:defb	3, func, handler, sub
-	defb	4, eff, func, sub, setminus
-	defb	2, val, func
+t_tryTo:defb	1, tryArg
+	defb	1, tryEff
+	defb	1, tryVal
 
 	defb	t_token - do_token
-; ( tok -- `tok )
+; ( tok -- 'tok )
 do_token:dec	de
 	ld	a, (de)
 	call	vm_tail
@@ -568,10 +580,10 @@ do_token:dec	de
 
 t_token:defb	1, tok
 	defb	0
-	defb	1, backticktok
+	defb	1, ticktok
 
 	defb	t_append - do_append
-; ( V8 N8 -( failOver )- V8 |maybe V8+ )
+; ( V8 N8 -( failOver )- V8 |maybe V8max )
 do_append:
 	rst	vm_rst
 	defb	swap
@@ -581,7 +593,8 @@ do_append:
 t_append:
 	defb	2, V8, N8
 	defb	1, failOver
-	defb	3, V8, ormaybe, V8plus
+	defb	1, V8
+	defb	1, V8max
 
 	defb	t_one_plus - do_one_plus
 ; ( N8 -( failOver )- N8 |maybe [256] )
@@ -595,7 +608,8 @@ do_one_plus:
 t_one_plus:
 	defb	1, N8
 	defb	1, failOver
-	defb	3, N8, ormaybe, N8max
+	defb	1, N8
+	defb	1, N8max
 
 	defb	t_one_minus - do_one_minus
 ; ( N8 -( failOver )- N8 |maybe [-1] )
@@ -612,7 +626,18 @@ pushA:	ld	(de), a
 t_one_minus:
 	defb	1, N8
 	defb	1, failOver
-	defb	3, N8, ormaybe, minusOne
+	defb	1, N8
+	defb	1, Minus1
+
+	defb	t_plus - do_plus
+; ( N8 N8 -( failOver )- N8 |maybe N8+ )
+do_plus:rst	pop_rst
+	ld	a, b
+	add	c
+	jr	nc, N8ok
+N8_f:	ld	(de), a
+	inc	de
+	defb	0x3E		; LD A, skip byte
 
 	defb	t_failOver - do_failOver
 ; ( -( failOver )- )
@@ -623,21 +648,26 @@ do_failOver:
 	ld	c, (hl)
 	ld	b, a
 	add	hl, bc
-	and	a
 	ret
+
+t_plus:	defb	2, N8, N8
+	defb	1, failOver
+	defb	1, N8
+	defb	1, N8plus
+
 t_failOver:
 	defb	0
 	defb	1, failOver
 	defb	0
 
 	defb	t_zero - do_zero
-; ( -- N8 )
+; ( -- [0] )
 do_zero:xor	a
 	jr	pushA
 
 t_zero:	defb	0
 	defb	0
-	defb	1, N8
+	defb	1, zeroType
 
 	defb	t_op - do_op
 ; ( A -( overrun )- A N8 )
@@ -647,12 +677,12 @@ do_op:	rst	pop_rst
 	call	pushBC
 	jr	pushA
 
-t_op:	defb	1, addr
+t_op:	defb	1, N8Ref
 	defb	1, overrun
-	defb	2, addr, N8
+	defb	1, N8Ref, N8
 
 	defb	t_tick - do_tick
-; ( -- `_ )
+; ( -- tickVal )
 do_tick:call	vm_tick
 a_tick:	push	de
 	exx
@@ -661,7 +691,7 @@ a_tick:	push	de
 
 t_tick:	defb	0
 	defb	0
-	defb	1, backtick_
+	defb	1, tickVal
 
 	defb	t_tickself - do_tickself
 ; ( -- `self )
@@ -703,7 +733,7 @@ do_bite:rst	vm_rst
 	inc	hl
 	inc	hl
 	ex	de, hl
-	jr	pushA
+pushA2:	jr	pushA
 
 	defb	t_chop - do_chop
 ; ( S8 -( fail )- maybe S8 N8 )
@@ -727,7 +757,7 @@ chop_nc:inc	hl
 	inc	de
 	inc	de
 	ld	a, (bc)
-	jr	pushA
+	jr	pushA2
 
 f_bite:	defb	fail
 	defb	  -2
@@ -735,7 +765,8 @@ f_bite:	defb	fail
 t_chop:
 t_bite:	defb	1, S8
 	defb	1, fail
-	defb	2, S8, N8
+	defb	1, S8, N8
+	defb	0
 
 	defb	t_swap - do_swap
 ; ( N8 N8 -- N8 N8 )
@@ -781,7 +812,7 @@ pushBC:	ex	de, hl
 
 t_var:	defb	0
 	defb	1, var
-	defb	1, addr
+	defb	1, N8Ref
 
 	defb	t_local - do_local
 ; ( -- A )
@@ -797,8 +828,8 @@ do_local:
 	jr	pushBC
 
 t_local:defb	0
-	defb	0
-	defb	1, addr
+	defb	1, local
+	defb	1, N8Ref
 
 	defb	t_adv - do_adv
 ; ( A N8 -( overrun )- A )
@@ -812,12 +843,12 @@ do_adv:	dec	de
 	ld	b, a
 adv_nc:	jr	pushBC
 
-t_adv:	defb	2, addr, N8
+t_adv:	defb	2, N8Ref, N8
 	defb	1, overrun
-	defb	1, addr
+	defb	1, N8Ref
 
 	defb	t_backtick - do_backtick
-; ( (?) -- F )
+; ( (?) -- (?)` )
 do_backtick:rst	pop_rst
 	dec	bc
 advBC:	ld	a, (bc)
@@ -848,7 +879,7 @@ advBC2:	rst	pop_rst
 
 t_eff:	defb	1, funcType
 	defb	0
-	defb	1, effSet
+	defb	1, effs
 
 	defb	t_val - do_val
 ; ( F -- [?] )
@@ -896,11 +927,11 @@ resuspend:
 
 t_tailpend:
 	defb	1, handler
-	defb	2, tailpend
-	defb	0
+	defb	2, tail, tailPend
+	defb	1, state
 
 	defb	t_unpend - do_unpend
-; ( -( \ ~; )- )
+; ( -( \~ )- )
 do_unpend:
 	exx
 	pop	de	; return
@@ -945,7 +976,7 @@ do_scan:rst	vm_rst
 
 t_scan:	defb	1, S8
 	defb	2, fail, tailpend
-	defb	3, S8, state, N8
+;;	defb	1, maybeS8StateN8
 
 	defb	t_oppend - do_oppend
 ; ( E -( pend )- ;; N8 )
@@ -956,9 +987,9 @@ do_oppend:
 	defb	  do_oppend - $
 	defb	tailpend
 t_oppend:
-	defb	1, addr
-	defb	1, tailpend
-	defb	2, state, N8
+	defb	1, N8Ref
+	defb	2, fail, tailpend
+	defb	1, stateN8
 
 	defb	t_rain - do_rain
 ; ( V8 -- )
@@ -991,19 +1022,19 @@ t_drip:	defb	1, S8
 	defb	0
 	defb	0
 
-t_pass:	defb	1, addr
+t_pass:	defb	1, N8Ref
 	defb	0
 	defb	0
 
 	defb	t_call - do_call
-; ( args func func -( effs func )- vals func )
+; ( a ( a -( e )- b) -( e )- b )
 do_call:rst	pop_rst
 	push	bc
 	ret
 
-t_call:	defb	3, arg, func, func
-	defb	2, eff, func
-	defb	2, val, func
+t_call:	defb	2, funcArg, Func
+	defb	1, effs
+	defb	1, vals
 
 	defb	t_while - do_while
 ; ( a ( a -( e fail )- b maybe c ) ( b c -( f fail )- maybe a ) -( e f fail )- maybe b )
@@ -1038,9 +1069,9 @@ end_while:
 	and	a		; clear CF
 	ret
 
-t_while:defb	5, arg, pred, pred, body, forWhile
-	defb	5, eff, pred, eff, body, fail
-	defb	0
+t_while:;;defb	1, predArgPredBodyWhile
+	;;defb	3, predEff, setminus ,bodyEff
+	;;defb	1, maybeBodyVal
 
 	defb	t_or - do_or
 ; ( a b ( b -( e )- c ) ( a -( f )- c ) -( e f )- c )
@@ -1054,9 +1085,9 @@ or_c:	ccf
 	ccf
 	ret
 
-t_or:	defb	7, arg, body, arg, pred, pred, body, forOr
-	defb	4, eff, pred, eff, body
-	defb	2, val, pred
+t_or:	;;defb	1, predArgBodyArgPredBodyOr
+	;;defb	1, predEff
+	;;defb	2, val, pred
 
 	defb	t_unless - do_unless
 ; ( a b ( a -( f )- c ) ( b -( e )- c ) -( e f )- c )
@@ -1070,9 +1101,9 @@ do_unless:
 	call	resuspend
 	jr	or_c
 t_unless:
-	defb	7, arg, body, arg, pred, body, pred, forUnless
-	defb	4, eff, pred, eff, body
-	defb	2, val, pred
+	;;defb	1, predArgBodyPredUnless
+	;;defb	3, predEff, setminus, bodyEff
+	;;defb	1, maybeBodyVal
 
 	defb	t_string - do_string
 ; ( V8 -- V8 S8 )
@@ -1129,9 +1160,53 @@ setvoc:	push	af
 	exx
 	ret
 
+	defb	t_expose - do_expose
+do_expose:
+	pop	bc		; discard return address
+	pop	hl		; restore threading
+	exx
+	ld	hl, 0
+	add	hl, sp		; skip return and threading
+expo_a:	ld	a, (hl)
+	inc	hl
+	cp	disuse - 0x100 * (disuse / 0x100)
+	jr	nz, expo_l
+	ld	a, (hl)
+	cp	disuse / 0x100
+	jr	nz, expo_l
+	ld	e, l
+	ld	d, h
+	inc	de
+	inc	de
+	inc	de
+	dec	hl
+	sbc	hl, sp
+	jr	z, expose_0
+	push	bc
+	ld	c, l
+	ld	b, h
+	add	hl, sp
+	dec	hl
+	lddr
+expose_0:
+	ex	de, hl
+	dec	hl
+	ld	sp, hl
+	exx
+	ret
+
+expo_l:	inc	hl
+	inc	hl
+	inc	hl
+	jr	expo_a
+
+
+t_expose:
 t_use:	defb	0
 	defb	1, dict
 	defb	0
+
+
 
 ;; ( -( pour )- )
 ;do_pour:push	ix
@@ -1149,9 +1224,9 @@ do_times:
 	defb	  do_times - $
 	defb	tailpend
 
-t_times:defb	1, N8
-	defb	2, fail, tailpend
-	defb	2, N8, state
+t_times:;;defb	1, N8
+	;;defb	2, fail, tailpend
+	;;defb	1, maybeN8State
 
 	defb	t_fetchN8 - do_fetchN8
 ; ( A -- N8 )
@@ -1161,7 +1236,7 @@ do_fetchN8:	rst	pop_rst
 		inc	de
 		ret
 
-t_fetchN8:	defb	1, addr
+t_fetchN8:	defb	1, N8Ref
 		defb	0
 		defb	1, N8
 
@@ -1171,7 +1246,7 @@ do_fetchE:	rst	pop_rst
 		ld	a, 2
 		jr	do_fetch
 
-t_fetchE:	defb	1, addr
+t_fetchE:	defb	1, N8Ref
 		defb	0
 		defb	1, func
 
@@ -1188,7 +1263,7 @@ do_fetch:	push	hl
 		pop	hl
 		ret
 
-t_fetchS8:	defb	1, addr
+t_fetchS8:	defb	1, S8Ref
 		defb	0
 		defb	1, S8
 
@@ -1200,12 +1275,12 @@ do_store1:	dec	de
 		ld	(bc), a
 		ret
 
-t_N8store:	defb	2, N8, addr
+t_N8store:	defb	2, N8, N8Ref
 		defb	0
 		defb	0
 
 	defb	t_Estore - do_Estore
-; ( E A -- )
+; ( A A -- )
 do_Estore:	rst	pop_rst
 		inc	bc
 do_store2:	dec	de
@@ -1214,7 +1289,7 @@ do_store2:	dec	de
 		dec	bc
 		jr	do_store1
 
-t_Estore:	defb	2, func, addr
+t_Estore:	defb	2, N8Ref, N8Ref
 		defb	0
 		defb	0
 
@@ -1229,13 +1304,12 @@ do_S8store:	rst	pop_rst
 		dec	bc
 		jr	do_store2
 
-t_S8store:	defb	2, S8, addr
+t_S8store:	defb	2, S8, S8Ref
 		defb	0
 		defb	0
 
 	defb	t_tryAt - do_tryAt
-; ( a ( a -( e )- b ) A -( e )- b )
-; ( funcArg func A -( funcEff \ var )- funcVal )
+; ( a ( a -( e )- b ) A -( e \ access )- b )
 do_tryAt:	push	ix
 		rst	pop_rst
 		push	bc
@@ -1244,9 +1318,11 @@ do_tryAt:	push	ix
 		pop	ix
 		ret
 
-t_tryAt:	defb	3, funcArg, func, addr
-		defb	3, funcEff, setminus, var
-		defb	1, funcVal
+t_tryAt:
+; ( a ( a -( e )- b ) A -( e \ access )- b )
+	defb	1, tryAtArg
+	defb	1, tryAtEff
+	defb	1, tryVal
 
 ; -- I/O --
 
@@ -1268,6 +1344,15 @@ do_cr:		rst	vm_rst
 		defb	tail
 		defb	  emit
 
+	defb	t_sp - do_sp
+; ( -( emit )- )
+do_sp:		rst	vm_rst
+		defb	litN8
+		defb	  0x20
+		defb	tail
+		defb	  emit
+
+t_sp:
 t_cr:	defb	0
 	defb	1, emit
 	defb	0
@@ -1323,6 +1408,7 @@ t_stroke:
 	defb	1, N8
 	defb	1, fail
 	defb	1, C8
+	defb	0
 
 	defb	t_verbatim - do_verbatim
 ; ( S8 S8 -( fail )- maybe S8 )
@@ -1376,6 +1462,7 @@ t_verbatim:
 	defb	2, S8, S8
 	defb	1, fail
 	defb	1, S8
+	defb	0
 
 	defb	t_words - do_words
 ; ( S8 -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
@@ -1459,9 +1546,9 @@ words_l:	defb	fail
 		defb	  -3
 
 ; ( S8 -( fail pend )- maybe S8;wrds N8;tkn ;; S8;wrd N8;cls )
-t_words:defb	1, S8
-	defb	2, fail, tailpend
-	defb	5, S8, N8, state, S8, N8
+t_words:;;defb	1, S8
+	;;defb	2, fail, tailpend
+	;;defb	1, S8N8stateS8N8
 
 	defb	t_name - do_name
 ; ( N8;idx E;voc -- S8;wrd N8;cls )
@@ -1492,7 +1579,7 @@ do_name:	rst	vm_rst
 		defb	  drip
 
 ; ( N8;idx E;voc -- S8;wrd N8;cls )
-t_name:	defb	2, N8, vocab
+t_name:	defb	2, N8, Vocab
 	defb	0
 	defb	2, S8, N8
 
@@ -1526,7 +1613,7 @@ do_index:	rst	vm_rst
 		defb	  drip
 
 ; ( S8;nam E;voc -- N8;idx N8;cls )
-t_index:defb	2, S8, vocab
+t_index:defb	2, S8, Vocab
 	defb	0
 	defb	2, N8, N8
 

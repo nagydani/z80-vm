@@ -1,5 +1,5 @@
 	defb	t_see - do_see
-; ( E;wrds E;code -( emit )- )
+; ( : wrds E : code E -( emit )- )
 do_see:	rst	vm_rst
 	defb	use
 	defb	  see_voc - $
@@ -9,7 +9,7 @@ do_see:	rst	vm_rst
 	defb	litE
 	defb	  e_in_type - do_in_type
 	NOP
-	; ( ??? -( ??? )- ??? )
+	; ( :code E -( emit )- E )
 do_in_type:	rst	vm_rst
 		defb	litS8
 		DEFB	  3
@@ -29,22 +29,27 @@ e_in_type:	equ	$
 	defb	emit
 	defb	cr
 
+	; [ :wrds E :code E ]
 	defb	local
 	defb	  -2
 	defb	fetchE
+	; [ :wrds E :code1 E :code2 E ]
 	defb	op
+	; [ :wrds E :code1 E :code2 E :opcode N8 ]
 	defb	litN8
 		  rst	vm_rst
+	; [ :wrds E :code1 E :code2 E :opcode N8 :vmrst N8 ]
 	defb	litE
 	defb	  e_see - s_see
 	NOP
-	; ( ??? -( ??? )- ??? )
+	; ( :code2 E N8 N8 -( emit )- )
 s_see:		rst	vm_rst
 		defb	eq
 		defb	drop	; comparison
 		defb	seeVm
 		defb	tail
 		defb	  pass
+	; [ :wrds E :code1 E :code 2 E :opcode N8 :vmrst N8 :ssee E ]
 e_see:	defb	local
 	defb	  -10		;; wrds
 	defb	tick
@@ -60,9 +65,11 @@ s_seeRaw:	rst	vm_rst
 e_seeRaw:	equ	$
 	defb	or
 
+	; [ :wrds E :code E ]
 	defb	litE
 	defb	  e_out_type - do_out_type
 	NOP
+	; ( :wrds E :code E -( emit )-  )
 do_out_type:	rst	vm_rst
 		defb	litS8
 		DEFB	  5
@@ -70,9 +77,11 @@ do_out_type:	rst	vm_rst
 		defb	writesp
 		defb	litN8
 		defb	  1		; effects
+		; [ :wrds E :code E N8 ]
 		defb	local
 		defb	  -5		; wrds
 		defb	fetchE
+		; [ :wrds E :code E N8 :wrds2 E ]
 		defb	cant
 		defb	litS8
 		defb	  e_seeOut - seeOut
@@ -87,15 +96,18 @@ e_seeOut:	DEFB	writesp
 		defb	  cant
 e_out_type:	equ	$
 	defb	local
-	defb	  -4
+	defb	  -4		;; code1
 	defb	fetchE
 	defb	tryAt
 	defb	ascii, "]"
 	defb	emit
+	defb	litN8, " "
+	defb	emit
+	DEFB	pass
 	defb	tail
-	defb	  cr
+	DEFB	  pass
 
-t_see:	defb	2, func, func
+t_see:	defb	1, vocabFunc
 	defb	1, emit
 	defb	0
 
@@ -251,7 +263,7 @@ do_see_number:
 	xor	a
 	rrd
 	call	do_see_digit
-	rst	token_rst
+	rst	vm_rst
 	defb	crf
 do_see_digit:
 	ex	de, hl
@@ -278,7 +290,7 @@ do_see_printable:
 	NOP
 do_see_quote:
 	rst	vm_rst
-	defb	writesp
+	defb	write
 	defb	op
 	defb	local
 	defb	  -3
@@ -308,7 +320,7 @@ s_nonpr:		rst	vm_rst
 			defb	litS8
 			defb	  e_q - s_q
 s_q:			defb	  "\"..", 0x0A, "\""
-e_q:			defb	writesp
+e_q:			defb	write
 			defb	tail
 			DEFB	  drop		; TODO print ascii code
 e_nonpr:	defb	tail
@@ -339,8 +351,6 @@ do_see_brace:
 	defb	ascii
 	defb	  "}"
 	defb	emit
-	DEFB	pass
-	DEFB	pass
 	defb	adv
 	defb	litN8
 	defb	  1
@@ -349,157 +359,27 @@ do_see_brace:
 	defb	  crf
 
 	NOP
+; ( E S8 -( emit unpend fail )- E )
 do_see_voc:
 	rst	vm_rst
 	defb	writesp
-	defb	op
-	defb	make
-	defb	  3, 2
-	defb	adv		; voc
-	defb	litE
-	defb	  end_setVoc - do_setVoc
-	NOP
-	; ( ??? -( ??? )- ??? )
-do_setVoc:	rst	vm_rst
-		defb	var
-		defb	  -5	; words
-		defb	fetchE
-		defb	local
-		defb	  -8	; wrds to replace
-		defb	Estore
-		defb	var
-		defb	  -5	; words
-		defb	fetchE
-		defb	litN8
-		defb	  2
-		defb	adv	; lenWords
-		defb	op
-		defb	adv
-		defb	litN8
-		defb	  2
-		defb	bite
-		defb	drop
-		defb	bite
-		defb	var
-		defb	  -5	; words
-		defb	fetchE
-		defb	name
-		defb	drop
-		defb	writeln
-		defb	drip
-
-		defb	zero
-		defb	var
-		defb	  -5
-		defb	fetchE
-		defb	litE
-		defb	  end_countVoc - do_countVoc
-		NOP
-		; ( ??? -( ??? )- ??? )
-do_countVoc:		rst	vm_rst
-			defb	call
-			defb	var
-			defb	  -1		; first
-			defb	fetchN8
-			defb	local
-			defb	  -6		; 
-			defb	fetchN8
-			defb	tick
-			defb	  ge
-			defb	failor
-			defb	  -4
-			defb	drop
-			defb	make
-			defb	  9, 4
-			defb	local
-			defb	  -10
-			defb	N8store
-			defb	local
-			defb	  -12
-			defb	S8store
-			defb	local
-			defb	  -5
-			defb	fetchN8
-			defb	one_plus
-			defb	  0
-			defb	local
-			defb	  -6
-			defb	N8store
-			defb	fail
-			defb	  0
-end_countVoc:	defb	emptyE
-		defb	or
-
-		defb	var
-		defb	  0
-		defb	litE
-		defb	  end_listVoc - do_listVoc
-		NOP
-; ( S8;nam N8;cls N8;num E;tab -( fail emit )- )
-do_listVoc:		rst	vm_rst
-			defb	local
-			defb	  -3		; num
-			defb	fetchN8
-			defb	one_minus
-			defb	  0
-			defb	var
-			defb	  -5		; voc
-			defb	fetchE
-			defb	local
-			defb	  -5
-			defb	fetchE
-			defb	fetchE
-			defb	ascii
-			defb	  "{"
-			defb	emit
-			defb	cr
-			defb	see
-			defb	litS8
-			defb	  e_endBody - s_endBody
-s_endBody:		defb	  "} \" "
-e_endBody:		defb	write
-			defb	local
-			defb	  -10		; name
-			defb	fetchS8
-			defb	write
-			defb	ascii
-			defb	  "\""
-			defb	emit
-			defb	litN8
-			defb	  " "
-			defb	emit
-			defb	local
-			defb	  -7		; class
-			defb	fetchN8
-			defb	var
-			defb	  -5
-			defb	fetchE
-			defb	name
-			defb	drop		; class class
-			defb	writeln
-			defb	pass		; voc
-			defb	local
-			defb	  -8
-			defb	N8store
-			defb	litN8
-			defb	  2
-			defb	adv
-			defb	local
-			defb	  -6
-			defb	Estore
-			defb	tail
-			defb	  pass
-end_listVoc:	defb	emptyE
-		defb	tail
-		defb	  while
-
-end_setVoc:	equ	$
 	defb	local
-	defb	  -4		; voc
-	defb	fetchE
+	defb	  -2
+	defb	fetchE	; code2
+	defb	op
+	defb	adv	; vocab
+	defb	litE
+	defb	  e_list_voc - do_list_voc
+		NOP
+do_list_voc:	HALT
+e_list_voc:	equ	$
+	defb	local
+	defb	  -4	; vocab
+	defb	fetchE	; vocab2
 	defb	tryAt
-	defb	fail
-	defb	  -5
+	defb	pass	; vocab
+	defb	fail	; next
+	defb	  0
 
 	NOP
 do_see_fn:
@@ -645,7 +525,7 @@ do_seeRec:
 
 
 	NOP
-	; ( : tup N8 : voc E -( ??? )- )
+	; ( : tup N8 : voc E -( emit )- )
 do_cant:	rst	vm_rst
 		defb	var
 		defb	  0		; code
@@ -656,7 +536,7 @@ do_cant:	rst	vm_rst
 		defb	litE
 		defb	  e_hastype - do_hastype
 		NOP
-		; ( : tup N8 : voc E : base E N8 -( ??? )- )
+		; ( : tup N8 : voc E : base E N8 -( emit )- )
 do_hastype:		rst	vm_rst
 			defb	neq
 			defb	adv
