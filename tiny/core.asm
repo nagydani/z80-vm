@@ -204,6 +204,10 @@ unless:	equ	($ - core_tab - 1) / 2
 string:	equ	($ - core_tab - 1) / 2
 	defw	do_string
 
+; ( V8 S8 -( fail )- V8 |maybe V8 S8 )
+grow:	equ	($ - core_tab - 1) / 2
+	defw	do_grow
+
 ; ( -( dict )- )
 use:	equ	($ - core_tab - 1) / 2
 	defw	do_use
@@ -1105,6 +1109,7 @@ t_unless:
 	;;defb	3, predEff, setminus, bodyEff
 	;;defb	1, maybeBodyVal
 
+
 	defb	t_string - do_string
 ; ( V8 -- V8 S8 )
 do_string:
@@ -1133,6 +1138,43 @@ t_string:
 	defb	1, V8
 	defb	0
 	defb	2, V8, S8
+
+	defb	t_grow - do_grow
+; ( V8 S8 -( fail )- V8 |maybe V8 S8 )
+do_grow:dec	de
+	ld	a, (de)
+	rst	pop_rst
+	ex	de, hl
+	dec	hl
+	add	(hl)
+	jr	c, no_grow
+	sub	(hl)
+grow_l:	ex	af, af'
+	ld	a, (hl)
+	inc	a
+	inc	hl
+	ld	(hl), a
+	dec	hl
+	ld	a, (bc)
+	inc	bc
+	ld	(hl), a
+	inc	hl
+	ex	af, af'
+	dec	a
+	jr	nz, grow_l
+grow_r:	ex	de, hl
+	inc	de
+	ret
+
+no_grow:inc	hl
+	inc	hl
+	inc	hl
+	jr	grow_r
+
+t_grow:	defb	2, V8, S8
+	defb	1, fail
+	defb	1, V8
+	defb	1, V8, S8
 
 	defb	t_use - do_use
 ; ( -( dict )- )

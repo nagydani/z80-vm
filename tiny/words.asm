@@ -315,6 +315,8 @@ core_words:
 ;	defb	fn
 	defb	"use"
 	defb	voc
+	defb	"grow"
+	defb	fn
 	defb	"toStr"
 	defb	fn
 	defb 	"unless"

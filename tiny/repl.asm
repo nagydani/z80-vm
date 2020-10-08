@@ -11,10 +11,11 @@ hello:		defm	  "Ok"
 end_hello:	defb	writeln
 
 ; Test generators
-		defb	litS8
-		defb	  e_teststr - teststr
-teststr:		defb	"ABCDEFG"
-e_teststr:	equ	$
+;		defb	litS8
+;		defb	  e_teststr - teststr
+;teststr:		defb	"ABCDEFG"
+;e_teststr:	equ	$
+
 ; Safe string
 ;		defb	local
 ;		defb	  -3
@@ -51,7 +52,7 @@ e_teststr:	equ	$
 ;		defb	cr
 ;		defb	pass
 
-		defb	writeln
+;		defb	writeln
 
 ; Test words generator
 ;		defb	litE
