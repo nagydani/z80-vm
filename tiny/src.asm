@@ -225,6 +225,6 @@ do_fnType:	rst	vm_rst
 		defb	backtick
 		
 
-t_fntype:	defb	1, func
+t_fnType:	defb	1, func
 		defb	1, emit
 		defb	0

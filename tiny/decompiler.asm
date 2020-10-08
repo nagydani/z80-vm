@@ -107,7 +107,7 @@ e_out_type:	equ	$
 	defb	tail
 	DEFB	  pass
 
-t_see:	defb	1, vocabFunc
+t_see:	defb	1;, vocabFunc
 	defb	1, emit
 	defb	0
 

@@ -91,9 +91,9 @@ e_teststr:	equ	$
 ;		defb	writeln
 
 ; Test function type
-		defb	tick
-		defb	  index
-		defb	fnType
+;		defb	tick
+;		defb	  index
+;		defb	fnType
 
 
 ; Test decompiler

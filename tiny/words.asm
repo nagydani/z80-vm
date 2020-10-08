@@ -60,7 +60,10 @@ effSet:	equ	types_first + 34
 funcArg:equ	types_first + 35
 funcEff:equ	types_first + 36
 funcVal:equ	types_first + 37
-types_last:equ	types_first + 38
+tryArg:	equ	types_first + 38
+tryEff: equ	types_first + 39
+tryVal:	equ	types_first + 40
+types_last:equ	types_first + 41
 
 do_moreWords:
 	rst	vm_rst
@@ -75,6 +78,12 @@ do_typWords:
 	defb	  end_typ_words - typ_words
 typ_words:
 	defb	types_last
+	defb	"try`val"
+	defb	fn
+	defb	"try`eff"
+	defb	fn
+	defb	"try`arg"
+	defb	fn
 	defb	"(?)`val"
 	defb	fn
 	defb	"(?)`eff"
