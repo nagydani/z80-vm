@@ -144,22 +144,6 @@ local:	equ	($ - core_tab - 1) / 2
 adv:	equ     ($ - core_tab - 1) / 2
 	defw	do_adv
 
-; ( (?) -- F )
-backtick:equ	($ - core_tab - 1) / 2
-	defw	do_backtick
-
-; ( F -- [?] )
-arg:	equ	($ - core_tab - 1) / 2
-	defw	do_arg
-
-; ( F -- -(?)- )
-eff:	equ	($ - core_tab - 1) / 2
-	defw	do_eff
-
-; ( F -- [?] )
-val:	equ	($ - core_tab - 1) / 2
-	defw	do_val
-
 ; ( ( a -( e )- b ) -( tailpend )- )
 tailpend:equ	($ - core_tab - 1) / 2
 	defw	do_tailpend
@@ -207,6 +191,10 @@ unless:	equ	($ - core_tab - 1) / 2
 ; ( V8 -- V8 S8 )
 string:	equ	($ - core_tab - 1) / 2
 	defw	do_string
+
+; ( V8 -( fail )- maybe V8 N8 )
+pinch:	equ	($ - core_tab - 1) / 2
+	defw	do_pinch
 
 ; ( -( dict )- )
 use:	equ	($ - core_tab - 1) / 2
@@ -291,6 +279,22 @@ name:	equ	($ - core_tab - 1) / 2
 ; ( S8;nam E;voc -- N8;idx N8;cls )
 index:	equ	($ - core_tab - 1) / 2
 	defw	do_index
+
+; ( (?) -- F )
+backtick:equ	($ - core_tab - 1) / 2
+	defw	do_backtick
+
+; ( F -- [?] )
+arg:	equ	($ - core_tab - 1) / 2
+	defw	do_arg
+
+; ( F -- -(?)- )
+eff:	equ	($ - core_tab - 1) / 2
+	defw	do_eff
+
+; ( F -- [?] )
+val:	equ	($ - core_tab - 1) / 2
+	defw	do_val
 
 ; ( ( a -( e )- b ) -( emit )- )
 fnType:	equ	($ - core_tab - 1) / 2
@@ -891,49 +895,6 @@ t_adv:	defb	2, N8Ref, N8
 	defb	1, overrun
 	defb	1, N8Ref
 
-	defb	t_backtick - do_backtick
-; ( (?) -- (?)` )
-do_backtick:rst	pop_rst
-	dec	bc
-advBC:	ld	a, (bc)
-	add	a, c
-	ld	c, a
-	ld	a, 0
-	adc	a, b
-	ld	b, a
-	jr	pushBC
-t_backtick:
-	defb	1, func
-	defb	0
-	defb	1, funcType
-
-	defb	t_arg - do_arg
-; ( F -- [?] )
-do_arg:	ret
-
-t_arg:	defb	1, funcType
-	defb	0
-	defb	1, recType
-
-	defb	t_eff - do_eff
-; ( F -- -(?)- )
-do_eff:	call	backtick
-advBC2:	rst	pop_rst
-	jr	advBC
-
-t_eff:	defb	1, funcType
-	defb	0
-;;	defb	1, effs
-
-	defb	t_val - do_val
-; ( F -- [?] )
-do_val:	call	do_eff
-	jr	advBC2
-
-t_val:	defb	1, funcType
-	defb	0
-	defb	1, recType
-
 	defb	t_tailpend - do_tailpend
 ; ( handler -( tail, tailpend )- ;; )
 do_tailpend:
@@ -1178,6 +1139,19 @@ t_string:
 	defb	1, V8
 	defb	0
 	defb	2, V8, S8
+
+	defb	t_pinch - do_pinch
+; ( V8 -( fail )- maybe V8 N8 )
+do_pinch:
+	rst	vm_rst
+	defb	one_minus
+	defb	  0
+	defb	tail
+	defb	  swap
+
+t_pinch:defb	1, V8
+	defb	1, fail
+	defb	2, V8, N8
 
 	defb	t_use - do_use
 ; ( -( dict )- )

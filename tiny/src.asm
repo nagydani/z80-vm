@@ -219,6 +219,49 @@ t_index:defb	2, S8, vocab
 	defb	0
 	defb	2, N8, N8
 
+	defb	t_backtick - do_backtick
+; ( (?) -- (?)` )
+do_backtick:rst	pop_rst
+	dec	bc
+advBC:	ld	a, (bc)
+	add	a, c
+	ld	c, a
+	ld	a, 0
+	adc	a, b
+	ld	b, a
+	jp	pushBC
+t_backtick:
+	defb	1, func
+	defb	0
+	defb	1, funcType
+
+	defb	t_arg - do_arg
+; ( F -- [?] )
+do_arg:	ret
+
+t_arg:	defb	1, funcType
+	defb	0
+	defb	1, recType
+
+	defb	t_eff - do_eff
+; ( F -- -(?)- )
+do_eff:	call	backtick
+advBC2:	rst	pop_rst
+	jr	advBC
+
+t_eff:	defb	1, funcType
+	defb	0
+;;	defb	1, effs
+
+	defb	t_val - do_val
+; ( F -- [?] )
+do_val:	call	do_eff
+	jr	advBC2
+
+t_val:	defb	1, funcType
+	defb	0
+	defb	1, recType
+
 	defb	t_fnType - do_fnType
 ; ( ( a -( b )- c ) -( emit )- )
 do_fnType:	rst	vm_rst

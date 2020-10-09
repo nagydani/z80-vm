@@ -249,6 +249,14 @@ src_words:
 	defb	fn
 	defb	"moreWords;"
 	defb	fn
+	defb	"val"
+	defb	fn
+	defb	"eff"
+	defb	fn
+	defb	"arg"
+	defb	fn
+	defb	"`"
+	defb	fn
 	defb	"index"
 	defb	fn
 	defb	"name"
@@ -315,6 +323,8 @@ core_words:
 ;	defb	fn
 	defb	"use"
 	defb	voc
+	defb	"pinch"
+	defb	fn
 	defb	"toStr"
 	defb	fn
 	defb 	"unless"
@@ -339,14 +349,6 @@ core_words:
 	defb	fn
 	defb	"~;"
 	defb	tailFn
-	defb	"val"
-	defb	fn
-	defb	"eff"
-	defb	fn
-	defb	"arg"
-	defb	fn
-	defb	"`"
-	defb	fn
 	defb	"adv"
 	defb	fn
 	defb	"local"
