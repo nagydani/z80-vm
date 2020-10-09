@@ -52,6 +52,10 @@ dup:	equ	($ - core_tab - 1) / 2
 make:	equ	($ - core_tab - 1) / 2
 	defw	do_make
 
+; ( ( a -( e f )- b ) e -( f monad )- b )
+tryTo:	equ	($ - core_tab - 1) / 2
+	defw	do_tryTo
+
 ; ( -( fail )- )
 failor:	equ	($ - core_tab - 1) / 2
 	defw	do_failor
@@ -65,24 +69,20 @@ ge:	equ	($ - core_tab - 1) / 2
 	defw	do_ge
 
 ; ( N8 N8 -( fail )- maybe N8 )
-eq:	equ	($ - core_tab - 1) / 2
-	defw	do_eq
-
-; ( N8 N8 -( fail )- maybe N8 )
 neq:	equ	($ - core_tab - 1) / 2
 	defw	do_neq
 
-; ( ( a -( e f )- b ) e -( f monad )- b )
-tryTo:	equ	($ - core_tab - 1) / 2
-	defw	do_tryTo
+; ( N8 N8 -( fail )- maybe N8 )
+eq:	equ	($ - core_tab - 1) / 2
+	defw	do_eq
 
-; ( N8 -- (?) )
-token:	equ	($ - core_tab - 1) / 2
-	defw	do_token
-
-; ( V8 C8 -( fail )- V8 )
+; ( V8 N8 -( fail )- V8 )
 append:	equ	($ - core_tab - 1) / 2
 	defw	do_append
+
+; ( V8 S8 -( failOver )- V8 |maybe V8 S8 )
+grow:	equ	($ - core_tab - 1) / 2
+	defw	do_grow
 
 ; ( N8 -( fail )- N8 )
 one_plus:equ	($ - core_tab - 1) / 2
@@ -95,6 +95,10 @@ one_minus:equ	($ - core_tab - 1) / 2
 ; ( -( tail )- )
 failOver:equ	($ - core_tab - 1) / 2
 	defw	do_failOver
+
+; ( N8 -- (?) )
+token:	equ	($ - core_tab - 1) / 2
+	defw	do_token
 
 ; ( -- N8 )
 zero:	equ	($ - core_tab - 1) / 2
@@ -112,10 +116,6 @@ tick:	equ	($ - core_tab - 1) / 2
 tickself: equ	($ - core_tab - 1) / 2
 	defw	do_tickself
 
-; ( -- (--) )
-emptyE:	equ	($ - core_tab - 1) / 2
-	defw	do_emptyE
-
 ; ( S8 -( fail ) -- maybe S8 N8 )
 bite:	equ	($ - core_tab - 1) / 2
 	defw	do_bite
@@ -123,6 +123,10 @@ bite:	equ	($ - core_tab - 1) / 2
 ; ( S8 -( fail ) -- maybe S8 N8 )
 chop:	equ	($ - core_tab - 1) / 2
 	defw	do_chop
+
+; ( -- (--) )
+emptyE:	equ	($ - core_tab - 1) / 2
+	defw	do_emptyE
 
 ; ( N8 N8 -- N8 N8 )
 swap:	equ	($ - core_tab - 1) / 2
@@ -203,10 +207,6 @@ unless:	equ	($ - core_tab - 1) / 2
 ; ( V8 -- V8 S8 )
 string:	equ	($ - core_tab - 1) / 2
 	defw	do_string
-
-; ( V8 S8 -( fail )- V8 |maybe V8 S8 )
-grow:	equ	($ - core_tab - 1) / 2
-	defw	do_grow
 
 ; ( -( dict )- )
 use:	equ	($ - core_tab - 1) / 2
@@ -481,6 +481,37 @@ t_make:	defb	1, selfArg
 ;;	defb	1, missingValue
 	defb	2, selfVal, selfArg
 
+	defb	t_tryTo - do_tryTo
+; ( a ( a -( e f )- b ) handler -( f )- b )
+do_tryTo:
+	call	vm_tick		; DE = old handler, HL = effect address + 1
+	push	de		; old handler on stack
+	push	bc		; vocabulary on stack
+	exx
+	rst	pop_rst		; BC = new handler
+	push	bc		; move BC to
+	exx
+	pop	bc		; BC'
+	ld	(hl), b
+	dec	hl
+	ld	(hl), c		; new handler set HL = effect address
+	pop	bc		; restore vocabulary
+	push	hl		; save effect address
+	exx
+	call	do_call		; try function inside the monad
+	exx
+	pop	hl		; effect address
+	pop	de		; old handler
+	ld	(hl), e
+	inc	hl
+	ld	(hl), d		; restore old handler
+	exx
+	ret
+
+t_tryTo:defb	1, tryArg
+	defb	1, tryEff
+	defb	1, tryVal
+
 	defb	t_failor - do_failor
 ; ( a ( a -( e )- b )  -( e fail )- maybe b )
 do_failor:
@@ -521,6 +552,13 @@ do_ge:	rst	cmp_rst
 	dec	de
 	ret
 
+	defb	t_neq - do_neq
+; ( N8 N8 -( fail )- maybe N8 )
+do_neq:	rst	cmp_rst
+	jr	z, f_eq
+	and	a
+	ret
+
 	defb	t_eq - do_eq
 ; ( N8 N8 -( fail )- maybe N8 )
 do_eq:	rst	cmp_rst
@@ -530,61 +568,12 @@ do_fail0:
 	scf
 	ret
 
-	defb	t_neq - do_neq
-; ( N8 N8 -( fail )- maybe N8 )
-do_neq:	rst	cmp_rst
-	jr	z, f_eq
-	and	a
-	ret
-
 t_ge:
-t_eq:
-t_neq:	defb	2, N8, N8
+t_neq:
+t_eq:	defb	2, N8, N8
 	defb	1, fail
 	defb	1, N8
 	defb	0
-
-	defb	t_tryTo - do_tryTo
-; ( a ( a -( e f )- b ) handler -( f )- b )
-do_tryTo:
-	call	vm_tick		; DE = old handler, HL = effect address + 1
-	push	de		; old handler on stack
-	push	bc		; vocabulary on stack
-	exx
-	rst	pop_rst		; BC = new handler
-	push	bc		; move BC to
-	exx
-	pop	bc		; BC'
-	ld	(hl), b
-	dec	hl
-	ld	(hl), c		; new handler set HL = effect address
-	pop	bc		; restore vocabulary
-	push	hl		; save effect address
-	exx
-	call	do_call		; try function inside the monad
-	exx
-	pop	hl		; effect address
-	pop	de		; old handler
-	ld	(hl), e
-	inc	hl
-	ld	(hl), d		; restore old handler
-	exx
-	ret
-
-t_tryTo:defb	1, tryArg
-	defb	1, tryEff
-	defb	1, tryVal
-
-	defb	t_token - do_token
-; ( tok -- `tok )
-do_token:dec	de
-	ld	a, (de)
-	call	vm_tail
-	jr	a_tick
-
-t_token:defb	1, tok
-	defb	0
-	defb	1, backticktok
 
 	defb	t_append - do_append
 ; ( V8 N8 -( failOver )- V8 |maybe V8+ )
@@ -599,6 +588,46 @@ t_append:
 	defb	1, failOver
 	defb	1, V8
 	defb	1, V8plus
+
+	defb	t_grow - do_grow
+; ( V8 S8 -( failOver )- V8 |maybe V8 S8 )
+do_grow:dec	de
+	ld	a, (de)
+	rst	pop_rst
+	ex	de, hl
+	dec	hl
+	add	(hl)
+	jr	c, no_grow
+	sub	(hl)
+grow_l:	ex	af, af'
+	ld	a, (hl)
+	inc	a
+	inc	hl
+	ld	(hl), a
+	dec	hl
+	ld	a, (bc)
+	inc	bc
+	ld	(hl), a
+	inc	hl
+	ex	af, af'
+	dec	a
+	jr	nz, grow_l
+	inc	hl
+grow_r:	ex	de, hl
+	inc	de
+	ret
+
+no_grow:inc	hl
+	inc	hl
+	inc	hl
+	inc	hl
+	ex	de, hl
+	jr	do_failOver
+
+t_grow:	defb	2, V8, S8
+	defb	1, failOver
+	defb	1, V8
+	defb	1, V8, S8
 
 	defb	t_one_plus - do_one_plus
 ; ( N8 -( failOver )- N8 |maybe [256] )
@@ -664,6 +693,17 @@ t_failOver:
 	defb	1, failOver
 	defb	0
 
+	defb	t_token - do_token
+; ( tok -- `tok )
+do_token:dec	de
+	ld	a, (de)
+	call	vm_tail
+	jr	a_tick
+
+t_token:defb	1, tok
+	defb	0
+	defb	1, backticktok
+
 	defb	t_zero - do_zero
 ; ( -- [0] )
 do_zero:xor	a
@@ -706,16 +746,6 @@ t_tickself:
 	defb	0
 	defb	0
 	defb	1, backtickself
-
-	defb	t_emptyE - do_emptyE
-; ( -- (--) )
-do_emptyE:
-	ld	bc, do_nop
-	jr	pushBC
-t_emptyE:
-	defb	0
-	defb	0
-	defb	1, emptyFn
 
 	defb	t_bite - do_bite
 ; ( S8 -( fail )- maybe S8 N8 )
@@ -771,6 +801,16 @@ t_bite:	defb	1, S8
 	defb	1, fail
 	defb	1, S8, N8
 	defb	0
+
+	defb	t_emptyE - do_emptyE
+; ( -- (--) )
+do_emptyE:
+	ld	bc, do_nop
+	jr	pushBC
+t_emptyE:
+	defb	0
+	defb	0
+	defb	1, emptyFn
 
 	defb	t_swap - do_swap
 ; ( N8 N8 -- N8 N8 )
@@ -1138,43 +1178,6 @@ t_string:
 	defb	1, V8
 	defb	0
 	defb	2, V8, S8
-
-	defb	t_grow - do_grow
-; ( V8 S8 -( fail )- V8 |maybe V8 S8 )
-do_grow:dec	de
-	ld	a, (de)
-	rst	pop_rst
-	ex	de, hl
-	dec	hl
-	add	(hl)
-	jr	c, no_grow
-	sub	(hl)
-grow_l:	ex	af, af'
-	ld	a, (hl)
-	inc	a
-	inc	hl
-	ld	(hl), a
-	dec	hl
-	ld	a, (bc)
-	inc	bc
-	ld	(hl), a
-	inc	hl
-	ex	af, af'
-	dec	a
-	jr	nz, grow_l
-grow_r:	ex	de, hl
-	inc	de
-	ret
-
-no_grow:inc	hl
-	inc	hl
-	inc	hl
-	jr	grow_r
-
-t_grow:	defb	2, V8, S8
-	defb	1, fail
-	defb	1, V8
-	defb	1, V8, S8
 
 	defb	t_use - do_use
 ; ( -( dict )- )

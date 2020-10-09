@@ -315,8 +315,6 @@ core_words:
 ;	defb	fn
 	defb	"use"
 	defb	voc
-	defb	"grow"
-	defb	fn
 	defb	"toStr"
 	defb	fn
 	defb 	"unless"
@@ -357,11 +355,11 @@ core_words:
 	defb	varRef
 	defb	"swap"
 	defb	fn
+	defb	"{}"
+	defb	fn
 	defb	"chop"
 	defb	fn
 	defb	"bite"
-	defb	fn
-	defb	"{}"
 	defb	fn
 	defb	"'self"
 	defb	selfRef
@@ -371,21 +369,21 @@ core_words:
 	defb	fn
 	defb	"0"
 	defb	fn
+	defb	"token"
+	defb	fn
 	defb	"~bump"
 	defb	failOverFn
 	defb	"1-"
 	defb	failOverFn
 	defb	"1+"
 	defb	failOverFn
+	defb	"grow"
+	defb	failOverFn
 	defb	","
 	defb	failOverFn
-	defb	"token"
-	defb	fn
-	defb	"tryTo"
-	defb	fnRef
-	defb	"=!"
-	defb	fn
 	defb	"="
+	defb	fn
+	defb	"=!"
 	defb	fn
 	defb	">!"
 	defb	fn
@@ -393,6 +391,8 @@ core_words:
 	defb	tailVarRef
 	defb	"'fail|"
 	defb	varRef
+	defb	"tryTo"
+	defb	fnRef
 	defb	"make"
 	defb	makeRef
 	defb	"dup"
