@@ -19,149 +19,12 @@ makeRef:equ	words_first + 14
 raw:	equ	words_first + 15
 syn_last:equ	words_first + 16
 
-types_first:equ	syn_last
-
-; types
-N8:	equ	types_first + 0
-S8:	equ	types_first + 1
-addr:	equ	types_first + 2
-func:	equ	types_first + 3
-recType:equ	types_first + 4
-V8:	equ	types_first + 5
-C8:	equ	types_first + 6
-N8Ref:	equ	types_first + 7
-S8Ref:	equ	types_first + 8
-N8max:	equ	types_first + 9
-minusOne:equ	types_first + 10
-V8plus:	equ	types_first + 11
-vocab:	equ	types_first + 12
-state:	equ	types_first + 13
-setminus:equ	types_first + 14
-dict:	equ	types_first + 15
-pred:	equ	types_first + 16
-body:	equ	types_first + 17
-forWhile:equ	types_first + 18
-forOr:	equ	types_first + 19
-forUnless:equ	types_first + 20
-handler:equ	types_first + 21
-overrun:equ	types_first + 22
-ormaybe:equ	types_first + 23
-tickcode:equ	types_first + 24
-backticktok:equ	types_first + 25
-backtickself:equ types_first + 26
-backtick_:equ	types_first + 27
-tok:	equ	types_first + 28
-selfArg:equ	types_first + 29
-selfVal:equ	types_first + 30
-sub:	equ	types_first + 31
-emptyFn:equ	types_first + 32
-funcType:equ	types_first + 33
-effSet:	equ	types_first + 34
-funcArg:equ	types_first + 35
-funcEff:equ	types_first + 36
-funcVal:equ	types_first + 37
-tryArg:	equ	types_first + 38
-tryEff: equ	types_first + 39
-tryVal:	equ	types_first + 40
-types_last:equ	types_first + 41
-
 do_moreWords:
 	rst	vm_rst
 	defb	tick
 	defb	  words
 	defb	tail
 	defb	  unless
-
-do_typWords:
-	rst	vm_rst
-	defb	litS8
-	defb	  end_typ_words - typ_words
-typ_words:
-	defb	types_last
-	defb	"try`val"
-	defb	fn
-	defb	"try`eff"
-	defb	fn
-	defb	"try`arg"
-	defb	fn
-	defb	"(?)`val"
-	defb	fn
-	defb	"(?)`eff"
-	defb	fn
-	defb	"(?)`arg"
-	defb	fn
-	defb	"-(?)-"
-	defb	fn
-	defb	"(?)`"
-	defb	fn
-	defb	"(--)"
-	defb	fn
-	defb	"_"
-	defb	fn
-	defb	"'self`val"
-	defb	fn
-	defb	"'self`arg"
-	defb	fn
-	defb	"tok"
-	defb	fn
-	defb	"`_"
-	defb	fn
-	defb	"'self`"
-	defb	fn
-	defb	"`tok"
-	defb	fn
-	defb	"'code"
-	defb	fn
-	defb	"|maybe"
-	defb	fn
-	defb	"overrun"
-	defb	fn
-	defb	"handler"
-	defb	fn
-	defb	"forUnless"
-	defb	fn
-	defb	"for|"
-	defb	fn
-	defb	"forWhile"
-	defb	fn
-	defb	"(body)"
-	defb	fn
-	defb	"(pred)"
-	defb	fn
-	defb	"dict"
-	defb	fn
-	defb	"\\"
-	defb	fn
-	defb	";;"
-	defb	fn
-	defb	"vocab"
-	defb	fn
-	defb	"V8+"
-	defb	fn
-	defb	"[1neg]"
-	defb	fn
-	defb	"[max]"
-	defb	fn
-	defb	"C8"
-	defb	fn
-	defb	"V8"
-	defb	fn
-	defb	"[?]"
-	defb	fn
-	defb	"(?)"
-	defb	fn
-	defb	"addr"
-	defb	fn
-	defb	"S8"
-	defb	fn
-	defb	"N8"
-	defb	fn
-end_typ_words:equ	$
-	defb	tick
-	defb	  effWords
-	defb	tail
-	defb	  moreWords
-
 
 do_synWords:
 	rst	vm_rst
@@ -243,19 +106,15 @@ src_words:
 	defb	fn
 	defb	"eff;"
 	defb	fn
-	defb	"syntax;"
-	defb	fn
-	defb	"typ;"
+	defb	"syn;"
 	defb	fn
 	defb	"moreWords;"
 	defb	fn
-	defb	"val"
+	defb	"hexnum"
 	defb	fn
-	defb	"eff"
+	defb	"writesp"
 	defb	fn
-	defb	"arg"
-	defb	fn
-	defb	"`"
+	defb	"indent"
 	defb	fn
 	defb	"index"
 	defb	fn
@@ -301,8 +160,6 @@ do_coreWords:
 	defb	  end_core_words - core_words
 core_words:
 	defb	core_last
-	defb	"+"
-	defb	failOverFn
 	defb	"tryAt"
 	defb	fn
 	defb	"let$"
@@ -321,7 +178,9 @@ core_words:
 	defb	fn
 ;	defb	"pour"
 ;	defb	fn
-	defb	"use"
+	defb	"~expose"
+	defb	tailFn
+	defb	"use["
 	defb	voc
 	defb	"pinch"
 	defb	fn
@@ -334,6 +193,8 @@ core_words:
 	defb	"while"
 	defb	fn
 	defb	"call"
+	defb	fn
+	defb	"drop"
 	defb	fn
 	defb	"pass"
 	defb	fn
@@ -375,6 +236,8 @@ core_words:
 	defb	fn
 	defb	"~bump"
 	defb	failOverFn
+	defb	"+"
+	defb	failOverFn
 	defb	"1-"
 	defb	failOverFn
 	defb	"1+"
@@ -399,8 +262,6 @@ core_words:
 	defb	makeRef
 	defb	"dup"
 	defb	fn
-	defb	"drop"
-	defb	fn
 	defb	"{"
 	defb	brace
 	defb	"\""
@@ -411,14 +272,14 @@ core_words:
 	defb	printable
 ;	defb	"~raw"
 	defb	raw
+	defb	"ok"
+	defb	fn
 	defb	"~self"
 	defb	tailSelfRef
 	defb	"~~"
 	defb	tailFn
 	defb	"~"
 	defb	tailFnRef
-	defb	"ok"
-	defb	fn
 end_core_words:	equ	$
 	defb	tail
 	defb	  words

@@ -1,4 +1,3 @@
-	defb	t_stroke - do_stroke
 ; ( N8 -( fail )- maybe C8 )
 do_stroke:	dec	de
 		ld	a, (de)
@@ -8,12 +7,7 @@ do_stroke:	dec	de
 		ret	c
 		inc	de
 		ret
-t_stroke:
-	defb	1, N8
-	defb	1, fail
-	defb	1, C8
 
-	defb	t_verbatim - do_verbatim
 ; ( S8 S8 -( fail )- maybe S8 )
 do_verbatim:	rst	vm_rst
 		defb	local
@@ -28,7 +22,6 @@ do_verbatim:	rst	vm_rst
 		defb	fetchS8
 		defb	litE
 		defb	  S8check_end - S8check
-		NOP
 		; ( S8 S8 -( fail )- S8 maybe S8 N8 S8 N8 N8 )
 S8check:		rst	vm_rst
 			defb	bite
@@ -42,7 +35,6 @@ S8check:		rst	vm_rst
 			defb	  fetchN8
 S8check_end:	defb	litE
 		defb	  S8match_end - S8match
-		NOP
 		; ( S8 S8 N8 S8 N8 N8 -( fail )- maybe S8 S8 )
 S8match:		rst	vm_rst
 			defb	tick
@@ -61,18 +53,12 @@ S8match_end:	defb	tick
 		defb	  -3
 		defb	tail
 		defb	  drip
-t_verbatim:
-	defb	2, S8, S8
-	defb	1, fail
-	defb	1, S8
 
-	defb	t_words - do_words
 ; ( S8 -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
 do_words:	rst	vm_rst
 		defb	bite
 		defb	litE
 		defb	  words_g_e - words_g
-		NOP
 		; ( ??? -( ??? )- ??? )
 words_g:		rst	vm_rst
 			defb	one_minus
@@ -91,7 +77,6 @@ words_g:		rst	vm_rst
 			defb	  -7
 			defb	litE
 			defb	  words_n_e - words_n
-			NOP
 			; ( ??? -( ??? )- ??? )
 words_n:			dec	de
 				ld	a, l
@@ -127,7 +112,6 @@ words_lp:			ld	a, (bc)
 				ret
 words_n_e:		defb	litE
 			defb	  words_a_e - words_a
-			NOP
 			; ( ??? -( ??? )- ??? )
 words_a:			rst	vm_rst
 				defb	local
@@ -147,12 +131,6 @@ words_g_e:	defb	tail
 words_l:	defb	fail
 		defb	  -3
 
-; ( S8 -( fail pend )- maybe S8;wrds N8;tkn ;; S8;wrd N8;cls )
-t_words:defb	1, S8
-	defb	2, fail, tailpend
-	defb	5, S8, N8, state, S8, N8
-
-	defb	t_name - do_name
 ; ( N8;idx E;voc -- S8;wrd N8;cls )
 do_name:	rst	vm_rst
 		defb	make
@@ -180,12 +158,6 @@ do_name:	rst	vm_rst
 		defb	tail
 		defb	  drip
 
-; ( N8;idx E;voc -- S8;wrd N8;cls )
-t_name:	defb	2, N8, vocab
-	defb	0
-	defb	2, S8, N8
-
-	defb	t_index - do_index
 ; ( S8;nam E;voc -- N8;idx N8;cls )
 do_index:	rst	vm_rst
 		defb	make
@@ -214,60 +186,53 @@ do_index:	rst	vm_rst
 		defb	tail
 		defb	  drip
 
-; ( S8;nam E;voc -- N8;idx N8;cls )
-t_index:defb	2, S8, vocab
-	defb	0
-	defb	2, N8, N8
+; ( N8 -( emit )- )
+do_indent:	rst	vm_rst
+		defb	litE
+		defb	  indent_e - indent_s
+indent_s:		rst	vm_rst
+			defb	one_minus
+			defb	  0
+			defb	litN8
+			defb	  0x09  ; tab
+			defb	emit
+			defb	tailself
+			defb	  indent_s - $
+indent_e:		equ  $
+		defb	emptyE
+		defb	tail
+		defb	  or
 
-	defb	t_backtick - do_backtick
-; ( (?) -- (?)` )
-do_backtick:rst	pop_rst
-	dec	bc
-advBC:	ld	a, (bc)
-	add	a, c
-	ld	c, a
-	ld	a, 0
-	adc	a, b
-	ld	b, a
-	jp	pushBC
-t_backtick:
-	defb	1, func
-	defb	0
-	defb	1, funcType
+; ( S8 -( write )- )
+do_writesp:	rst	vm_rst
+		defb	write
+		defb	litN8
+		defb	  " "
+		defb	tail
+		defb	  emit
 
-	defb	t_arg - do_arg
-; ( F -- [?] )
-do_arg:	ret
-
-t_arg:	defb	1, funcType
-	defb	0
-	defb	1, recType
-
-	defb	t_eff - do_eff
-; ( F -- -(?)- )
-do_eff:	call	backtick
-advBC2:	rst	pop_rst
-	jr	advBC
-
-t_eff:	defb	1, funcType
-	defb	0
-;;	defb	1, effs
-
-	defb	t_val - do_val
-; ( F -- [?] )
-do_val:	call	do_eff
-	jr	advBC2
-
-t_val:	defb	1, funcType
-	defb	0
-	defb	1, recType
-
-	defb	t_fnType - do_fnType
-; ( ( a -( b )- c ) -( emit )- )
-do_fnType:	rst	vm_rst
-		defb	backtick
-		
-
-t_fnType:	defb	1, func
-		defb	1, emit
-		defb	0
+; ( N8 -( emit )- )
+do_hexnum:
+	dec	de
+	xor	a
+	ex	de, hl
+	rld
+	inc	hl
+	ld	(hl), a
+	call	do_see_digit
+	ex	de, hl
+	dec	hl
+	xor	a
+	rrd
+do_see_digit:
+	ex	de, hl
+	ld	a, (de)
+	daa
+	add	a, 0xF0
+	adc	a, 0x40
+do_tailemit:
+	ld	(de), a
+	inc	de
+	rst	vm_rst
+	defb	tail
+	defb	  emit
