@@ -216,10 +216,17 @@ do_see_brace:
 ; ( E S8 -( emit unpend fail )- E )
 do_see_voc:
 	rst	vm_rst
-	defb	writesp
+	defb	writeln
 	defb	op
+	defb	drop
+	defb	local
+	defb	  -5
+	defb	fetchN8
+	defb	indent
+	defb	ascii
+	defb	  "]"
 	defb	tail
-	defb	  drop
+	defb	  emit
 
 do_see_fn:
 	rst	vm_rst
