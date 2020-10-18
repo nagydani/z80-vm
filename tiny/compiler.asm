@@ -1,3 +1,18 @@
+; ( ( -( e )- ) -( e monad )- )
+do_tryBuf:
+	rst	pop_rst
+	xor	a
+	ld	(de), a
+	inc	d
+	call	pushBC		; monad
+	ld	c, e
+	ld	b, d
+	dec	b
+	call	pushBC		; buffer
+	call	do_tryTo
+	dec	d
+	ret
+
 ; ( S8 -( key emit )- )
 do_comp:rst	vm_rst
 	defb	use

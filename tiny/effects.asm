@@ -8,7 +8,11 @@ do_emit:	dec	de
 		ret
 end_emit:	equ	$
 
-key:	equ	emit + 1
+emitBuf:equ	emit + 1
+	defb	zero
+	defb	zero
+
+key:	equ	emitBuf + 1
 	defb	litE
 	defb	  end_key - do_key
 ; ( -( key fail )- C8 )

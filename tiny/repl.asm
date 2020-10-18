@@ -96,12 +96,26 @@ end_hello:	defb	writeln
 
 
 ; Test decompiler
-		defb	zero
-		defb	tick
-		defb	  effWords
-		defb	tick
-		defb	  ioWords
-		defb	see
+;		defb	zero
+;		defb	tick
+;		defb	  effWords
+;		defb	tick
+;		defb	  see
+;		defb	see
+
+; Test tryBuf
+		defb	litE
+		defb	  e_tryBuf - s_tryBuf
+s_tryBuf:		rst	vm_rst
+			defb	ascii
+			defb	  "X"
+			defb	tick
+			defb	  emitBuf
+			defb	tail
+			defb	  N8store
+e_tryBuf:		equ	$
+		defb	tryBuf
+		defb	  emitBuf
 
 ; Test readln and writeln
 		defb	readln

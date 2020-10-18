@@ -316,16 +316,20 @@ effWords:equ	($ - core_tab - 1) / 2
 	defw	do_effWords
 
 ; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
-srcWords:equ     ($ - core_tab - 1) / 2
+srcWords:equ	($ - core_tab - 1) / 2
 	defw	do_srcWords
 
 ; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
-ioWords:equ     ($ - core_tab - 1) / 2
+ioWords:equ	($ - core_tab - 1) / 2
 	defw	do_ioWords
 
 ; ( -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
-coreWords:equ     ($ - core_tab - 1) / 2
+coreWords:equ	($ - core_tab - 1) / 2
 	defw	do_coreWords
+
+; ( E -( monad )- )
+tryBuf:	equ	($ - core_tab - 1) / 2
+	defw	do_tryBuf
 
 ; ( 
 comp:	equ	($ - core_tab - 1) / 2

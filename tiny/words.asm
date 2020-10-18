@@ -80,6 +80,8 @@ eff_words:
 	defb	fn
 	defb	"key"
 	defb	fn
+	defb	"emitBuf"
+	defb	fn
 	defb	"emit"
 	defb	fn
 end_eff_words:equ	$
@@ -98,6 +100,8 @@ src_words:
 	defb	fn
 	defb	"comp"
 	defb	fn
+	defb	"tryBuf"
+	defb	fnRef
 	defb	"core;"
 	defb	fn
 	defb	"io;"
