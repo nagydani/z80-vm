@@ -100,6 +100,8 @@ src_words:
 	defb	fn
 	defb	"comp"
 	defb	fn
+	defb	"word"
+	defb	fn
 	defb	"tryEmitBuf"
 	defb	fn
 	defb	"buf"
@@ -147,6 +149,8 @@ do_ioWords:
 	defb	  end_io_words - io_words
 io_words:
 	defb	io_last
+	defb	"input;"
+	defb	fn
 	defb	"readln"
 	defb	fn
 	defb	"writeln"
@@ -194,6 +198,8 @@ core_words:
 	defb	fn
 	defb	"toStr"
 	defb	fn
+	defb	"!"
+	defb	varRef
 	defb 	"unless"
 	defb	fn
 	defb 	"|"

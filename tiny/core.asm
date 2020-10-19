@@ -195,6 +195,10 @@ or:	equ	($ - core_tab - 1) / 2
 unless:	equ	($ - core_tab - 1) / 2
 	defw	do_unless
 
+; ( a ( a -( e fail )- b ) -( e fail )- )
+not:	equ	($ - core_tab - 1) / 2
+	defw	do_not
+
 ; ( V8 -- V8 S8 )
 string:	equ	($ - core_tab - 1) / 2
 	defw	do_string
@@ -267,6 +271,10 @@ writeln:equ	($ - core_tab - 1) / 2
 readln:	equ	($ - core_tab - 1) / 2
 	defw	do_readln
 
+; ( -( key tailpend )- C8 ;; )
+input:	equ	($ - core_tab - 1) / 2
+	defw	do_input
+
 io_last:equ	($ - core_tab - 1) / 2
 
 ; --- src vocabulary ---
@@ -338,6 +346,10 @@ buf:	equ	($ - core_tab - 1) / 2
 ; ( ( -( emit e )- ) -( emit e )- )
 tryEmitBuf: equ	($ - core_tab - 1) / 2
 	defw	do_tryEmitBuf
+
+; ( -( key )- V8 )
+word:	equ	($ - core_tab - 1) / 2
+	defw	do_word
 
 ; ( 
 comp:	equ	($ - core_tab - 1) / 2
@@ -884,6 +896,18 @@ do_unless:
 	call	resuspend
 	jr	or_c
 
+; ( a ( a -( e fail )- b ) -( e fail )- )
+do_not:	call	do_call
+	ccf
+	ld	c, (hl)
+	inc	hl
+	ret	nc
+	ld	b, 0xFF
+	ex	de, hl
+	add	hl, bc
+	ex	de, hl
+	ret
+
 ; ( V8 -- V8 S8 )
 do_string:
 	push	de
@@ -1080,7 +1104,7 @@ do_writeln:	rst	vm_rst
 		defb	tail
 		defb	  cr
 
-; ( -( key )- S8 )
+; ( -( key )- V8 S8 )
 do_readln:	rst	vm_rst
 		defb	zero
 		defb	litE
@@ -1099,6 +1123,12 @@ end_readln:	defb	tick
 		defb	  string
 		defb	tail
 		defb	  or
+
+do_input:	rst	vm_rst
+		defb	key
+		defb	tickself
+		defb	  do_input - $
+		defb	tailpend
 
 	include "src.asm"
 	include	"words.asm"

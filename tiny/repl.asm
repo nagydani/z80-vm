@@ -104,19 +104,25 @@ end_hello:	defb	writeln
 ;		defb	see
 
 ; Test emitBuf
-		defb	litE
-		defb	  e_tryBuf - s_tryBuf
-s_tryBuf:		rst	vm_rst
-			defb	litS8
-			defb	  3
-			defb	  "ABC"
-			defb	tail
-			defb	  writeln
-e_tryBuf:		equ	$
-		defb	tryEmitBuf
+;		defb	litE
+;		defb	  e_tryBuf - s_tryBuf
+;s_tryBuf:		rst	vm_rst
+;			defb	litS8
+;			defb	  3
+;			defb	  "ABC"
+;			defb	tail
+;			defb	  writeln
+;e_tryBuf:		equ	$
+;		defb	tryEmitBuf
 
 ; Test readln and writeln
-		defb	readln
+;		defb	readln
+;		defb	writeln
+;		defb	rain
+
+; Test word
+		defb	word
+		defb	string
 		defb	writeln
 		defb	rain
 
