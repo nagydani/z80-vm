@@ -100,6 +100,10 @@ src_words:
 	defb	fn
 	defb	"comp"
 	defb	fn
+	defb	"tryEmitBuf"
+	defb	fn
+	defb	"buf"
+	defb	fnRef
 	defb	"tryBuf"
 	defb	fnRef
 	defb	"core;"

@@ -331,6 +331,14 @@ coreWords:equ	($ - core_tab - 1) / 2
 tryBuf:	equ	($ - core_tab - 1) / 2
 	defw	do_tryBuf
 
+; ( N8 -( ??? )- )
+buf:	equ	($ - core_tab - 1) / 2
+	defw	do_buf
+
+; ( ( -( emit e )- ) -( emit e )- )
+tryEmitBuf: equ	($ - core_tab - 1) / 2
+	defw	do_tryEmitBuf
+
 ; ( 
 comp:	equ	($ - core_tab - 1) / 2
 	defw do_comp

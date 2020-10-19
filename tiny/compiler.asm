@@ -1,17 +1,68 @@
 ; ( ( -( e )- ) -( e monad )- )
 do_tryBuf:
-	rst	pop_rst
+	exx
+	ld	hl, -0x100
+	add	hl, sp
+	ld	sp, hl
 	xor	a
-	ld	(de), a
-	inc	d
-	call	pushBC		; monad
-	ld	c, e
-	ld	b, d
-	dec	b
-	call	pushBC		; buffer
+	ld	(hl), a
+	push	hl
+	exx
+	pop	bc
+	call	pushBC
 	call	do_tryTo
-	dec	d
+	exx
+	ld	hl, 0x100
+	add	hl, sp
+	ld	sp, hl
+	exx
 	ret
+
+; ( N8 -( ??? )- )
+do_buf:	call	vm_tick
+	ex	de, hl
+	inc	(hl)		; TODO: error handling
+	ld	e, (hl)
+	ld	d, 0
+	add	hl, de
+	push	hl
+	exx
+	pop	bc
+	dec	de
+	ld	a, (de)
+	ld	(bc), a
+	ret
+
+; ( ( -( emit e )- ) -( emit e )- )
+do_tryEmitBuf:
+	rst	vm_rst
+	defb	litE
+	defb	  e_doEmit - s_doEmit
+s_doEmit:	rst	vm_rst
+		defb	buf
+		defb	  emitBuf
+		defb	tail
+		defb	  ok
+e_doEmit:	equ	$
+	defb	litE
+	defb	  e_tryEmit - s_tryEmit
+s_tryEmit:	rst	vm_rst
+		defb	tryTo
+		defb	  emit
+		defb	tick
+		defb	  emitBuf
+		defb	fetchN8
+		defb	  emit
+		defb	tick
+		defb	  emitBuf
+		defb	op
+		defb	tail
+		defb	  write
+e_tryEmit:	equ	$
+	defb	tryBuf
+	defb	  emitBuf
+	defb	tail
+	defb	  ok
 
 ; ( S8 -( key emit )- )
 do_comp:rst	vm_rst

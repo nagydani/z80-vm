@@ -103,19 +103,17 @@ end_hello:	defb	writeln
 ;		defb	  see
 ;		defb	see
 
-; Test tryBuf
+; Test emitBuf
 		defb	litE
 		defb	  e_tryBuf - s_tryBuf
 s_tryBuf:		rst	vm_rst
-			defb	ascii
-			defb	  "X"
-			defb	tick
-			defb	  emitBuf
+			defb	litS8
+			defb	  3
+			defb	  "ABC"
 			defb	tail
-			defb	  N8store
+			defb	  writeln
 e_tryBuf:		equ	$
-		defb	tryBuf
-		defb	  emitBuf
+		defb	tryEmitBuf
 
 ; Test readln and writeln
 		defb	readln
