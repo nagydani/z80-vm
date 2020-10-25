@@ -54,7 +54,7 @@ syn_words:
 	defb	fn
 	defb	"defFn"
 	defb	fn
-	defb	"voc"
+	defb	"defVoc"
 	defb	fn
 	defb	"lCode"
 	defb	fn
@@ -77,6 +77,14 @@ do_effWords:
 eff_words:
 	defb	effects_last
 	defb	"seeRaw"
+	defb	fn
+	defb	"coda"
+	defb	fn
+	defb	"intro"
+	defb	fn
+	defb	"voc"
+	defb	fn
+	defb	"keyBuf"
 	defb	fn
 	defb	"key"
 	defb	fn

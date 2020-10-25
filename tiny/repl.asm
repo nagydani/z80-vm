@@ -121,10 +121,45 @@ end_hello:	defb	writeln
 ;		defb	rain
 
 ; Test word
-		defb	word
-		defb	string
-		defb	writeln
-		defb	rain
+;		defb	word
+;		defb	string
+;		defb	writeln
+;		defb	rain
+
+; Test compiler
+		defb	litS8
+		defb	  e_teststr - s_teststr
+s_teststr:		defb	"ascii X ~ emit\n"
+e_teststr:		equ	$
+		defb	litE
+		defb	  e_testcomp - s_testcomp
+s_testcomp:		rst	vm_rst
+			defb	input
+			defb	emit
+			defb	fail
+			defb	  0
+e_testcomp:		equ	$
+		defb	feed
+
+; REPL
+;		defb	tick
+;		defb	  emit
+;		defb	litE
+;		defb	  e_emitBuf - s_emitBuf
+;s_emitBuf:		rst	vm_rst
+;			defb	comp
+;			defb	tick
+;			defb	  emitBuf
+;			defb	op
+;			defb	drop
+;			defb	local
+;			defb	  -4
+;			defb	fetchE
+;			defb	tryTo
+;			defb	  emit
+;			defb	tail2
+;e_emitBuf:	equ	$
+;		defb	tryEmitBuf
 
 		defb	tailself
 		defb	  0x100 + repl - $

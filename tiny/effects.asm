@@ -22,7 +22,30 @@ do_key:		in	a, (0)
 		ret
 end_key:	equ	$
 
-seeRaw:	equ	key + 1
+keyBuf:	equ	key + 1
+	defb	zero
+	defb	zero
+
+vocab:	equ	keyBuf + 1
+; ( S8 -( pend )- maybe S8;wrds N8;tkn :: S8;wrd N8;cls )
+	defb	tick
+	defb	  effWords
+
+intro:	equ	vocab + 1
+	defb	litE
+	defb	  end_intro - do_intro
+do_intro:	rst	vm_rst
+		defb	litN8
+			rst	vm_rst
+		defb	tail
+		defb	  emit
+end_intro:	equ	$
+
+coda:	equ	intro + 1
+	defb	tick
+	defb	  ok
+
+seeRaw:	equ	coda + 1
 	defb	litE
 	defb	  end_seeRaw - do_seeRaw
 ; ( E -( !! emit )- )

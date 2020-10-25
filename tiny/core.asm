@@ -275,6 +275,10 @@ readln:	equ	($ - core_tab - 1) / 2
 input:	equ	($ - core_tab - 1) / 2
 	defw	do_input
 
+; ( S8 ( -( key )- ) -- )
+feed:	equ	($ - core_tab - 1) / 2
+	defw	do_feed 
+
 io_last:equ	($ - core_tab - 1) / 2
 
 ; --- src vocabulary ---
@@ -1129,6 +1133,40 @@ do_input:	rst	vm_rst
 		defb	tickself
 		defb	  do_input - $
 		defb	tailpend
+
+; ( S8 ( -( key )- ) -- )
+do_feed:	rst	vm_rst
+		defb	litE
+		defb	  e_feed - s_feed
+s_feed:			rst	vm_rst
+			defb	tick
+			defb	  keyBuf
+			defb	fetchS8
+			defb	bite
+			defb	local
+			defb	  -4
+			defb	fetchS8
+			defb	tick
+			defb	  keyBuf
+			defb	S8store
+			defb	local
+			defb	  -4
+			defb	N8store
+			defb	tail
+			defb	  pass
+e_feed:			equ	$
+		defb	litE
+		defb	  e_tryKey - s_tryKey
+s_tryKey:		rst	vm_rst
+			defb	tryTo
+			defb	  key
+			defb	tail2
+e_tryKey:		equ	$
+		defb	local
+		defb	  -9
+		defb	tryTo
+		defb	  keyBuf
+		defb	tail2
 
 	include "src.asm"
 	include	"words.asm"
