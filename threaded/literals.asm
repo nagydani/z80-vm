@@ -1,5 +1,11 @@
 litN16:	ldi
+	ldi
+	jp	(ix)
+
 litN8:	ldi
+	xor	a
+	ld	(de), a
+	inc	de
 	jp	(ix)
 
 litS8:	ld	c, (hl)
