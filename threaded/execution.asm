@@ -17,6 +17,27 @@ tailself:
 	add	hl, bc
 	jp	(ix)
 
+
+; ( n -( fail )- n )
+even:	ld	c, e
+	ld	b, d
+	dec	bc
+	dec	bc
+	ld	a, (bc)
+	and	1
+	jr	nz, fail
+	jp	(ix)
+
+; ( n -( fail )- n )
+odd:	ld	c, e
+	ld	b, d
+	dec	bc
+	dec	bc
+	ld	a, (bc)
+	and	1
+	jr	z, fail
+	jp	(ix)
+
 ; ( n -( fail )- n )
 iszero:	ex	de, hl
 	dec	hl
@@ -119,7 +140,11 @@ handle:	push	hl		; outer function on call stack
 	ld	b, a		; BC = old handler address
 	dec	hl
 	exx
+	dec	de
+	dec	de
 	push	de		; data stack pointer on call stack
+	inc	de
+	inc	de
 	ld	bc, (ERR_SP)
 	push	bc		; old ERR_SP on call stack
 	exx

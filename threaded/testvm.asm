@@ -24,13 +24,12 @@ test:	vm
 	defw	litS8
 	defb	  cd_e - cd
 cd:		vm
-		defw	litS8
-		defb	  hw_e - hw
-hw:			defb	"Hello World", $80 + "!"
-hw_e:		defw	spell
+		defw	litN16, 300
+		defw	countdown
+		defw	alphanum
 		defw	emit
 		defw	fail
-cd_e:	defw	litN16,  carrynx
+cd_e:	defw	litN16, carrynx
 	defw	or
 
 	defw	cpu
@@ -53,5 +52,6 @@ emit:	dec	de
 	include "stack.asm"
 	include	"arithmetics.asm"
 	include "generators.asm"
+	include "chars.asm"
 
 	include	"sysvars.asm"
