@@ -14,21 +14,23 @@ fromBC:	macro
 	exx
 	push	hl
 	exx
-	ld	de, 0x4000
+	ld	hl, 0x4000
+	ld	(DP), hl
+	ld	de, 0x5000
 	ld	ix, vm_l
 
 test:	vm
-	defw	litE8
-	defb	  e_pred - pred
-pred:		ld	a, 1
-		jp	(ix)
-e_pred:		equ	$
-	defw	litE8
-	defb	  e_subj - subj
-subj:		ld	a, 2
-		jp	(ix)
-e_subj:		equ	$
+
+	defw	litS8
+	defb	  cd_e - cd
+cd:		vm
+		defw	litN16, 5
+		defw	countdown
+		defw	drop
+		defw	fail
+cd_e:	defw	litN16,  carrynx
 	defw	or
+
 	defw	cpu
 
 	pop	hl
@@ -38,5 +40,8 @@ e_subj:		equ	$
 	include	"vm_rst.asm"
 	include	"execution.asm"
 	include	"literals.asm"
+	include "stack.asm"
+	include	"arithmetics.asm"
+	include "generators.asm"
 
 	include	"sysvars.asm"

@@ -15,8 +15,10 @@ tailself:
 	ld	c, (hl)
 	ld	b, 0xFF
 	add	hl, bc
-	jp	(ix)
+carrynx:jp	(ix)
 
+; ( -( fail )- )
+carry:	jr	nc, carrynx
 
 ; ( -( fail )- )
 fail:	ld	bc, FAIL
@@ -44,6 +46,35 @@ catch:	ld	sp, (ERR_SP)
 	pop	de		; restore data stack pointer
 	ex	(sp), hl	; HL = continue here after handler
 	ret			; continue with handler
+
+; 
+pend:	toBC			; handler address in BC
+	push	de		; data stack pointer on call stack
+	exx
+	ld	hl, (ERR_SP)
+	push	hl
+	ld	hl, (FAIL)
+	push	hl
+	ld	hl, FAIL
+	push	hl
+	ld	(ERR_SP), sp
+	exx
+	ld	(FAIL), bc
+	ld	bc, upend
+	push	bc
+	jp	(ix)
+
+upend:	defw	cpu
+	exx
+	ld	hl,6
+	add	hl, sp
+	ld	e, (hl)
+	inc	hl
+	ld	d, (hl)
+	push	de
+	exx
+	ex	(sp), hl
+	jp	(ix)
 
 ; ( arg ( arg -( effect )- val ) 'handler 'effect -- val )
 handle:	push	hl		; outer function on call stack
@@ -99,3 +130,4 @@ cut:	exx
 or:	vm
 	defw	litN16, FAIL - 1
 	defw	tail, handle
+
