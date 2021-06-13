@@ -14,6 +14,8 @@ fromBC:	macro
 	exx
 	push	hl
 	exx
+	ld	a, 10
+	ld	(BASE), a
 	ld	hl, 0x4000
 	ld	(DP), hl
 	ld	de, 0x5000
@@ -22,27 +24,22 @@ fromBC:	macro
 test:	vm
 
 	defw	litS8
-	defb	  cd_e - cd
-cd:		vm
-		defw	litN16, 300
-		defw	countdown
-		defw	alphanum
-		defw	emit
-		defw	fail
-cd_e:	defw	litN16, carrynx
-	defw	or
+	defb	  numt_e - numt
+numt:		defb	"12345 "
+numt_e:	defw	sToNumber
 
 	defw	cpu
 
 	pop	hl
 	exx
+	ld	bc, (0x5000)
 	ret
 
 emit:	dec	de
 	dec	de
 	ld	a, (de)
 	push	ix
-	rst	$10
+	rst	0x10
 	pop	ix
 	jp	(ix)
 

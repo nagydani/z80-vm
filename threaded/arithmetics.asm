@@ -23,7 +23,7 @@ plus:	toBC
 	toBC
 	ex	(sp), hl
 	add	hl, bc
-pluss:	ld	c, l
+	ld	c, l
 	ld	b, h
 	pop	hl
 	fromBC
@@ -33,14 +33,22 @@ pluss:	ld	c, l
 minus:	toBC
 	push	bc
 	toBC
-	ex	(sp), hl
+	push	bc
+	exx
+	pop	hl
+	pop	bc
 	and	a
 	sbc	hl, bc
-	jr	pluss
+	push	hl
+	exx
+	pop	bc
+	fromBC
+	jp	(ix)
 
 ; ( n n -( fail )- n )
 ge:	vm
 	defw	over
+	defw	swap
 	defw	minus
 	defw	carry
 	defw	tail, drop
@@ -48,10 +56,21 @@ ge:	vm
 ; ( n n -( fail )- n )
 le:	vm
 	defw	over
-	defw	swap
 	defw	minus
 	defw	carry
 	defw	tail, drop
+
+; ( n n -( fail )- n )
+gt:	vm
+	defw	oneplus
+	defw	carry
+	defw	tail, ge
+
+; ( n n -( fail )- n )
+lt:	vm
+	defw	oneminus
+	defw	carry
+	defw	tail, le
 
 ; ( n n -- n )
 band:	toBC
@@ -95,7 +114,7 @@ ustar:	toBC
 	pop	bc
 	pop	de
 	ld	hl,0
-	ld	a, $10
+	ld	a, 0x10
 mloop:	add	hl, hl
 	ex	de, hl
 	adc	hl, hl

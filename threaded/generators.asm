@@ -21,7 +21,7 @@ spell2:		vm
 		defw	dup
 		defw	cfetch
 		defw	litN8
-		defb	  $80
+		defb	  0x80
 		defw	band
 		defw	iszero
 		defw	drop
@@ -31,6 +31,6 @@ spell2e:defw	pend
 	defw	dup
 	defw	cfetch
 	defw	litN8
-	defb	  $7F
+	defb	  0x7F
 	defw	tail, band
 
