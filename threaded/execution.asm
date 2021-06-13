@@ -15,6 +15,30 @@ tailself:
 	ld	c, (hl)
 	ld	b, 0xFF
 	add	hl, bc
+	jp	(ix)
+
+; ( n -( fail )- n )
+iszero:	ex	de, hl
+	dec	hl
+	ld	a, (hl)
+	dec	hl
+	or	(hl)
+	inc	hl
+	inc	hl
+	ex	de, hl
+	jr	nz, fail
+	jp	(ix)
+
+; ( n -( fail )- n )
+nonzero:ex	de, hl
+	dec	hl
+	ld	a, (hl)
+	dec	hl
+	or	(hl)
+	inc	hl
+	inc	hl
+	ex	de, hl
+	jr	z, fail
 carrynx:jp	(ix)
 
 ; ( -( fail )- )
@@ -131,3 +155,20 @@ or:	vm
 	defw	litN16, FAIL - 1
 	defw	tail, handle
 
+; ( a -- n )
+fetch:	toBC
+	ld	a, (bc)
+	inc	bc
+	ld 	(de), a
+	ld	a, (bc)
+fetch2:	inc	de
+	ld	(de), a
+	inc	de
+	jp	(ix)
+
+; ( a -- c )
+cfetch:	toBC
+	ld	a, (bc)
+	ld	(de), a
+	xor	a
+	jr	fetch2

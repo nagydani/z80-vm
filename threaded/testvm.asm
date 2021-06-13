@@ -24,9 +24,11 @@ test:	vm
 	defw	litS8
 	defb	  cd_e - cd
 cd:		vm
-		defw	litN16, 5
-		defw	countdown
-		defw	drop
+		defw	litS8
+		defb	  hw_e - hw
+hw:			defb	"Hello World", $80 + "!"
+hw_e:		defw	spell
+		defw	emit
 		defw	fail
 cd_e:	defw	litN16,  carrynx
 	defw	or
@@ -36,6 +38,14 @@ cd_e:	defw	litN16,  carrynx
 	pop	hl
 	exx
 	ret
+
+emit:	dec	de
+	dec	de
+	ld	a, (de)
+	push	ix
+	rst	$10
+	pop	ix
+	jp	(ix)
 
 	include	"vm_rst.asm"
 	include	"execution.asm"
