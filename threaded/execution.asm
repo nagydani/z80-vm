@@ -38,6 +38,19 @@ odd:	ld	c, e
 	jr	z, fail
 	jp	(ix)
 
+; ( n n -( fail )- n )
+eq:	toBC
+	push	bc
+	toBC
+	ex	(sp), hl
+	and	a
+	sbc	hl, bc
+	pop	hl
+	jr	nz, fail
+	inc	de
+	inc	de
+	jp	(ix)
+
 ; ( n -( fail )- n )
 iszero:	ex	de, hl
 	dec	hl
@@ -222,7 +235,7 @@ fetch:	toBC
 	inc	bc
 	ld 	(de), a
 	ld	a, (bc)
-fetch2:	inc	de
+fetchx:	inc	de
 	ld	(de), a
 	inc	de
 	jp	(ix)
@@ -232,4 +245,12 @@ cfetch:	toBC
 	ld	a, (bc)
 	ld	(de), a
 	xor	a
-	jr	fetch2
+	jr	fetchx
+
+; ( c a -- )
+cstore:	toBC
+	dec	de
+	dec	de
+	ld	a, (de)
+	ld	(bc), a
+	jp	(ix)

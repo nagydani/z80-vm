@@ -1,20 +1,18 @@
 ; ( c -( fail )- c )
+whitespace:
+	vm
+	defw	litN8
+	defb	  " "
+	defw	tail, le
+
+; ( c -( fail )- c )
 printable:
 	vm
 	defw	litN8
 	defb	  "!"
 	defw	ge
-	defw	dup
-	defw	litN16, 0xFF80
-	defw	band
-	defw	iszero
-	defw	tail, drop
-
-; ( c -( fail )- c )
-whitespace:
-	vm
 	defw	litN8
-	defb	  " "
+	defb	  127
 	defw	tail, le
 
 ; ( c -( fail )- c )
@@ -27,18 +25,28 @@ ddigit:	vm
 	defw	tail, le
 
 ; ( c -( fail )- c )
-alpha:	vm
-	defw	dup
-	defw	litN8
-	defb	  0x20
-	defw	bor
+lower:	vm
 	defw	litN8
 	defb	  "a"
 	defw	ge
 	defw	litN8
 	defb	  "z"
-	defw	le
-	defw	tail, drop
+	defw	tail, le
+
+; ( c -( fail )- c )
+upper:	vm
+	defw	litN8
+	defb	  "A"
+	defw	ge
+	defw	litN8
+	defb	  "Z"
+	defw	tail, le
+
+; ( c -( fail )- c )
+alpha:	vm
+	defw	litN16, lower
+	defw	litN16, upper
+	defw	tail, or
 
 ; ( c -( fail )- c )
 alphanum:

@@ -24,16 +24,17 @@ fromBC:	macro
 test:	vm
 
 	defw	litS8
-	defb	  fteste - ftest
-ftest:		vm
-		defw	litN16, 300
-		defw	countdown
-		defw	alphanum
-		defw	odd
+	defb	  t1e - t1
+t1:		vm
+		defw	litS8
+		defb	  t2e -t2
+t2:		defb	  "       test     ", 0
+t2e:		defw	word
+		defw	pad
+		defw	scanstr
 		defw	emit
-		defw	cut
 		defw	fail
-fteste:	defw	litN16, ok
+t1e:	defw	litN16, ok
 	defw	or
 
 	defw	cpu
@@ -57,5 +58,6 @@ ok:	jp	(ix)
 	include	"arithmetics.asm"
 	include "generators.asm"
 	include "chars.asm"
+	include	"input.asm"
 
 	include	"sysvars.asm"

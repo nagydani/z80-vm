@@ -72,13 +72,6 @@ lt:	vm
 	defw	carry
 	defw	tail, le
 
-; ( n n -( fail )- n )
-eq:	vm
-	defw	over
-	defw	minus
-	defw	iszero
-	defw	tail, drop
-
 ; ( n n -- n )
 band:	toBC
 	dec	de
@@ -102,6 +95,17 @@ bor:	toBC
 	dec	de
 	ld	a, (de)
 	or	c
+	jr	bend
+
+; ( n n -- n )
+bxor:	toBC
+	dec	de
+	ld	a, (de)
+	xor	b
+	ld 	(de), a
+	dec	de
+	ld	a, (de)
+	xor	c
 	jr	bend
 
 ; ( a -- a )
