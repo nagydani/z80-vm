@@ -28,8 +28,9 @@ test:	vm
 t1:		vm
 		defw	litS8
 		defb	  t2e -t2
-t2:		defb	  "       test     ", 0
+t2:		defb	  "    Hello World!     ", 0
 t2e:		defw	word
+		defw	drop
 		defw	pad
 		defw	scanstr
 		defw	emit

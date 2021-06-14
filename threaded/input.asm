@@ -18,7 +18,7 @@ skws1:		vm
 skws1e:	defw	litN16, ok
 	defw	tail, or
 
-; ( a -( fail )- )
+; ( a -( fail )- a )
 word:	vm
 	defw	skipws
 	defw	pad
@@ -46,6 +46,7 @@ word2:		vm
 		defw	litN8
 		defb	  0
 		defw	cstore
+		defw	dup
 		defw	cfetch
 		defw	tail, whitespace
 word2e:	defw	tail, or
