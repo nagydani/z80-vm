@@ -31,6 +31,7 @@ ftest:		vm
 		defw	alphanum
 		defw	odd
 		defw	emit
+		defw	cut
 		defw	fail
 fteste:	defw	litN16, ok
 	defw	or

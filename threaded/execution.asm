@@ -173,6 +173,43 @@ hcut2:	exx
 	exx
 	jp	(ix)
 
+; ( -( \handler )- )
+cut:	exx
+	ld	hl, (ERR_SP)
+	ld	e, (hl)
+	inc	hl
+	ld	d, (hl)
+	inc	hl		; DE = handler pointer
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)
+	inc	hl		; BC = previous handler address
+	ex	de, hl
+	ld	(hl), c
+	inc	hl
+	ld	(hl), b		; restore previous handler
+	ex	de, hl
+	ld	e, (hl)
+	inc	hl
+	ld	d, (hl)
+	inc	hl		; DE = previous ERR_SP
+	ld	(ERR_SP), de	; restore previous ERR_SP
+	inc	hl
+	ex	de, hl		; DE points to top of handler frame
+	ld	hl, -8
+	add	hl, de		; HL points below the handler frame
+	push	hl
+	scf
+	sbc	hl, sp
+	ld	c, l
+	ld	b, h		; BC is the length of the stack below the handler frame
+	pop	hl
+	jr	z, cutbot
+	lddr			; move stack up
+cutbot:	ex	de, hl
+	ld	sp, hl
+	exx
+	jp	(ix)
 
 ; ( ( -( e )- val ) ( -( f )- val ) -( e f )- val )
 or:	vm
