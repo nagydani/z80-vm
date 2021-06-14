@@ -24,15 +24,21 @@ fromBC:	macro
 test:	vm
 
 	defw	litS8
-	defb	  numt_e - numt
-numt:		defb	"12345 "
-numt_e:	defw	sToNumber
+	defb	  fteste - ftest
+ftest:		vm
+		defw	litN16, 300
+		defw	countdown
+		defw	alphanum
+		defw	odd
+		defw	emit
+		defw	fail
+fteste:	defw	litN16, ok
+	defw	or
 
 	defw	cpu
 
 	pop	hl
 	exx
-	ld	bc, (0x5000)
 	ret
 
 emit:	dec	de
@@ -41,7 +47,7 @@ emit:	dec	de
 	push	ix
 	rst	0x10
 	pop	ix
-	jp	(ix)
+ok:	jp	(ix)
 
 	include	"vm_rst.asm"
 	include	"execution.asm"

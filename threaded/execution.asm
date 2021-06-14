@@ -152,18 +152,16 @@ handle:	push	hl		; outer function on call stack
 	push	hl		; handler pointer on call stack
 	ld	(ERR_SP), sp	; ERR_SP updated
 	exx
-	ld	hl, tailcut
+	ld	hl, hcut
 
 ; ( a ( a -( e )- b ) -( e )-  b )
 call:	toBC
 	push	bc
 	ret
 
-tailcut:defw	cut
-	defw	tail2
+hcut:	defw	hcut2, tail2
 
-; ( -( \handle )- )
-cut:	exx
+hcut2:	exx
 	pop	hl		; handler pointer
 	pop	de		; previous handler address
 	ld	(hl), e
@@ -174,6 +172,7 @@ cut:	exx
 	pop	de		; discard data stack pointer
 	exx
 	jp	(ix)
+
 
 ; ( ( -( e )- val ) ( -( f )- val ) -( e f )- val )
 or:	vm

@@ -72,6 +72,13 @@ lt:	vm
 	defw	carry
 	defw	tail, le
 
+; ( n n -( fail )- n )
+eq:	vm
+	defw	over
+	defw	minus
+	defw	iszero
+	defw	tail, drop
+
 ; ( n n -- n )
 band:	toBC
 	dec	de
