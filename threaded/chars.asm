@@ -113,3 +113,30 @@ sToNumber:
 	defb	  0
 	defw	tail, tonumber
 
+; ( a a -( fail )- a )
+streq:	vm
+	defw	over
+	defw	litS8
+	defb	  streq1e - streq1
+streq1:		vm
+		defw	over
+		defw	cfetch
+		defw	over
+		defw	cfetch
+		defw	litN16, eq
+		defw	litS8
+		defb	  streq2e - streq2
+streq2:			vm
+			defw	cut
+			defw	fail
+streq2e:	defw	or
+		defw	nonzero
+		defw	drop
+		defw	oneplus
+		defw	swap
+		defw	oneplus
+		defw	tail, streq1
+streq1e:defw	litN16, ok
+	defw	or
+	defw	drop, tail, drop
+
