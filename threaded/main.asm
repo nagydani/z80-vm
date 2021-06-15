@@ -31,7 +31,6 @@ empty:	vm
 	defb	  ioke - iok
 iok:		defb	" ok", 0x0D, 0
 ioke:	defw	type
-	defw	drop		; TODO ugly hack
 	defw	tail, input
 
 input_link:

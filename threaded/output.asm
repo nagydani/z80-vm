@@ -108,7 +108,8 @@ typel:		vm
 		defw	tailself
 		defb	  typel - $
 typele:	defw	litN16, ok
-	defw	tail, or
+	defw	or
+	defw	tail, drop
 
 link_final_output:
 words_link:
