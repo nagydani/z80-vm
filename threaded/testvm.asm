@@ -18,27 +18,14 @@ fromBC:	macro
 	ld	(BASE), a
 	ld	hl, 0x4000
 	ld	(DP), hl
+	ld	hl, link_final
+	ld	(CONTEXT), hl
 	ld	de, 0x5000
 	ld	ix, vm_l
 
 test:	vm
 
-	defw	litS8
-	defb	  t1e - t1
-t1:		vm
-		defw	litS8
-		defb	  t2e -t2
-t2:		defb	  "    Hello World!     ", 0
-t2e:		defw	word
-		defw	drop
-		defw	pad
-		defw	scanstr
-		defw	emit
-		defw	fail
-t1e:	defw	litN16, ok
-	defw	or
-	defw	litN16, 12345
-	defw	dot
+	defw	words
 
 	defw	cpu
 
@@ -56,6 +43,7 @@ ok:	jp	(ix)
 
 	include	"vm_rst.asm"
 	include	"execution.asm"
+	include	"dictionary.asm"
 	include	"literals.asm"
 	include "stack.asm"
 	include	"arithmetics.asm"
@@ -63,5 +51,6 @@ ok:	jp	(ix)
 	include "chars.asm"
 	include	"input.asm"
 	include "output.asm"
+	include "vocabulary.asm"
 
 	include	"sysvars.asm"

@@ -143,8 +143,31 @@ streq2e:	defw	or
 		defw	oneplus
 		defw	swap
 		defw	oneplus
-		defw	tail, streq1
+		defw	tailself
+		defb	  streq1 - $
 streq1e:defw	litN16, ok
 	defw	or
 	defw	drop, tail, drop
 
+; ( a -- a )
+skipstr:vm
+	defw	litS8
+	defb	  skipste - skipst
+skipst:		vm
+		defw	dup
+		defw	cfetch
+		defw	nonzero
+		defw	drop
+		defw	oneplus
+		defw	tailself
+		defb	  skipst - $
+skipste:defw	litN16, oneplus
+	defw	tail, or
+
+; ( a -- n )
+strlen:	vm
+	defw	dup
+	defw	skipstr
+	defw	oneminus
+	defw	swap
+	defw	tail, minus

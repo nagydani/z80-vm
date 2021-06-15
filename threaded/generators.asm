@@ -28,6 +28,7 @@ traverse:
 	defw	fetch
 	defw	nonzero
 	defw	litN16, traverse
+	defw	pend
 	defw	dup
 	defw	tail, cellplus
 
