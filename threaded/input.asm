@@ -3,6 +3,11 @@ pad:	vm
 	defw	litN16, PAD
 	defw	tail2
 
+; ( -- a )
+tib:	vm
+	defw	litN16, TIB
+	defw	tail2
+
 ; ( a -- a )
 skipws:	vm
 	defw	litS8
@@ -47,8 +52,10 @@ word1e:	defw	litS8
 word2:		vm
 		defw	litN8
 		defb	  0
+		defw	swap
 		defw	cstore
 		defw	dup
 		defw	cfetch
-		defw	tail, whitespace
+		defw	whitespace
+		defw	tail, drop
 word2e:	defw	tail, or

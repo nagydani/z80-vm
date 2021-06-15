@@ -150,19 +150,28 @@ streq1e:defw	litN16, ok
 	defw	drop, tail, drop
 
 ; ( a -- a )
-skipstr:vm
-	defw	litS8
-	defb	  skipste - skipst
-skipst:		vm
-		defw	dup
-		defw	cfetch
-		defw	nonzero
-		defw	drop
-		defw	oneplus
-		defw	tailself
-		defb	  skipst - $
-skipste:defw	litN16, oneplus
-	defw	tail, or
+skipstr:
+	toBC
+skps1:	ld	a, (bc)
+	inc	bc
+	or	a
+	jr	nz, skps1
+	fromBC
+	jp	(ix)
+
+;	vm
+;	defw	litS8
+;	defb	  skipste - skipst
+;skipst:		vm
+;		defw	dup
+;		defw	cfetch
+;		defw	nonzero
+;		defw	drop
+;		defw	oneplus
+;		defw	tailself
+;		defb	  skipst - $
+;skipste:defw	litN16, oneplus
+;	defw	tail, or
 
 ; ( a -- n )
 strlen:	vm

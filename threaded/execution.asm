@@ -168,7 +168,7 @@ handle:	push	hl		; outer function on call stack
 	ld	hl, hcut
 
 ; ( a ( a -( e )- b ) -( e )-  b )
-call:	toBC
+exec:	toBC
 	push	bc
 	ret
 
@@ -205,10 +205,10 @@ cut:	exx
 	ld	e, (hl)
 	inc	hl
 	ld	d, (hl)
-	inc	hl		; DE = previous ERR_SP
-	ld	(ERR_SP), de	; restore previous ERR_SP
 	inc	hl
-	ex	de, hl		; DE points to top of handler frame
+	ex	de, hl		; HL = previous ERR_SP
+	ld	(ERR_SP), hl	; restore previous ERR_SP
+	inc	de
 	ld	hl, -8
 	add	hl, de		; HL points below the handler frame
 	push	hl
@@ -220,7 +220,9 @@ cut:	exx
 	jr	z, cutbot
 	lddr			; move stack up
 cutbot:	ex	de, hl
+	inc	hl
 	ld	sp, hl
+	pop	bc		; discard threading
 	exx
 	jp	(ix)
 
@@ -250,7 +252,16 @@ cfetch:	toBC
 ; ( c a -- )
 cstore:	toBC
 	dec	de
-	dec	de
+xstore:	dec	de
 	ld	a, (de)
 	ld	(bc), a
 	jp	(ix)
+
+; ( n a -- )
+store:	toBC
+	dec	de
+	inc	bc
+	ld	a, (de)
+	ld	(bc), a
+	dec	bc
+	jr	xstore

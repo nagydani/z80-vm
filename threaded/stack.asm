@@ -29,3 +29,10 @@ ontop:	add	hl, de
 drop:	dec	de
 	dec	de
 	jp	(ix)
+
+; ( a b -- b )
+nip:	toBC
+	dec	de
+	dec	de
+	fromBC
+	jp	(ix)
