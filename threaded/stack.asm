@@ -1,3 +1,8 @@
+swap_link:
+	defw	link_final_dictionary
+	defb	"swap", 0
+	defw	comma
+
 ; ( a b -- b a )
 swap:	toBC
 	push	bc
@@ -11,10 +16,20 @@ swap:	toBC
 	fromBC
 	jp	(ix)
 
+over_link:
+	defw	swap_link
+	defb	"over", 0
+	defw	comma
+
 ; ( a b -- a b a )
 over:	push	hl
 	ld	hl, -4
 	jr	ontop
+
+dup_link:
+	defw	over_link
+	defb	"dup", 0
+	defw	comma
 
 ; ( a -- a a )
 dup:	push	hl
@@ -25,10 +40,21 @@ ontop:	add	hl, de
 	pop	hl
 	jp	(ix)
 
+drop_link:
+	defw	dup_link
+	defb	"drop", 0
+	defw	comma
+
 ; ( a -- )
 drop:	dec	de
 	dec	de
 	jp	(ix)
+
+link_final_stack:
+nip_link:
+	defw	drop_link
+	defb	"nip", 0
+	defw	comma
 
 ; ( a b -- b )
 nip:	toBC

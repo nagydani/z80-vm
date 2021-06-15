@@ -1,12 +1,28 @@
+pad_link:
+	defw	link_final_chars
+	defb	"pad", 0
+	defw	comma
+
 ; ( -- a )
 pad:	vm
 	defw	litN16, PAD
 	defw	tail2
 
+tib_link:
+	defw	pad_link
+	defb	"tib", 0
+	defw	comma
+
 ; ( -- a )
 tib:	vm
 	defw	litN16, TIB
 	defw	tail2
+
+
+skipws_link:
+	defw	tib_link
+	defb	"skipws", 0
+	defw	comma
 
 ; ( a -- a )
 skipws:	vm
@@ -24,8 +40,16 @@ skws1:		vm
 skws1e:	defw	litN16, ok
 	defw	tail, or
 
-; ( a -( fail )- a )
+link_final_input:
+word_link:
+	defw	skipws_link
+	defb	"word", 0
+	defw	comma
+
+; ( -( tib fail )- )
 word:	vm
+	defw	tib
+	defw	fetch
 	defw	skipws
 	defw	pad
 	defw	litS8
@@ -57,5 +81,7 @@ word2:		vm
 		defw	dup
 		defw	cfetch
 		defw	whitespace
-		defw	tail, drop
+		defw	drop
+		defw	tib
+		defw	tail, store
 word2e:	defw	tail, or

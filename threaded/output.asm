@@ -1,5 +1,5 @@
 bl_link:
-	defw	0
+	defw	link_final_input
 	defb	"bl", 0
 	defw	comma
 
@@ -99,7 +99,7 @@ typel:		vm
 typele:	defw	litN16, ok
 	defw	tail, or
 
-link_final:
+link_final_output:
 words_link:
 	defw	type_link
 	defb	"words", 0

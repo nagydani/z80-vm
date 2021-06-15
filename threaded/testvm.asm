@@ -16,18 +16,20 @@ fromBC:	macro
 	exx
 	ld	a, 10
 	ld	(BASE), a
-	ld	hl, 0x4000
+	ld	hl, 0x5800
 	ld	(DP), hl
 	ld	hl, link_final
 	ld	(CONTEXT), hl
 	ld	hl, testline
 	ld	(TIB), hl
-	ld	de, 0x5000
+	ld	de, 0x5B00
 	ld	ix, vm_l
 
 test:	vm
 
-	defw	interpret
+	defw	litN16, interpret
+	defw	litN16, ok
+	defw	or
 
 	defw	cpu
 
@@ -36,7 +38,14 @@ test:	vm
 	ret
 
 testline:
-	defb	"123 456 . . ", 0
+	defb	"3 5 + . ", 0
+
+
+link_final_io:
+emit_link:
+	defw	0
+	defb	"emit", 0
+	defw	comma
 
 emit:	dec	de
 	dec	de
@@ -44,12 +53,12 @@ emit:	dec	de
 	push	ix
 	rst	0x10
 	pop	ix
-ok:	jp	(ix)
+	jp	(ix)
 
 	include	"vm_rst.asm"
 	include	"execution.asm"
-	include	"dictionary.asm"
 	include	"literals.asm"
+	include	"dictionary.asm"
 	include "stack.asm"
 	include	"arithmetics.asm"
 	include "generators.asm"

@@ -1,9 +1,19 @@
+whitespace_link:
+	defw	link_final_generators
+	defb	"ws", 0
+	defw	comma
+
 ; ( c -( fail )- c )
 whitespace:
 	vm
 	defw	litN8
 	defb	  " "
 	defw	tail, le
+
+printable_link:
+	defw	whitespace_link
+	defb	"printable", 0
+	defw	comma
 
 ; ( c -( fail )- c )
 printable:
@@ -15,6 +25,11 @@ printable:
 	defb	  127
 	defw	tail, le
 
+ddigit_link:
+	defw	printable_link
+	defb	"ddigit", 0
+	defw	comma
+
 ; ( c -( fail )- c )
 ddigit:	vm
 	defw	litN8
@@ -23,6 +38,11 @@ ddigit:	vm
 	defw	litN8
 	defb	  "9"
 	defw	tail, le
+
+lower_link:
+	defw	ddigit_link
+	defb	"lower", 0
+	defw	comma
 
 ; ( c -( fail )- c )
 lower:	vm
@@ -33,6 +53,11 @@ lower:	vm
 	defb	  "z"
 	defw	tail, le
 
+upper_link:
+	defw	lower_link
+	defb	"upper", 0
+	defw	comma
+
 ; ( c -( fail )- c )
 upper:	vm
 	defw	litN8
@@ -42,11 +67,21 @@ upper:	vm
 	defb	  "Z"
 	defw	tail, le
 
+alpha_link:
+	defw	upper_link
+	defb	"letter", 0
+	defw	comma
+
 ; ( c -( fail )- c )
 alpha:	vm
 	defw	litN16, lower
 	defw	litN16, upper
 	defw	tail, or
+
+alphanum_link:
+	defw	alpha_link
+	defb	"alphanum", 0
+	defw	comma
 
 ; ( c -( fail )- c )
 alphanum:
@@ -55,10 +90,21 @@ alphanum:
 	defw	litN16, alpha
 	defw	tail, or
 
+base_link:
+	defw	alphanum_link
+	defb	"base", 0
+	defw	comma
+
 ; ( -- a )
 base:	vm
 	defw	litN16, BASE
 	defw	tail2
+
+
+digitToInt_link:
+	defw	base_link
+	defb	"digit>int", 0
+	defw	comma
 
 ; ( c -( fail )- n )
 digitToInt:
@@ -84,6 +130,11 @@ ad2i_e:	defw	or
 	defw	base
 	defw	cfetch
 	defw	tail, lt
+
+tonumber_link:
+	defw	digitToInt_link
+	defb	">number", 0
+	defw	comma
 
 ; ( a n -( fail )- n )
 tonumber:
@@ -114,12 +165,23 @@ numdg:		vm
 		defw	tail, tonumber
 numdg_e:defw	tail, or
 
+
+sToNumber_link:
+	defw	tonumber_link
+	defb	"s>number", 0
+	defw	comma
+
 ; ( a -( fail )- n )
 sToNumber:
 	vm
 	defw	litN8
 	defb	  0
 	defw	tail, tonumber
+
+streq_link:
+	defw	sToNumber_link
+	defb	"s=", 0
+	defw	comma
 
 ; ( a a -( fail )- a )
 streq:	vm
@@ -149,6 +211,11 @@ streq1e:defw	litN16, ok
 	defw	or
 	defw	drop, tail, drop
 
+skipstr_link:
+	defw	streq_link
+	defb	"skipstr", 0
+	defw	comma
+
 ; ( a -- a )
 skipstr:
 	toBC
@@ -172,6 +239,13 @@ skps1:	ld	a, (bc)
 ;		defb	  skipst - $
 ;skipste:defw	litN16, oneplus
 ;	defw	tail, or
+
+
+link_final_chars:
+strlen_link:
+	defw	skipstr_link
+	defb	"strlen", 0
+	defw	comma
 
 ; ( a -- n )
 strlen:	vm

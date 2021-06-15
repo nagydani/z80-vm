@@ -1,12 +1,29 @@
 cpu:	ex	(sp), hl
 	ret
 
+ok_link:
+	defw	link_final_io
+	defb	"{}", 0
+	defw	comma
+
+ok:	jp	(ix)
+
+tail_link:
+	defw	ok_link
+	defb	"~", 0
+	defw	comma		; TODO endcomp
+
 tail:	ld	a, (hl)
 	inc	hl
 	ld	h, (hl)
 	ld	l, a
 	ex	(sp), hl
 	ret
+
+tail2_link:
+	defw	tail_link
+	defb	";", 0
+	defw	comma		; TODO endcomp
 
 tail2:	pop	hl
 	jp	(ix)
@@ -18,6 +35,11 @@ tailself:
 	ex	(sp), hl
 	ret
 
+even_link:
+	defw	tail2_link	; TODO tailself_link
+	defb	"even", 0
+	defw	comma
+
 ; ( n -( fail )- n )
 even:	ld	c, e
 	ld	b, d
@@ -28,6 +50,11 @@ even:	ld	c, e
 	jr	nz, fail
 	jp	(ix)
 
+odd_link:
+	defw	even_link
+	defb	"odd", 0
+	defw	comma
+
 ; ( n -( fail )- n )
 odd:	ld	c, e
 	ld	b, d
@@ -37,6 +64,11 @@ odd:	ld	c, e
 	and	1
 	jr	z, fail
 	jp	(ix)
+
+eq_link:
+	defw	odd_link
+	defb	"=", 0
+	defw	comma
 
 ; ( n n -( fail )- n )
 eq:	toBC
@@ -51,6 +83,11 @@ eq:	toBC
 	inc	de
 	jp	(ix)
 
+iszero_link:
+	defw	eq_link
+	defb	"0=", 0
+	defw	comma
+
 ; ( n -( fail )- n )
 iszero:	ex	de, hl
 	dec	hl
@@ -63,6 +100,11 @@ iszero:	ex	de, hl
 	jr	nz, fail
 	jp	(ix)
 
+nonzero_link:
+	defw	iszero_link
+	defb	"0<>", 0
+	defw	comma
+
 ; ( n -( fail )- n )
 nonzero:ex	de, hl
 	dec	hl
@@ -73,10 +115,21 @@ nonzero:ex	de, hl
 	inc	hl
 	ex	de, hl
 	jr	z, fail
-carrynx:jp	(ix)
+	jp	(ix)
+
+carry_link:
+	defw	nonzero_link
+	defb	"carry?", 0
+	defw	comma
 
 ; ( -( fail )- )
-carry:	jr	nc, carrynx
+carry:	jr	c, fail
+	jp	(ix)
+
+fail_link:
+	defw	carry_link
+	defb	"~fail", 0
+	defw	comma		; TODO endcomp
 
 ; ( -( fail )- )
 fail:	ld	bc, FAIL
@@ -104,6 +157,11 @@ catch:	ld	sp, (ERR_SP)
 	pop	de		; restore data stack pointer
 	ex	(sp), hl	; HL = continue here after handler
 	ret			; continue with handler
+
+pend_link:
+	defw	fail_link
+	defb	"&", 0
+	defw	comma
 
 ; 
 pend:	toBC			; handler address in BC
@@ -133,6 +191,11 @@ upend:	defw	cpu
 	exx
 	ex	(sp), hl
 	jp	(ix)
+
+handle_link:
+	defw	pend_link
+	defb	"handle", 0
+	defw	comma
 
 ; ( arg ( arg -( effect )- val ) 'handler 'effect -- val )
 handle:	push	hl		; outer function on call stack
@@ -166,9 +229,7 @@ handle:	push	hl		; outer function on call stack
 	ld	(ERR_SP), sp	; ERR_SP updated
 	exx
 	ld	hl, hcut
-
-; ( a ( a -( e )- b ) -( e )-  b )
-exec:	toBC
+	toBC
 	push	bc
 	ret
 
@@ -185,6 +246,21 @@ hcut2:	exx
 	pop	de		; discard data stack pointer
 	exx
 	jp	(ix)
+
+exec_link:
+	defw	handle_link
+	defb	"execute", 0
+	defw	comma
+
+; ( a ( a -( e )- b ) -( e )-  b )
+exec:	toBC
+	push	bc
+	ret
+
+cut_link:
+	defw	exec_link
+	defb	"cut", 0
+	defw	comma
 
 ; ( -( \handler )- )
 cut:	exx
@@ -226,10 +302,20 @@ cutbot:	ex	de, hl
 	exx
 	jp	(ix)
 
+or_link:
+	defw	cut_link
+	defw	"|", 0
+	defw	comma
+
 ; ( ( -( e )- val ) ( -( f )- val ) -( e f )- val )
 or:	vm
 	defw	litN16, FAIL - 1
 	defw	tail, handle
+
+fetch_link:
+	defw	or_link
+	defb	"@", 0
+	defw	comma
 
 ; ( a -- n )
 fetch:	toBC
@@ -242,12 +328,22 @@ fetchx:	inc	de
 	inc	de
 	jp	(ix)
 
+cfetch_link:
+	defw	fetch_link
+	defb	"c@", 0
+	defw	comma
+
 ; ( a -- c )
 cfetch:	toBC
 	ld	a, (bc)
 	ld	(de), a
 	xor	a
 	jr	fetchx
+
+cstore_link:
+	defw	cfetch_link
+	defb	"c!", 0
+	defw	comma
 
 ; ( c a -- )
 cstore:	toBC
@@ -256,6 +352,12 @@ xstore:	dec	de
 	ld	a, (de)
 	ld	(bc), a
 	jp	(ix)
+
+link_final_execution:
+store_link:
+	defw	cstore_link
+	defb	"!", 0
+	defw	comma
 
 ; ( n a -- )
 store:	toBC

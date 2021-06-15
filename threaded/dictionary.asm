@@ -1,7 +1,17 @@
+here_link:
+	defw	link_final_execution
+	defb	"here", 0
+	defw	comma
+
 ; ( -( heap )- a )
 here:	ld	bc, (DP)
 	fromBC
 	jp	(ix)
+
+comma_link:
+	defw	here_link
+	defb	",", 0
+	defw	comma
 
 ; ( n -( heap )- )
 comma:	toBC
@@ -14,6 +24,12 @@ commax:	inc	hl
 	ld	(DP), hl
 	pop	hl
 	jp	(ix)
+
+link_final_dictionary:
+ccomma_link:
+	defw	comma_link
+	defb	"c,", 0
+	defw	comma
 
 ; ( c -( heap )- )
 ccomma:	toBC

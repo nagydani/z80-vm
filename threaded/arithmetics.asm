@@ -1,3 +1,8 @@
+oneminus_link:
+	defw	link_final_stack
+	defb	"1-", 0
+	defw	comma
+
 ; ( n -( carry )- n )
 oneminus:
 	toBC
@@ -8,6 +13,11 @@ oneminus:
 	add	a, 1
 	jp	(ix)
 
+oneplus_link:
+	defw	oneminus_link
+	defb	"1+", 0
+	defw	comma
+
 ; ( n -( carry )- n )
 oneplus:toBC
 	inc	bc
@@ -16,6 +26,11 @@ oneplus:toBC
 	or	c
 	sub	a, 1
 	jp	(ix)
+
+plus_link:
+	defw	oneplus_link
+	defb	"+", 0
+	defw	comma
 
 ; ( n n -( carry )- n )
 plus:	toBC
@@ -28,6 +43,11 @@ plus:	toBC
 	pop	hl
 	fromBC
 	jp	(ix)
+
+minus_link:
+	defw	plus_link
+	defb	"-", 0
+	defw	comma
 
 ; ( n n -( carry )- n )
 minus:	toBC
@@ -45,6 +65,11 @@ minus:	toBC
 	fromBC
 	jp	(ix)
 
+ge_link:
+	defw	minus_link
+	defb	">=", 0
+	defw	comma
+
 ; ( n n -( fail )- n )
 ge:	vm
 	defw	over
@@ -53,6 +78,11 @@ ge:	vm
 	defw	carry
 	defw	tail, drop
 
+le_link:
+	defw	ge_link
+	defb	"<=", 0
+	defw	comma
+
 ; ( n n -( fail )- n )
 le:	vm
 	defw	over
@@ -60,17 +90,32 @@ le:	vm
 	defw	carry
 	defw	tail, drop
 
+gt_link:
+	defw	le_link
+	defb	">", 0
+	defw	comma
+
 ; ( n n -( fail )- n )
 gt:	vm
 	defw	oneplus
 	defw	carry
 	defw	tail, ge
 
+lt_link:
+	defw	gt_link
+	defb	"<", 0
+	defw	comma
+
 ; ( n n -( fail )- n )
 lt:	vm
 	defw	oneminus
 	defw	carry
 	defw	tail, le
+
+band_link:
+	defw	lt_link
+	defb	"and", 0
+	defw	comma
 
 ; ( n n -- n )
 band:	toBC
@@ -86,6 +131,11 @@ bend:	ld	(de), a
 	inc	de
 	jp	(ix)
 
+bor_link:
+	defw	band_link
+	defb	"or", 0
+	defw	comma
+
 ; ( n n -- n )
 bor:	toBC
 	dec	de
@@ -96,6 +146,11 @@ bor:	toBC
 	ld	a, (de)
 	or	c
 	jr	bend
+
+bxor_link:
+	defw	bor_link
+	defb	"xor", 0
+	defw	comma
 
 ; ( n n -- n )
 bxor:	toBC
@@ -108,6 +163,11 @@ bxor:	toBC
 	xor	c
 	jr	bend
 
+cellplus_link:
+	defw	bxor_link
+	defb	"cell+", 0
+	defw	comma
+
 ; ( a -- a )
 cellplus:
 	toBC
@@ -115,6 +175,11 @@ cellplus:
 	inc	bc
 	fromBC
 	jp	(ix)
+
+ustar_link:
+	defw	cellplus_link
+	defb	"u*", 0
+	defw	comma
 
 ; ( n n -- l h )
 ustar:	toBC
@@ -145,11 +210,20 @@ mskip:	dec	a
 	fromBC
 	jp	(ix)
 
-; ( n n -( fail )- n )
+star_link:
+	defw	ustar_link
+	defb	"*", 0
+	defw	comma
+
+; ( n n -- n )
 star:	vm
 	defw	ustar
-	defw	iszero
 	defw	tail, drop
+
+slashmod_link:
+	defw	star_link
+	defb	"/mod", 0
+	defw	comma
 
 ; ( n n -- n n )
 slashmod:
@@ -194,10 +268,21 @@ divna2:	djnz divl2
 	fromBC
 	jp	(ix)
 
+slash_link:
+	defw	slashmod_link
+	defb	"/", 0
+	defw	comma
+
 ; ( n n -- n )
 slash:	vm
 	defw	slashmod
 	defw	tail, drop
+
+link_final_arithmetics:
+mod_link:
+	defw	slash_link
+	defb	"mod", 0
+	defw	comma
 
 ; ( n n -- n )
 mod:	vm
