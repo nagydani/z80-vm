@@ -37,6 +37,8 @@ t2e:		defw	word
 		defw	fail
 t1e:	defw	litN16, ok
 	defw	or
+	defw	litN16, 12345
+	defw	dot
 
 	defw	cpu
 
@@ -60,5 +62,6 @@ ok:	jp	(ix)
 	include "generators.asm"
 	include "chars.asm"
 	include	"input.asm"
+	include "output.asm"
 
 	include	"sysvars.asm"

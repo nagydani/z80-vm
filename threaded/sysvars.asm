@@ -4,3 +4,4 @@ DP:		equ	FAIL + 2
 BASE:		equ	DP + 2
 PAD:		equ	BASE + 1
 PAD_LEN:	equ	32
+CONTEXT:	equ	PAD + PAD_LEN

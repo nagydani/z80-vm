@@ -152,7 +152,8 @@ star:	vm
 	defw	tail, drop
 
 ; ( n n -- n n )
-divmod: toBC
+slashmod:
+	toBC
 	push	bc
 	toBC
 	push	bc
@@ -194,12 +195,12 @@ divna2:	djnz divl2
 	jp	(ix)
 
 ; ( n n -- n )
-div:	vm
-	defw	divmod
+slash:	vm
+	defw	slashmod
 	defw	tail, drop
 
 ; ( n n -- n )
 mod:	vm
-	defw	divmod
+	defw	slashmod
 	defw	swap
 	defw	tail, drop

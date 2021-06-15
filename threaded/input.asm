@@ -14,7 +14,8 @@ skws1:		vm
 		defw	whitespace
 		defw	drop
 		defw	oneplus
-		defw	tail, skws1
+		defw	tailself
+		defb	  skws1 - $
 skws1e:	defw	litN16, ok
 	defw	tail, or
 
@@ -39,7 +40,8 @@ word1:		vm
 		defw	swap
 		defw	oneplus
 		defw	swap
-		defw	tail, word1
+		defw	tailself
+		defb	  word1 - $
 word1e:	defw	litS8
 	defb	  word2e - word2
 word2:		vm

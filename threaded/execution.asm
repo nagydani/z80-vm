@@ -15,8 +15,8 @@ tailself:
 	ld	c, (hl)
 	ld	b, 0xFF
 	add	hl, bc
-	jp	(ix)
-
+	ex	(sp), hl
+	ret
 
 ; ( n -( fail )- n )
 even:	ld	c, e
