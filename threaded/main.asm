@@ -12,14 +12,51 @@ fromBC:	macro
 	rst	push_rst
 	endm
 
+STK_BOT:equ	0xC000
+
 	org	0
 	jp	start
 
 	defs	8 - $
 	include	"vm_rst.asm"
 
-bye_link:
+
+empty_link:
 	defw	0
+	defb	0
+	defw	exec
+
+empty:	vm
+	defw	litS8
+	defb	  ioke - iok
+iok:		defb	" ok", 0x0D, 0
+ioke:	defw	type
+	defw	drop		; TODO ugly hack
+	defw	tail, input
+
+input_link:
+	defw	empty_link
+	defb	"input", 0
+	defw	comma
+
+input:	push	hl
+	ld	hl, 0xFF00
+	ld	(TIB), hl
+keyl:	in	a, (0)
+	cp	0xA
+	jr	z, keyle
+	ld	(hl), a
+	inc	hl
+	ld	a, h
+	and	l
+	inc	a
+	jr	nz, keyl
+keyle:	ld	(hl), 0
+	pop	hl
+	jp	(ix)
+
+bye_link:
+	defw	input_link
 	defb	"bye", 0
 	defw	comma
 
@@ -65,31 +102,20 @@ key:	in	a, (0)
 	include "output.asm"
 	include "vocabulary.asm"
 	include "interpreter.asm"
+	include	"debug.asm"
 
 start:	ld	a, 10
 	ld	(BASE), a
 	ld	hl, 0x4000
 	ld	(DP), hl
-	ld	hl, link_final
+	ld	hl, link_final_debug
 	ld	(CONTEXT), hl
-	ld	de, 0xc000
+	ld	de, STK_BOT
 	ld	ix, vm_l
 
-test:	ld	hl, 0xFF00
-	ld	(TIB), hl
-keyl:	in	a, (0)
-	cp	0xA
-	jr	z, keyle
-	ld	(hl), a
-	inc	hl
-	ld	a, h
-	and	l
-	inc	a
-	jr	nz, keyl
-keyle:	ld	(hl), 0
+test:	vm
 
-	vm
-
+	defw	input
 	defw	litN16, interpret
 	defw	litN16, ok
 	defw	or

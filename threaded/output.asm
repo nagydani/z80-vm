@@ -19,8 +19,19 @@ space:	vm
 	defw	bl
 	defw	tail, emit
 
-intToDigit_link:
+cr_link:
 	defw	space_link
+	defb	"cr", 0
+	defw	comma
+
+; ( -( emit)- )
+cr:	vm
+	defw	litN8
+	defb	  0x0D
+	defw	tail, emit
+
+intToDigit_link:
+	defw	cr_link
 	defb	">digit", 0
 	defw	comma
 

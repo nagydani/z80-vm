@@ -1,19 +1,6 @@
 interpret:
 	vm
 	defw	word
-	defw	pad
-	defw	cfetch
-	defw	litN16, nonzero
-	defw	litS8
-	defb	  ioke - iok
-iok:		vm
-		defw	litS8
-		defb	  iokte - iokt
-iokt:			defb	" ok", 0x0D, 0
-iokte:		defw	type
-		defw	fail
-ioke:	defw	or
-	defw	drop
 	defw	litS8
 	defb	  iworde - iword
 iword:		vm
