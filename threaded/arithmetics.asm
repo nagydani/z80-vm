@@ -163,8 +163,20 @@ bxor:	toBC
 	xor	c
 	jr	bend
 
-cellplus_link:
+cells_link:
 	defw	bxor_link
+	defb	"cells", 0
+	defw	comma
+
+; ( n -- a )
+cells:	toBC
+	sla	c
+	rl	b
+	fromBC
+	jp	(ix)
+
+cellplus_link:
+	defw	cells_link
 	defb	"cell+", 0
 	defw	comma
 
