@@ -176,8 +176,21 @@ cellplus:
 	fromBC
 	jp	(ix)
 
-ustar_link:
+cellminus_link:
 	defw	cellplus_link
+	defb	"cell-", 0
+	defw	comma
+
+; ( a -- a )
+cellminus:
+	toBC
+	dec	bc
+	dec	bc
+	fromBC
+	jp	(ix)
+
+ustar_link:
+	defw	cellminus_link
 	defb	"u*", 0
 	defw	comma
 

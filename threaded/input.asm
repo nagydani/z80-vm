@@ -4,9 +4,9 @@ pad_link:
 	defw	comma
 
 ; ( -- a )
-pad:	vm
-	defw	litN16, PAD
-	defw	tail2
+pad:	ld	bc, PAD
+	fromBC
+	jp	(ix)
 
 tib_link:
 	defw	pad_link
@@ -14,9 +14,9 @@ tib_link:
 	defw	comma
 
 ; ( -- a )
-tib:	vm
-	defw	litN16, TIB
-	defw	tail2
+tib:	ld	bc, TIB
+	fromBC
+	jp	(ix)
 
 
 skipws_link:

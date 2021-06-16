@@ -4,6 +4,10 @@ vm:	macro
 	rst	vm_rst
 	endm
 
+dat:	macro
+	rst	dat_rst
+	endm
+
 toBC:	macro
 	rst	pop_rst
 	endm
@@ -105,10 +109,11 @@ key:	in	a, (0)
 
 start:	ld	a, 10
 	ld	(BASE), a
-	ld	hl, 0x4000
+	ld	hl, DICTIONARY
 	ld	(DP), hl
-	ld	hl, link_final_debug
+	ld	hl, seedv
 	ld	(CONTEXT), hl
+	ld	(CURRENT), hl
 	ld	de, STK_BOT
 	ld	ix, vm_l
 

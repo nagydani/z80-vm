@@ -4,23 +4,144 @@ context_link:
 	defw	comma
 
 ; ( -- a )
-context:vm
-	defw	litN16, CONTEXT
-	defw	tail2
+context:ld	bc, CONTEXT
+	fromBC
+	jp	(ix)
 
-link_final:
-link_final_vocabulary:
-find_link:
+current_link:
 	defw	context_link
+	defb	"current", 0
+	defw	comma
+
+; ( -- a )
+current:ld	bc, CURRENT
+	fromBC
+	jp	(ix)
+
+seed_link:
+	defw	current_link
+	defb	"seed", 0
+	defw	comma
+
+seed:	ld	bc, seedv
+	ld	(context), bc
+	jp	(ix)
+seedv:	defw	link_final_debug
+
+cons_link:
+	defw	seed_link
+	defb	"cons", 0
+	defw	comma
+; ( a -- a )
+cons:	vm
+	defw	here
+	defw	swap
+	defw	tail, comma
+
+create_link:
+	defw	cons_link
+	defb	"create", 0
+	defw	comma
+
+create:	vm
+	defw	current
+	defw	fetch
+	defw	fetch
+	defw	cons
+	defw	current
+	defw	fetch
+	defw	store
+	defw	word
+	defw	pad
+	defw	scomma
+	defw	litN16, comma
+	defw	comma
+	defw	litN8
+	rst	dat_rst
+	defw	tail, ccomma
+
+variable_link:
+	defw	create_link
+	defb	"variable", 0
+	defw	comma
+
+variable:
+	vm
+	defw	create
+	defw	tail, comma
+
+constant_link:
+	defw	variable_link
+	defb	"constant", 0
+	defw	comma
+
+constant:
+	vm
+	defw	create
+	defw	litN8
+	defb	  1	; ld bc, nn
+	defw	here
+	defw	oneminus
+	defw	cstore
+	defw	comma
+	defw	litN8
+	fromBC
+	defw	ccomma
+	defw	litN16
+	jp	(ix)
+	defw	tail, comma
+
+colon_link:
+	defw	constant_link
+	defb	":", 0
+	defw	fail		; TODO: compile-time error
+
+colon:	vm
+	defw	create
+	defw	litN8
+	vm
+	defw	here
+	defw	oneminus
+	defw	cstore
+	
+	defw	tail2		; TODO: compiler
+
+find_link:
+	defw	colon_link
 	defb	"find", 0
 	defw	comma
 
-; ( -( pad fail )- a )
+; ( a -( pad fail )- a )
 find:	vm
-	defw	context
 	defw	traverse
 	defw	pad
 	defw	streq
 	defw	cut
-	defw	nip
-	defw	tail, skipstr
+	defw	tail, nip
+
+link_final:
+link_final_vocabulary:
+forget_link:
+	defw	find_link
+	defb	"forget", 0
+	defw	comma
+
+; ( -( heap )- )
+forget:	vm
+	defw	word
+	defw	current
+	defw	fetch
+	defw	context
+	defw	fetch
+	defw	eq
+	defw	find
+	defw	dictionary
+	defw	ge
+	defw	cellminus
+	defw	dup
+	defw	fetch
+	defw	current
+	defw	fetch
+	defw	store
+	defw	dp
+	defw	tail, store

@@ -9,6 +9,13 @@ vm_l:	ld	c, (hl)
 
 	defs	vm_rst + 8 - $, 0xFF
 
+; Put data address on stack
+dat_rst:pop	bc	; the following address
+	fromBC
+	jp	(ix)
+
+	defs	dat_rst + 8 - $, 0xFF
+
 ; Catch exception
 ex_rst:	pop	bc	; handler address pointer
 	jp	catch
@@ -37,3 +44,4 @@ push_rst:
 	ret
 
 	defs	push_rst + 8 - $, 0xFF
+

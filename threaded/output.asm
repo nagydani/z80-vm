@@ -4,10 +4,9 @@ bl_link:
 	defw	comma
 
 ; ( -- c )
-bl:	vm
-	defw	litN8
-	defb	  " "
-	defw	tail2
+bl:	ld	bc, " "
+	fromBC
+	jp	(ix)
 
 space_link:
 	defw	bl_link
@@ -123,6 +122,7 @@ words:	vm
 	defb	  vliste - vlist
 vlist:		vm
 		defw	context
+		defw	fetch
 		defw	traverse
 		defw	type
 		defw	space

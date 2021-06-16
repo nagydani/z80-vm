@@ -5,5 +5,7 @@ BASE:		equ	DP + 2
 PAD:		equ	BASE + 1
 PAD_LEN:	equ	32
 CONTEXT:	equ	PAD + PAD_LEN
-TIB:		equ	CONTEXT + 2
+CURRENT:	equ	CONTEXT + 2
+TIB:		equ	CURRENT + 2
 
+DICTIONARY:	equ	TIB + 2
