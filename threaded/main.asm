@@ -28,7 +28,7 @@ STK_BOT:equ	0xC000
 empty_link:
 	defw	0
 	defb	0
-	defw	exec
+	defw	input
 
 empty:	vm
 	defw	litS8
@@ -105,6 +105,7 @@ key:	in	a, (0)
 	include "output.asm"
 	include "vocabulary.asm"
 	include "interpreter.asm"
+	include	"compiler.asm"
 	include	"debug.asm"
 
 start:	ld	a, 10

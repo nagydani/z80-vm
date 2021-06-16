@@ -2,7 +2,7 @@ cpu:	ex	(sp), hl
 	ret
 
 ok_link:
-	defw	link_final_io
+	defw	link_final_literal
 	defb	"{}", 0
 	defw	comma
 

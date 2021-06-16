@@ -10,11 +10,17 @@ fromBC:	macro
 	call	push_rst
 	endm
 
+dat:	macro
+	call	dat_rst
+	endm
+
+STK_BOT:equ	0x5B00
+
 	org	0x8000
 	exx
 	push	hl
 	exx
-	ld	a, 10
+	ld	a, 16
 	ld	(BASE), a
 	ld	hl, 0x5800
 	ld	(DP), hl
@@ -22,14 +28,18 @@ fromBC:	macro
 	ld	(CONTEXT), hl
 	ld	hl, testline
 	ld	(TIB), hl
-	ld	de, 0x5B00
+	ld	de, STK_BOT
 	ld	ix, vm_l
 
 test:	vm
 
-	defw	litN16, interpret
-	defw	litN16, ok
-	defw	or
+;	defw	litN16, interpret
+;	defw	litN16, ok
+;	defw	or
+
+	defw	litN8
+	defb	  "A"
+	defw	digitToInt
 
 	defw	cpu
 
@@ -67,5 +77,6 @@ emit:	dec	de
 	include "output.asm"
 	include "vocabulary.asm"
 	include "interpreter.asm"
+	include "debug.asm"
 
 	include	"sysvars.asm"

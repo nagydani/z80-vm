@@ -57,7 +57,7 @@ create:	vm
 	defw	litN16, comma
 	defw	comma
 	defw	litN8
-	rst	dat_rst
+	dat
 	defw	tail, ccomma
 
 variable_link:
@@ -103,21 +103,32 @@ colon:	vm
 	defw	here
 	defw	oneminus
 	defw	cstore
-	
-	defw	tail2		; TODO: compiler
+	defw	tail, compile
 
-find_link:
+search_link:
 	defw	colon_link
-	defb	"find", 0
+	defb	"search", 0
 	defw	comma
 
 ; ( a -( pad fail )- a )
-find:	vm
+search:	vm
 	defw	traverse
 	defw	pad
 	defw	streq
 	defw	cut
 	defw	tail, nip
+
+find_link:
+	defw	search_link
+	defb	"find", 0
+	defw	comma
+
+; ( -( pad fail )- a )
+find:	vm
+	defw	context
+	defw	fetch
+	defw	search
+	defw	tail, skipstr
 
 link_final:
 link_final_vocabulary:
@@ -134,7 +145,7 @@ forget:	vm
 	defw	context
 	defw	fetch
 	defw	eq
-	defw	find
+	defw	search
 	defw	dictionary
 	defw	ge
 	defw	cellminus
