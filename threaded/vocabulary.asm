@@ -91,8 +91,23 @@ constant:
 	jp	(ix)
 	defw	tail, comma
 
-colon_link:
+effect_link:
 	defw	constant_link
+	defb	"effect", 0
+	defw	comma
+
+effect:	vm
+	defw	create
+	defw	litN8
+	defb	  0xC3	; jp xx
+	defw	here
+	defw	oneminus
+	defw	cstore
+	defw	litN16, ok
+	defw	tail, comma
+
+colon_link:
+	defw	effect_link
 	defb	":", 0
 	defw	fail		; TODO: compile-time error
 
