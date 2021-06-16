@@ -22,7 +22,7 @@ printable:
 	defb	  "!"
 	defw	ge
 	defw	litN8
-	defb	  127
+	defb	  126
 	defw	tail, le
 
 ddigit_link:

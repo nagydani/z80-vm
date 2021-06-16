@@ -19,3 +19,37 @@ cnum:		vm
 cnume:	defw	or
 	defw	tailself
 	defb	  compile - $
+
+endcomp:vm
+	defw	comma
+	defw	fail
+
+endtail:vm
+	defw	comma
+	defw	word
+	defw	find
+	defw	cellplus
+	defw	comma
+	defw	fail
+
+link_final:
+link_final_compiler:
+quotation_link:
+	defw	link_final_vocabulary
+	defb	">>", 0
+	defw	quotate
+
+quotation:
+	vm
+	defw	here
+	defw	litN8
+		vm
+	defw	ccomma
+	defw	litN16, compile
+	defw	litN16, ok
+	defw	tail, or
+
+quotate:vm
+	defw	sopen
+	defw	exec
+	defw	tail, sclose

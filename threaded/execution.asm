@@ -3,7 +3,7 @@ cpu:	ex	(sp), hl
 
 ok_link:
 	defw	link_final_literal
-	defb	"{}", 0
+	defb	"ok", 0
 	defw	comma
 
 ok:	jp	(ix)
@@ -11,7 +11,7 @@ ok:	jp	(ix)
 tail_link:
 	defw	ok_link
 	defb	"~", 0
-	defw	comma		; TODO endcomp
+	defw	endtail
 
 tail:	ld	a, (hl)
 	inc	hl
@@ -23,7 +23,7 @@ tail:	ld	a, (hl)
 tail2_link:
 	defw	tail_link
 	defb	";", 0
-	defw	comma		; TODO endcomp
+	defw	endcomp
 
 tail2:	pop	hl
 	jp	(ix)
@@ -36,7 +36,7 @@ tailself:
 	ret
 
 even_link:
-	defw	tail2_link	; TODO tailself_link
+	defw	tail2_link	; TODO tailself_link ?
 	defb	"even", 0
 	defw	comma
 
@@ -47,7 +47,7 @@ even:	ld	c, e
 	dec	bc
 	ld	a, (bc)
 	and	1
-	jr	nz, fail
+	jr	nz, failnz
 	jp	(ix)
 
 odd_link:
@@ -78,13 +78,29 @@ eq:	toBC
 	and	a
 	sbc	hl, bc
 	pop	hl
-	jr	nz, fail
-	inc	de
+failnz:	jr	nz, fail
+eq2:	inc	de
 	inc	de
 	jp	(ix)
 
-iszero_link:
+neq_link:
 	defw	eq_link
+	defb	"<>", 0
+	defw	comma
+
+; ( n n -( fail )- n )
+neq:	toBC
+	push	bc
+	toBC
+	ex	(sp), hl
+	and	a
+	sbc	hl, bc
+	pop	hl
+	jr	z, fail
+	jr	eq2
+
+iszero_link:
+	defw	neq_link
 	defb	"0=", 0
 	defw	comma
 
@@ -129,7 +145,7 @@ carry:	jr	c, fail
 fail_link:
 	defw	carry_link
 	defb	"~fail", 0
-	defw	comma		; TODO endcomp
+	defw	endcomp
 
 ; ( -( fail )- )
 fail:	ld	bc, FAIL

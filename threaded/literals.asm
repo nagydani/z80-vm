@@ -1,17 +1,45 @@
-litS8:	ld	c, (hl)
-	inc	hl
-	ld	b, 0
-	ex	de, hl
-	ld	(hl), e
-	inc	hl
-	ld	(hl), d
-	inc	hl
-	ex	de, hl
-	add	hl, bc
-	jp	(ix)
+sopen_link:
+	defw	link_final_io
+	defb	"{lit", 0
+	defw	exec
+
+; ( -( heap )- )
+sopen:	vm
+	defw	litS8
+	defb	  litS8e - litS8
+litS8:		ld	c, (hl)
+		inc	hl
+		ld	b, 0
+		ex	de, hl
+		ld	(hl), e
+		inc	hl
+		ld	(hl), d
+		inc	hl
+		ex	de, hl
+		add	hl, bc
+		jp	(ix)
+litS8e:	defw	comma
+	defw	litN8
+	defb	  0
+	defw	tail, ccomma
+
+sclose_link:
+	defw	sopen_link
+	defb	"lit}", 0
+	defw	exec
+
+; ( a -( heap )- )
+sclose:	vm
+	defw	dup		; a a
+	defw	here		; a a b
+	defw	swap		; a b a
+	defw	minus		; a l
+	defw	swap		; l a
+	defw	oneminus	; l a
+	defw	tail, cstore
 
 literal_link:
-	defw	link_final_io
+	defw	sclose_link
 	defb	"literal", 0
 	defw	exec
 
@@ -53,7 +81,6 @@ tolit:	vm
 	defw	exec
 	defw	tail, literal
 
-link_final_literal:
 tick_link:
 	defw	tolit_link
 	defb	"'", 0
@@ -63,3 +90,48 @@ tick:	vm
 	defw	word
 	defw	find
 	defw	tail, cellplus
+
+bite_link:
+	defw	tick_link
+	defb	"bite", 0
+	defw	comma
+
+bite:	vm
+	defw	tib
+	defw	fetch	; tib
+	defw	dup	; tib tib
+	defw	cfetch	; tib c
+	defw	nonzero
+	defw	swap	; c tib
+	defw	oneplus	; c tib
+	defw	tib
+	defw	tail, store	; c
+
+link_final_literal:
+quote_link:
+	defw	bite_link
+	defb	"\"", 0
+	defw	quotate
+
+quote:	vm
+	defw	here
+	defw	bite
+	defw	drop
+	defw	litS8
+	defb	  quot1e - quot1
+quot1:		vm
+		defw	bite
+		defw	litN8
+		defb	  "\""
+		defw	neq
+		defw	ccomma
+		defw	tailself
+		defb	  quot1 - $
+quot1e:	defw	litS8
+	defb	  quot2e - quot2
+quot2:		vm
+		defw	litN8
+		defb	  0
+		defw	tail, ccomma
+quot2e:	defw	tail, or
+

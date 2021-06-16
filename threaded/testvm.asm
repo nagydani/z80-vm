@@ -33,13 +33,9 @@ STK_BOT:equ	0x5B00
 
 test:	vm
 
-;	defw	litN16, interpret
-;	defw	litN16, ok
-;	defw	or
-
-	defw	litN8
-	defb	  "A"
-	defw	digitToInt
+	defw	litN16, interpret
+	defw	litN16, ok
+	defw	or
 
 	defw	cpu
 
@@ -48,7 +44,7 @@ test:	vm
 	ret
 
 testline:
-	defb	"3 5 + . ", 0
+	defb	"\" Hello world!\" type ", 0
 
 
 link_final_io:
@@ -66,8 +62,8 @@ emit:	dec	de
 	jp	(ix)
 
 	include	"vm_rst.asm"
-	include	"execution.asm"
 	include	"literals.asm"
+	include	"execution.asm"
 	include	"dictionary.asm"
 	include "stack.asm"
 	include	"arithmetics.asm"
@@ -77,6 +73,7 @@ emit:	dec	de
 	include "output.asm"
 	include "vocabulary.asm"
 	include "interpreter.asm"
+	include "compiler.asm"
 	include "debug.asm"
 
 	include	"sysvars.asm"

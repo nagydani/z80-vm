@@ -99,11 +99,13 @@ colon_link:
 colon:	vm
 	defw	create
 	defw	litN8
-	vm
+		vm
 	defw	here
 	defw	oneminus
 	defw	cstore
-	defw	tail, compile
+	defw	litN16, compile
+	defw	litN16, ok
+	defw	tail, or
 
 search_link:
 	defw	colon_link
@@ -130,7 +132,6 @@ find:	vm
 	defw	search
 	defw	tail, skipstr
 
-link_final:
 link_final_vocabulary:
 forget_link:
 	defw	find_link
