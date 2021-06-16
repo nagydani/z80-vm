@@ -91,8 +91,18 @@ tick:	vm
 	defw	find
 	defw	tail, cellplus
 
-bite_link:
+ascii_link:
 	defw	tick_link
+	defb	"ascii", 0
+	defw	tolit
+
+ascii:	vm
+	defw	word
+	defw	pad
+	defw	tail, cfetch
+
+bite_link:
+	defw	ascii_link
 	defb	"bite", 0
 	defw	comma
 
