@@ -90,8 +90,40 @@ alphanum:
 	defw	litN16, alpha
 	defw	tail, or
 
-base_link:
+toUpper_link:
 	defw	alphanum_link
+	defb	">upper", 0
+	defw	comma
+
+toUpper:vm
+	defw	litS8
+	defb	  toupe - toup
+toup:		vm
+		defw	lower
+		defw	litN8
+		defb	  0xDF
+		defw	tail, band
+toupe:	defw	litN16, ok
+	defw	tail, or
+
+toLower_link:
+	defw	toUpper_link
+	defb	">lower", 0
+	defw	comma
+
+toLower:vm
+	defw	litS8
+	defb	  tolowe - tolow
+tolow:		vm
+		defw	upper
+		defw	litN8
+		defb	  0x20
+		defw	tail, bor
+tolowe:	defw	litN16, ok
+	defw	tail, or
+
+base_link:
+	defw	toLower_link
 	defb	"base", 0
 	defw	comma
 
@@ -110,19 +142,20 @@ digitToInt_link:
 digitToInt:
 	vm
 	defw	alphanum
+	defw	toLower
 	defw	litN8
 	defb	  "0"
 	defw	minus
 	defw	carry
-	defw	litN8
-	defb	  9
-	defw	litN16, le
 	defw	litS8
+	defb	  ninelee - ninele
+ninele:		vm
+		defw	litN8
+		defb	  9
+		defw	tail, le
+ninelee:defw	litS8
 	defb	  ad2i_e - ad2i
 ad2i:		vm
-		defw	litN8
-		defb	  0x20
-		defw	bor
 		defw	litN8
 		defb	  39
 		defw	tail, minus
