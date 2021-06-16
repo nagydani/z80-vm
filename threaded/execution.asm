@@ -320,7 +320,7 @@ cutbot:	ex	de, hl
 
 or_link:
 	defw	cut_link
-	defw	"|", 0
+	defb	"|", 0
 	defw	comma
 
 ; ( ( -( e )- val ) ( -( f )- val ) -( e f )- val )
