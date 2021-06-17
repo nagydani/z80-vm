@@ -24,7 +24,7 @@ seed_link:
 	defw	comma
 
 seed:	ld	bc, seedv
-	ld	(context), bc
+	ld	(CONTEXT), bc
 	jp	(ix)
 seedv:	defw	link_final_debug
 
