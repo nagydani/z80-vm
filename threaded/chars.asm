@@ -76,7 +76,7 @@ alpha_link:
 alpha:	vm
 	defw	litN16, lower
 	defw	litN16, upper
-	defw	tail, or
+	defw	tailor
 
 alphanum_link:
 	defw	alpha_link
@@ -88,7 +88,7 @@ alphanum:
 	vm
 	defw	litN16, ddigit
 	defw	litN16, alpha
-	defw	tail, or
+	defw	tailor
 
 toUpper_link:
 	defw	alphanum_link
@@ -103,8 +103,7 @@ toup:		vm
 		defw	litN8
 		defb	  0xDF
 		defw	tail, band
-toupe:	defw	litN16, ok
-	defw	tail, or
+toupe:	defw	tickidtailor
 
 toLower_link:
 	defw	toUpper_link
@@ -119,8 +118,7 @@ tolow:		vm
 		defw	litN8
 		defb	  0x20
 		defw	tail, bor
-tolowe:	defw	litN16, ok
-	defw	tail, or
+tolowe:	defw	tickidtailor
 
 base_link:
 	defw	toLower_link
@@ -196,7 +194,7 @@ numdg:		vm
 		defw	drop
 		defw	swap
 		defw	tail, tonumber
-numdg_e:defw	tail, or
+numdg_e:defw	tailor
 
 
 sToNumber_link:
@@ -240,8 +238,7 @@ streq2e:	defw	or
 		defw	oneplus
 		defw	tailself
 		defb	  streq1 - $
-streq1e:defw	litN16, ok
-	defw	or
+streq1e:defw	tickidor
 	defw	drop, tail, drop
 
 skipstr_link:
@@ -271,7 +268,7 @@ skps1:	ld	a, (bc)
 ;		defw	tailself
 ;		defb	  skipst - $
 ;skipste:defw	litN16, oneplus
-;	defw	tail, or
+;	defw	tailor
 
 
 link_final_chars:

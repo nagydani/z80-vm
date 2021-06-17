@@ -37,8 +37,7 @@ skws1:		vm
 		defw	oneplus
 		defw	tailself
 		defb	  skws1 - $
-skws1e:	defw	litN16, ok
-	defw	tail, or
+skws1e:	defw	tickidtailor
 
 link_final_input:
 word_link:
@@ -84,4 +83,4 @@ word2:		vm
 		defw	drop
 		defw	tib
 		defw	tail, store
-word2e:	defw	tail, or
+word2e:	defw	tailor

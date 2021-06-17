@@ -36,7 +36,7 @@ link_final:
 link_final_compiler:
 quotation_link:
 	defw	link_final_vocabulary
-	defb	">>", 0
+	defb	":>", 0
 	defw	quotate
 
 quotation:
@@ -46,8 +46,8 @@ quotation:
 		vm
 	defw	ccomma
 	defw	litN16, compile
-	defw	litN16, ok
-	defw	tail, or
+	defw	tickid
+	defw	tailor
 
 quotate:vm
 	defw	sopen

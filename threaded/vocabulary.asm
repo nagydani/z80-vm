@@ -103,7 +103,7 @@ effect:	vm
 	defw	here
 	defw	oneminus
 	defw	cstore
-	defw	litN16, ok
+	defw	tickid
 	defw	tail, comma
 
 colon_link:
@@ -119,8 +119,7 @@ colon:	vm
 	defw	oneminus
 	defw	cstore
 	defw	litN16, compile
-	defw	litN16, ok
-	defw	tail, or
+	defw	tickidtailor
 
 search_link:
 	defw	colon_link

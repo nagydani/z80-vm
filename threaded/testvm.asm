@@ -34,8 +34,7 @@ STK_BOT:equ	0x5B00
 test:	vm
 
 	defw	litN16, interpret
-	defw	litN16, ok
-	defw	or
+	defw	tickidor
 
 	defw	cpu
 

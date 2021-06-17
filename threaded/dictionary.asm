@@ -85,4 +85,4 @@ scomma0:	vm
 		defb	  0
 		defw	tail, ccomma
 scomma0e:
-	defw	tail, or
+	defw	tailor

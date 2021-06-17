@@ -85,7 +85,7 @@ dotnzi:			vm
 			defw	intToDigit
 			defw	tail, emit
 dotnzie:	defw	litN16, drop
-		defw	tail, or
+		defw	tailor
 dotnze:	defw	or
 	defw	tail, space
 
@@ -106,8 +106,7 @@ typel:		vm
 		defw	oneplus
 		defw	tailself
 		defb	  typel - $
-typele:	defw	litN16, ok
-	defw	or
+typele:	defw	tickidor
 	defw	tail, drop
 
 link_final_output:
@@ -127,5 +126,4 @@ vlist:		vm
 		defw	type
 		defw	space
 		defw	fail
-vliste:	defw	litN16, ok
-	defw	tail, or
+vliste:	defw	tickidtailor

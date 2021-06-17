@@ -69,7 +69,7 @@ litN16:			ldi
 			jp	(ix)
 litN16e:	defw	comma
 		defw	tail, comma
-lit16e:	defw	tail, or
+lit16e:	defw	tailor
 
 
 tolit_link:
@@ -143,5 +143,5 @@ quot2:		vm
 		defw	litN8
 		defb	  0
 		defw	tail, ccomma
-quot2e:	defw	tail, or
+quot2e:	defw	tailor
 

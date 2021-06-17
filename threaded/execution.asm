@@ -1,15 +1,25 @@
 cpu:	ex	(sp), hl
 	ret
 
-ok_link:
+;id_link:
+;	defw	link_final_literal
+;	defb	"id", 0
+;	defw	comma
+;
+;id:	jp	(ix)
+
+tickid_link:
 	defw	link_final_literal
-	defb	"ok", 0
+;	defw	id_link
+	defb	"'id", 0
 	defw	comma
 
-ok:	jp	(ix)
+tickid:	ld	bc, id
+	fromBC
+id:	jp	(ix)
 
 tail_link:
-	defw	ok_link
+	defw	tickid_link
 	defb	"~", 0
 	defw	endtail
 
@@ -328,8 +338,36 @@ or:	vm
 	defw	litN16, FAIL - 1
 	defw	tail, handle
 
-fetch_link:
+tailor_link:
 	defw	or_link
+	defb	"~|", 0
+	defw	endcomp
+
+tailor:	vm
+	defw	or, tail, tail2
+
+tickidor_link:
+	defw	tailor_link
+	defb	"'id|", 0
+	defw	comma
+
+tickidor:
+	vm
+	defw	tickid
+	defw	tailor
+
+tickidtailor_link:
+	defw	tickidor_link
+	defb	"'id~|", 0
+	defw	endcomp
+
+tickidtailor:
+	vm
+	defw	tickidor
+	defw	tail, tail2
+
+fetch_link:
+	defw	tickidtailor_link
 	defb	"@", 0
 	defw	comma
 

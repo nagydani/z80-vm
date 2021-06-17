@@ -122,8 +122,7 @@ test:	vm
 
 	defw	input
 	defw	litN16, interpret
-	defw	litN16, ok
-	defw	or
+	defw	tickidor
 
 	defw	cpu
 	jr	test
