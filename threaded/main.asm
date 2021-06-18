@@ -94,6 +94,7 @@ key:	in	a, (0)
 	inc	de
 	jp	(ix)
 
+	include "comments.asm"
 	include	"literals.asm"
 	include	"execution.asm"
 	include	"dictionary.asm"

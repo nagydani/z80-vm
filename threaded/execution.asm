@@ -207,14 +207,17 @@ pend:	toBC			; handler address in BC
 	jp	(ix)
 
 upend:	defw	cpu
+	pop	bc
 	exx
-	ld	hl,6
-	add	hl, sp
-	ld	e, (hl)
-	inc	hl
-	ld	d, (hl)
+	pop	de
+	pop	bc
+	pop	af
+	push	af
+	push	bc
 	push	de
 	exx
+	push	bc
+	push	af
 	ex	(sp), hl
 	jp	(ix)
 

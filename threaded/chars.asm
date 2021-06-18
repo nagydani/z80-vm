@@ -217,32 +217,74 @@ streq_link:
 ; ( a a -( fail )- a )
 streq:	vm
 	defw	over
-	defw	litS8
-	defb	  streq1e - streq1
-streq1:		vm
-		defw	over
-		defw	cfetch
-		defw	over
-		defw	cfetch
-		defw	litN16, eq
-		defw	litS8
-		defb	  streq2e - streq2
-streq2:			vm
-			defw	cut
-			defw	fail
-streq2e:	defw	or
-		defw	nonzero
-		defw	drop
-		defw	oneplus
-		defw	swap
-		defw	oneplus
-		defw	tailself
-		defb	  streq1 - $
-streq1e:defw	tickidor
-	defw	drop, tail, drop
+	defw	cpu
+	push	hl
+	call	strcmp
+strcmc:	pop	hl
+	jp	c, fail
+	jp	(ix)
+
+strneq_link:
+	defw	streq_link
+	defb	"s<>", 0
+	defw	comma
+
+strneq:	vm
+	defw	over
+	defw	cpu
+	push	hl
+	call	strcmp
+	ccf
+	jr	strcmc
+
+strcmp:	ex	de, hl
+	dec	hl
+	ld	d, (hl)
+	dec	hl
+	ld	e, (hl)
+	dec	hl
+	ld	b, (hl)
+	dec	hl
+	ld	c, (hl)
+	ex	de, hl
+strcmpl:ld	a, (bc)
+	inc	bc
+	cp	(hl)
+	inc	hl
+	scf
+	ret	nz
+	or	a
+	jr	nz, strcmpl
+	ret
+
+;streq:	vm
+;	defw	over
+;	defw	litS8
+;	defb	  streq1e - streq1
+;streq1:		vm
+;		defw	over
+;		defw	cfetch
+;		defw	over
+;		defw	cfetch
+;		defw	litN16, eq
+;		defw	litS8
+;		defb	  streq2e - streq2
+;streq2:			vm
+;			defw	cut
+;			defw	fail
+;streq2e:	defw	or
+;		defw	nonzero
+;		defw	drop
+;		defw	oneplus
+;		defw	swap
+;		defw	oneplus
+;		defw	tailself
+;		defb	  streq1 - $
+;streq1e:defw	tickidor
+;	defw	drop, tail, drop
 
 skipstr_link:
-	defw	streq_link
+	defw	strneq_link
 	defb	"skipstr", 0
 	defw	comma
 

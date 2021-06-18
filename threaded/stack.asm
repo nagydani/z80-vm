@@ -50,7 +50,6 @@ drop:	dec	de
 	dec	de
 	jp	(ix)
 
-link_final_stack:
 nip_link:
 	defw	drop_link
 	defb	"nip", 0
@@ -60,5 +59,24 @@ nip_link:
 nip:	toBC
 	dec	de
 	dec	de
+	fromBC
+	jp	(ix)
+
+toR_link:
+	defw	nip_link
+	defb	">r", 0
+	defw	comma
+
+toR:	toBC
+	push	bc
+	jp	(ix)
+
+link_final_stack:
+fromR_link:
+	defw	toR_link
+	defb	"r>", 0
+	defw	comma
+
+fromR:	pop	bc
 	fromBC
 	jp	(ix)

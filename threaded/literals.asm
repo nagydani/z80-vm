@@ -1,7 +1,7 @@
 sopen_link:
-	defw	link_final_io
-	defb	"{lit", 0
-	defw	exec
+	defw	link_final_comments
+	defb	"{", 0
+	defw	comma
 
 ; ( -( heap )- )
 sopen:	vm
@@ -23,10 +23,21 @@ litS8e:	defw	comma
 	defb	  0
 	defw	tail, ccomma
 
-sclose_link:
+qopen_link:
 	defw	sopen_link
-	defb	"lit}", 0
-	defw	exec
+	defb	"{:>", 0
+	defw	comma
+
+qopen:	vm
+	defw	sopen
+	defw	litN8
+		  vm
+	defw	tail, comma
+
+sclose_link:
+	defw	qopen_link
+	defb	"}", 0
+	defw	comma
 
 ; ( a -( heap )- )
 sclose:	vm
@@ -41,7 +52,7 @@ sclose:	vm
 literal_link:
 	defw	sclose_link
 	defb	"literal", 0
-	defw	exec
+	defw	comma
 
 literal:vm
 	defw	litS8
