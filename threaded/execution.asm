@@ -202,23 +202,27 @@ pend:	toBC			; handler address in BC
 	ld	(ERR_SP), sp
 	exx
 	ld	(FAIL), bc
+	ld	bc, 6
+	push	bc
 	ld	bc, upend
 	push	bc
 	jp	(ix)
 
 upend:	defw	cpu
-	pop	bc
+	inc	hl
+	inc	hl
+	push	hl
 	exx
-	pop	de
-	pop	bc
-	pop	af
-	push	af
-	push	bc
+	pop	hl
+	add	hl, sp
+	ld	e, (hl)
+	inc	hl
+	ld	d, (hl)
 	push	de
 	exx
-	push	bc
-	push	af
 	ex	(sp), hl
+	ld	bc, upend
+	push	bc
 	jp	(ix)
 
 handle_link:
@@ -314,7 +318,7 @@ cut:	exx
 	ex	de, hl		; HL = previous ERR_SP
 	ld	(ERR_SP), hl	; restore previous ERR_SP
 	inc	de
-	ld	hl, -8
+	ld	hl, -12
 	add	hl, de		; HL points below the handler frame
 	push	hl
 	scf

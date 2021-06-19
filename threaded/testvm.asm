@@ -80,6 +80,7 @@ key:	in	a, (0)
 	inc	de
 	jp	(ix)
 
+	include	"comments.asm"
 	include	"literals.asm"
 	include	"execution.asm"
 	include	"dictionary.asm"
@@ -130,9 +131,14 @@ cd1e:	defw	tickidor
 	defw	cpu
 	halt
 
+;ctd:	vm
+;	defw	countdown
+;	defw	tail2
+
 testline:
-;;	defb	": cd& countdown& ; "
-	defb ": ten 10 countdown& . ~fail ten ", 0
+;	defb	"cr ", 0
+	defb	": cd& countdown& ; "
+	defb	": ten 10 cd& . ~fail ten ", 0
 	defs	0x4000 - $
 
 
