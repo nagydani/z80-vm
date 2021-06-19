@@ -121,19 +121,25 @@ test:	vm
 	defw	litS8
 	defb	  cd1e - cd1
 cd1:		vm
-		defw	litN8
-		defb	  255
-		defw	countdown
+		defw	litN16, ctd255
+		defw	dup
+		defw	or
 		defw	emit
 		defw	fail
 cd1e:	defw	tickidor
 
+;	defw	tickid
+;	defw	tickid
+;	defw	or
+
+
 	defw	cpu
 	halt
 
-;ctd:	vm
-;	defw	countdown
-;	defw	tail2
+ctd255:	vm
+	defw	litN16, 255
+	defw	countdown
+	defw	tail2
 
 testline:
 ;	defb	"cr ", 0

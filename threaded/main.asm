@@ -125,17 +125,7 @@ test:	vm
 	defw	litN16, interpret
 	defw	tickidor
 
-;	defw	litN8
-;	defb	  10
-;	defw	ctd
-;	defw	dot
-;	defw	fail
-
 	defw	cpu
 	jr	test
-
-;ctd:	vm
-;	defw	countdown
-;	defw	tail2
 
 	include	"sysvars.asm"

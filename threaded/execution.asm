@@ -266,9 +266,13 @@ handle:	push	hl		; outer function on call stack
 	push	bc
 	ret
 
-hcut:	defw	hcut2, tail2
-
-hcut2:	exx
+hcut:	defw	cpu
+	push	hl
+	ld	hl, (ERR_SP)
+	and	a
+	sbc	hl, sp
+	jr	nz, hcut2
+	exx
 	pop	hl		; handler pointer
 	pop	de		; previous handler address
 	ld	(hl), e
@@ -278,6 +282,16 @@ hcut2:	exx
 	ld	(ERR_SP), hl	; restore previous ERR_SP
 	pop	de		; discard data stack pointer
 	exx
+	pop	hl
+	jp	(ix)
+
+	; TODO: ugly hack
+hcut2:	ld	hl, 24
+	add	hl, sp
+	ld	a, (hl)
+	inc	hl
+	ld	h, (hl)
+	ld	l, a
 	jp	(ix)
 
 exec_link:
