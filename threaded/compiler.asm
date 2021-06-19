@@ -36,7 +36,7 @@ link_final:
 link_final_compiler:
 quotation_link:
 	defw	link_final_vocabulary
-	defb	":>", 0
+	defb	"::", 0
 	defw	quotate
 
 quotation:

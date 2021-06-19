@@ -25,7 +25,7 @@ litS8e:	defw	comma
 
 qopen_link:
 	defw	sopen_link
-	defb	"{:>", 0
+	defb	"{::", 0
 	defw	comma
 
 qopen:	vm
