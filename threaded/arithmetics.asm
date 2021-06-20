@@ -284,8 +284,8 @@ divna2:	djnz divl2
 	cpl
 	ld	b, c
 	ld	c, a
-	push	hl
 	push	bc
+	push	hl
 	exx
 	pop	bc
 	fromBC

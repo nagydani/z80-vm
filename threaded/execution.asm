@@ -38,6 +38,11 @@ tail2_link:
 tail2:	pop	hl
 	jp	(ix)
 
+tailself_link:
+	defw	tail2_link
+	defb	"~self", 0
+	defw	selfref
+
 tailself:
 	ld	c, (hl)
 	ld	b, 0xFF
@@ -45,8 +50,16 @@ tailself:
 	ex	(sp), hl
 	ret
 
+selfref:vm
+	defw	comma
+	defw	dup
+	defw	here
+	defw	minus
+	defw	ccomma
+	defw	fail
+
 even_link:
-	defw	tail2_link	; TODO tailself_link ?
+	defw	tailself_link
 	defb	"even", 0
 	defw	comma
 

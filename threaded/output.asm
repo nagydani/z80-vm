@@ -80,7 +80,6 @@ dotnzi:			vm
 			defw	base
 			defw	cfetch
 			defw	slashmod
-			defw	swap
 			defw	dotnz
 			defw	intToDigit
 			defw	tail, emit

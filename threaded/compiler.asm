@@ -46,10 +46,10 @@ quotation:
 		vm
 	defw	ccomma
 	defw	litN16, compile
-	defw	tickid
-	defw	tailor
+	defw	tickidtailor
 
 quotate:vm
 	defw	sopen
 	defw	exec
 	defw	tail, sclose
+
