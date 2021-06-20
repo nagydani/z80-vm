@@ -275,12 +275,13 @@ handle:	push	hl		; outer function on call stack
 	ld	(ERR_SP), sp	; ERR_SP updated
 	exx
 	ld	hl, hcut
+	push	hl		; placeholder
 	toBC
 	push	bc
 	ret
 
 hcut:	defw	cpu
-	push	hl
+;	push	hl
 	ld	hl, (ERR_SP)
 	and	a
 	sbc	hl, sp
