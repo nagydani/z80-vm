@@ -38,10 +38,35 @@ tail2_link:
 tail2:	pop	hl
 	jp	(ix)
 
-tailself_link:
+tickself_link:
 	defw	tail2_link
-	defb	"~self", 0
+	defb	"'self", 0
 	defw	selfref
+
+tickself:
+	ld	c, (hl)
+	ld	b, 0xFF
+	push	hl
+	add	hl, bc
+	ld	c, l
+	ld	b, h
+	pop	hl
+	inc	hl
+	fromBC
+	jp	(ix)
+
+selfref:vm
+	defw	comma
+	defw	dup
+	defw	dup
+	defw	here
+	defw	minus
+	defw	tail, ccomma
+
+tailself_link:
+	defw	tickself_link
+	defb	"~self", 0
+	defw	tailselfref
 
 tailself:
 	ld	c, (hl)
@@ -50,12 +75,9 @@ tailself:
 	ex	(sp), hl
 	ret
 
-selfref:vm
-	defw	comma
-	defw	dup
-	defw	here
-	defw	minus
-	defw	ccomma
+tailselfref:
+	vm
+	defw	selfref
 	defw	fail
 
 even_link:

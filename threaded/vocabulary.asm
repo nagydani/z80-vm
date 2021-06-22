@@ -38,15 +38,23 @@ cons:	vm
 	defw	swap
 	defw	tail, comma
 
-create_link:
+last_link:
 	defw	cons_link
+	defb	"last", 0
+	defw	comma
+
+last:	vm
+	defw	current
+	defw	fetch
+	defw	tail, fetch
+
+create_link:
+	defw	last_link
 	defb	"create", 0
 	defw	comma
 
 create:	vm
-	defw	current
-	defw	fetch
-	defw	fetch
+	defw	last
 	defw	cons
 	defw	current
 	defw	fetch
@@ -70,25 +78,38 @@ variable:
 	defw	create
 	defw	tail, comma
 
-constant_link:
+redefine_link:
 	defw	variable_link
+	defb	"redefine", 0
+	defw	comma
+
+redefine:
+	vm
+	defw	last
+	defw	cellplus
+	defw	skipstr
+	defw	cellplus
+	defw	dp
+	defw	tail, store
+
+constant_link:
+	defw	redefine_link
 	defb	"constant", 0
 	defw	comma
 
 constant:
 	vm
 	defw	create
+	defw	redefine
 	defw	litN8
 	defb	  1	; ld bc, nn
-	defw	here
-	defw	oneminus
-	defw	cstore
+	defw	ccomma
 	defw	comma
 	defw	litN8
-	fromBC
+		fromBC
 	defw	ccomma
 	defw	litN16
-	jp	(ix)
+		jp	(ix)
 	defw	tail, comma
 
 effect_link:
@@ -98,11 +119,10 @@ effect_link:
 
 effect:	vm
 	defw	create
+	defw	redefine
 	defw	litN8
 	defb	  0xC3	; jp xx
-	defw	here
-	defw	oneminus
-	defw	cstore
+	defw	ccomma
 	defw	tickid
 	defw	tail, comma
 
@@ -113,13 +133,9 @@ colon_link:
 
 colon:	vm
 	defw	create
-	defw	litN8
-		vm
-	defw	here
-	defw	oneminus
-	defw	cstore
-	defw	litN16, compile
-	defw	tickidtailor
+	defw	redefine
+	defw	quotation
+	defw	tail, drop
 
 search_link:
 	defw	colon_link
