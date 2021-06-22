@@ -300,12 +300,9 @@ hcut:	defw	cpu
 	jp	(ix)
 
 	; TODO: ugly hack
-hcut2:	ld	hl, 24
-	add	hl, sp
-	ld	a, (hl)
-	inc	hl
-	ld	h, (hl)
-	ld	l, a
+hcut2:	ld	hl, 22
+	ex	(sp), hl		; new offset
+	ld	hl, upend
 	jp	(ix)
 
 exec_link:

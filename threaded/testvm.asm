@@ -115,16 +115,16 @@ start:	ld	hl, $4000
 
 test:	vm
 
-	defw	litN16, interpret
-	defw	tickidor
+;	defw	litN16, interpret
+;	defw	tickidor
 
-;	defw	litS8
-;	defb	  cd1e - cd1
-;cd1:		vm
-;		defw	ctd200
-;		defw	emit
-;		defw	fail
-;cd1e:	defw	tickidor
+	defw	litS8
+	defb	  cd1e - cd1
+cd1:		vm
+		defw	ctd10
+		defw	emit
+		defw	fail
+cd1e:	defw	tickidor
 
 ;	defw	tickid
 ;	defw	tickid
@@ -134,13 +134,13 @@ test:	vm
 	defw	cpu
 	halt
 
-ctd100:	vm
-	defw	litN16, 100
+ctd5:	vm
+	defw	litN16, 5
 	defw	countdown
 	defw	tail2
 
-ctd200:	vm
-	defw	litN16, ctd100
+ctd10:	vm
+	defw	litN16, ctd5
 	defw	dup
 	defw	or
 	defw	tail2
