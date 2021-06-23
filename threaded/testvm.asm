@@ -115,16 +115,20 @@ start:	ld	hl, $4000
 
 test:	vm
 
+	defw	litN8
+	defb	  1
+	defw	dots
+
 ;	defw	litN16, interpret
 ;	defw	tickidor
 
-	defw	litS8
-	defb	  cd1e - cd1
-cd1:		vm
-		defw	ctd10
-		defw	emit
-		defw	fail
-cd1e:	defw	tickidor
+;	defw	litS8
+;	defb	  cd1e - cd1
+;cd1:		vm
+;		defw	ctd10
+;		defw	emit
+;		defw	fail
+;cd1e:	defw	tickidor
 
 ;	defw	tickid
 ;	defw	tickid

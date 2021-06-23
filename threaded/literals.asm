@@ -3,7 +3,7 @@ sopen_link:
 	defb	"{", 0
 	defw	comma
 
-; ( -( heap )- )
+; ( -( heap )- a )
 sopen:	vm
 	defw	litS8
 	defb	  litS8e - litS8
@@ -19,20 +19,29 @@ litS8:		ld	c, (hl)
 		add	hl, bc
 		jp	(ix)
 litS8e:	defw	comma
+	defw	here
 	defw	litN8
 	defb	  0
 	defw	tail, ccomma
 
-qopen_link:
+vmcomma_link:
 	defw	sopen_link
+	defb	"vm,", 0
+	defw	comma
+
+vmcomma:vm
+	defw	litN8
+		  vm
+	defw	tail, ccomma
+
+qopen_link:
+	defw	vmcomma_link
 	defb	"{::", 0
 	defw	comma
 
 qopen:	vm
 	defw	sopen
-	defw	litN8
-		  vm
-	defw	tail, comma
+	defw	tail, vmcomma
 
 sclose_link:
 	defw	qopen_link

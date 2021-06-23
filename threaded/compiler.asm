@@ -50,6 +50,7 @@ quotation:
 
 quotate:vm
 	defw	sopen
+	defw	swap
 	defw	exec
 	defw	tail, sclose
 

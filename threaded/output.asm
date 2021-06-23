@@ -69,7 +69,8 @@ dot0:		vm
 		defw	iszero
 		defw	litN8
 		defb	  "0"
-		defw	tail, emit
+		defw	emit
+		defw	tail, drop
 dot0e:	defw	litS8
 	defb	  dotnze - dotnz
 dotnz:		vm
