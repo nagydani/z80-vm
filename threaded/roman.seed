@@ -1,0 +1,68 @@
+effect one
+effect five
+effect ten
+
+:: one ten ;
+:: five one one one ;
+:: five one one ;
+:: five one ;
+:: five ;
+:: one five ;
+:: one one one ;
+:: one one ;
+:: one ;
+'id
+
+create digits
+, , , , ,
+, , , , ,
+
+: digit
+cells digits +
+@ execute ;
+
+: numerals
+>r >r >r
+' digit
+r> ' one ' handle
+r> ' five ' handle
+r> ' ten handle ;
+
+: numeral
+create
+pad c@
+vm, literal ' emit , ' ; , ;
+
+numeral I
+numeral V
+numeral X
+numeral L
+numeral C
+numeral D
+numeral M
+
+: ones
+I V X
+numerals ;
+
+: tens
+X L C
+numerals ;
+
+: hundreds
+C D M
+numerals ;
+
+: thousands
+:: 1- carry? ascii M emit ~self
+' drop
+~|
+
+: roman
+10 /mod
+10 /mod
+10 /mod
+thousands
+hundreds
+tens
+ones ;
