@@ -115,25 +115,12 @@ start:	ld	hl, $4000
 
 test:	vm
 
-	defw	litN8
-	defb	  1
-	defw	dots
-
 ;	defw	litN16, interpret
 ;	defw	tickidor
 
-;	defw	litS8
-;	defb	  cd1e - cd1
-;cd1:		vm
-;		defw	ctd10
-;		defw	emit
-;		defw	fail
-;cd1e:	defw	tickidor
-
-;	defw	tickid
-;	defw	tickid
-;	defw	or
-
+	defw	ctd10
+	defw	dot
+	defw	fail
 
 	defw	cpu
 	halt
@@ -150,8 +137,10 @@ ctd10:	vm
 	defw	tail2
 
 testline:
-	defb	": cd& countdown& ; "
-	defb	": ten 10 cd& . ~fail ten ", 0
+	defb	": five& 5 countdown& ;"
+	defb	": ten& ' five& dup | ; "
+	defb	": ten ten& . ~fail "
+	defb	"ten ", 0
 	defs	0x4000 - $
 
 

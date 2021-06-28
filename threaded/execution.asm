@@ -303,7 +303,6 @@ handle:	push	hl		; outer function on call stack
 	ret
 
 hcut:	defw	cpu
-;	push	hl
 	ld	hl, (ERR_SP)
 	and	a
 	sbc	hl, sp
@@ -322,8 +321,18 @@ hcut:	defw	cpu
 	jp	(ix)
 
 	; TODO: ugly hack
-hcut2:	ld	hl, 22
-	ex	(sp), hl		; new offset
+hcut2:	add	hl, sp
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	c, (hl)
+	inc	hl
+	ld	b, (hl)		; BC = next frame
+	ld	hl, 6
+	add	hl, bc
+	sbc	hl, sp
+	ex	(sp), hl	; new offset
 	ld	hl, upend
 	jp	(ix)
 
