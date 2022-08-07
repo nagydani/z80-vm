@@ -1,0 +1,9 @@
+: s=?
+over c@
+over c@
+=
+:: 0= drop drop ~ drop
+:: drop 1+ swap 1+ ~ s=?
+~|
+
+: s= over ~ s=?

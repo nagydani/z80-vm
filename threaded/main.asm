@@ -125,7 +125,6 @@ test:	vm
 	defw	litN16, interpret
 	defw	tickidor
 
-	defw	cpu
-	jr	test
+	defw	tail, test
 
 	include	"sysvars.asm"

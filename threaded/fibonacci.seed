@@ -1,0 +1,5 @@
+: fib&
+0 1
+:: swap over + carry? 'self & ~ over
+& ~ over
+
