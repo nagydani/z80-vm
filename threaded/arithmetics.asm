@@ -301,6 +301,7 @@ slash_link:
 ; ( n n -- n )
 slash:	vm
 	defw	slashmod
+	defw	swap
 	defw	tail, drop
 
 link_final_arithmetics:
@@ -312,5 +313,4 @@ mod_link:
 ; ( n n -- n )
 mod:	vm
 	defw	slashmod
-	defw	swap
 	defw	tail, drop
