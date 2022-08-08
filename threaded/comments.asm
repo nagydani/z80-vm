@@ -5,7 +5,11 @@ backslash_link:
 
 backslash:
 	vm
-	defw	tail, input
+	defw	litN8
+	defb	  0
+	defw	tib
+	defw	fetch
+	defw	tail, cstore
 
 link_final_comments:
 paren_link:
