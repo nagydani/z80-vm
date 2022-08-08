@@ -130,9 +130,33 @@ base:	vm
 	defw	litN16, BASE
 	defw	tail2
 
+hex_link:
+	defw	base_link
+	defb	"hex", 0
+	defw	comma
+
+; ( -( base )- )
+hex:	vm
+	defw	litN8
+	defb	  16
+	defw	base
+	defw	tail, store
+
+decimal_link:
+	defw	hex_link
+	defb	"decimal", 0
+	defw	comma
+
+; ( -( base )- )
+decimal:
+	vm
+	defw	litN8
+	defb	  10
+	defw	base
+	defw	tail, store
 
 digitToInt_link:
-	defw	base_link
+	defw	decimal_link
 	defb	"digit>int", 0
 	defw	comma
 
