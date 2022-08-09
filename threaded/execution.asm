@@ -20,7 +20,7 @@ id:	jp	(ix)
 
 tail_link:
 	defw	tickid_link
-	defb	"~", 0
+	defb	"}~", 0
 	defw	endtail
 
 tail:	ld	a, (hl)
@@ -32,7 +32,7 @@ tail:	ld	a, (hl)
 
 tail2_link:
 	defw	tail_link
-	defb	";", 0
+	defb	"}", 0
 	defw	endcomp
 
 tail2:	pop	hl
@@ -65,7 +65,7 @@ selfref:vm
 
 tailself_link:
 	defw	tickself_link
-	defb	"~self", 0
+	defb	"}~self", 0
 	defw	tailselfref
 
 tailself:
@@ -189,7 +189,7 @@ carry:	jr	c, fail
 
 fail_link:
 	defw	carry_link
-	defb	"~fail", 0
+	defb	"}~fail", 0
 	defw	endcomp
 
 ; ( -( fail )- )
@@ -403,7 +403,7 @@ or:	vm
 
 tailor_link:
 	defw	or_link
-	defb	"~|", 0
+	defb	"}~|", 0
 	defw	endcomp
 
 tailor:	vm
@@ -421,7 +421,7 @@ tickidor:
 
 tickidtailor_link:
 	defw	tickidor_link
-	defb	"'id~|", 0
+	defb	"'id}~|", 0
 	defw	endcomp
 
 tickidtailor:

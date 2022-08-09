@@ -128,7 +128,7 @@ effect:	vm
 
 colon_link:
 	defw	effect_link
-	defb	":", 0
+	defb	"{:", 0
 	defw	fail		; TODO: compile-time error
 
 colon:	vm

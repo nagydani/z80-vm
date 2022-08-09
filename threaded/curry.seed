@@ -1,5 +1,5 @@
-: curry ( v x -- vx )
+{: curry ( v x -- vx )
 here >r
 207 c,
 swap literal ' ~ , ,
-r> ;
+r> }

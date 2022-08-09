@@ -1,4 +1,4 @@
-: times ( x n -- )
-:: 1- carry? >r dup >r execute r> r> ~self
-:: drop ~ drop
-~|
+{: times ( x n -- )
+{ 1- carry? >r dup >r execute r> r> }~self
+{ drop }~ drop
+}~|

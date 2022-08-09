@@ -1,5 +1,5 @@
-: fib&
+{: fib&
 0 1
-:: swap over + carry? 'self & ~ over
-& ~ over
+{ swap over + carry? 'self & }~ over
+& }~ over
 

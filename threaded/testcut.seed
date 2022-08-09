@@ -1,9 +1,9 @@
-: test
-  ::
-    :: 1 . cut ~fail
-    :: 2 . ~fail
-    ~|
-  :: 3 . ;
-  ~|
+{: test
+  {
+    { 1 . cut }~fail
+    { 2 . }~fail
+  }~|
+  { 3 . }
+}~|
 
 test

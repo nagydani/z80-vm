@@ -1,0 +1,4 @@
+{: caseswitch
+{ upper }~ >lower
+{ { lower }~ >upper 'id}~|
+~}|

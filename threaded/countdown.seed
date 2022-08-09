@@ -1,1 +1,1 @@
-: countdown& 1- carry? 'self & ~ dup
+{: countdown& 1- carry? 'self & }~ dup

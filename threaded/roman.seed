@@ -2,36 +2,36 @@ effect one
 effect five
 effect ten
 
-:: one ten ;
-:: five one one one ;
-:: five one one ;
-:: five one ;
-:: five ;
-:: one five ;
-:: one one one ;
-:: one one ;
-:: one ;
+{ one ten }
+{ five one one one }
+{ five one one }
+{ five one }
+{ five }
+{ one five }
+{ one one one }
+{ one one }
+{ one }
 'id
 
 create digits
 , , , , ,
 , , , , ,
 
-: digit
+{: digit
 cells digits +
-@ execute ;
+@ execute }
 
-: numerals
+{: numerals
 >r >r >r
 ' digit
 r> ' one ' handle
 r> ' five ' handle
-r> ' ten handle ;
+r> ' ten handle }
 
-: numeral
+{: numeral
 create
 pad c@
-vm, literal ' emit , ' ; , ;
+vm, literal ' emit , ' } , }
 
 numeral I
 numeral V
@@ -41,28 +41,28 @@ numeral C
 numeral D
 numeral M
 
-: ones
+{: ones
 I V X
-numerals ;
+numerals }
 
-: tens
+{: tens
 X L C
-numerals ;
+numerals }
 
-: hundreds
+{: hundreds
 C D M
-numerals ;
+numerals }
 
-: thousands
-:: 1- carry? ascii M emit ~self
+{: thousands
+{ 1- carry? ascii M emit }~self
 ' drop
-~|
+}~|
 
-: roman
+{: roman
 10 /mod
 10 /mod
 10 /mod
 thousands
 hundreds
 tens
-ones ;
+ones }
