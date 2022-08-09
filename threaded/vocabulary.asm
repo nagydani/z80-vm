@@ -1,5 +1,17 @@
-context_link:
+skipstr_link:
 	defw	link_final_output
+	defb	"skipstr", 0
+	defw	comma
+
+; ( a -- a )
+skipstr:vm
+	defw	dup
+	defw	strlen
+	defw	plus
+	defw	tail, oneplus
+
+context_link:
+	defw	skipstr_link
 	defb	"context", 0
 	defw	comma
 

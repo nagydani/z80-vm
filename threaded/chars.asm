@@ -307,46 +307,40 @@ strcmpl:ld	a, (bc)
 ;streq1e:defw	tickidor
 ;	defw	drop, tail, drop
 
-skipstr_link:
+nonempty_link:
 	defw	strneq_link
-	defb	"skipstr", 0
+	defb	"nonempty", 0
 	defw	comma
 
-; ( a -- a )
-skipstr:
-	toBC
-skps1:	ld	a, (bc)
-	inc	bc
-	or	a
-	jr	nz, skps1
-	fromBC
-	jp	(ix)
-
-;	vm
-;	defw	litS8
-;	defb	  skipste - skipst
-;skipst:		vm
-;		defw	dup
-;		defw	cfetch
-;		defw	nonzero
-;		defw	drop
-;		defw	oneplus
-;		defw	tailself
-;		defb	  skipst - $
-;skipste:defw	litN16, oneplus
-;	defw	tailor
-
+; ( a -( fail )- a )
+nonempty:
+	vm
+	defw	dup
+	defw	cfetch
+	defw	nonzero
+	defw	tail, drop
 
 link_final_chars:
 strlen_link:
-	defw	skipstr_link
+	defw	nonempty_link
 	defb	"strlen", 0
 	defw	comma
 
 ; ( a -- n )
 strlen:	vm
-	defw	dup
-	defw	skipstr
-	defw	oneminus
+	defw	litN8
+	defb	  0
 	defw	swap
-	defw	tail, minus
+	defw	litS8
+	defb	  strcnte - strcnt
+strcnt:		vm
+		defw	nonempty
+		defw	oneplus
+		defw	swap
+		defw	oneplus
+		defw	swap
+		defw	tailself
+		defb	  strcnt - $
+strcnte:
+	defw	litN16, drop
+	defw	tailor
