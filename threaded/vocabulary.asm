@@ -174,9 +174,22 @@ find:	vm
 	defw	search
 	defw	tail, skipstr
 
+immediate_link:
+	defw	find_link
+	defb	"immediate", 0
+	defw	comma
+
+immediate:
+	vm
+	defw	litN16, exec
+	defw	last
+	defw	cellplus
+	defw	skipstr
+	defw	tail, store
+
 link_final_vocabulary:
 forget_link:
-	defw	find_link
+	defw	immediate_link
 	defb	"forget", 0
 	defw	comma
 
