@@ -164,7 +164,6 @@ digitToInt_link:
 digitToInt:
 	vm
 	defw	alphanum
-	defw	toLower
 	defw	litN8
 	defb	  "0"
 	defw	minus
@@ -179,7 +178,7 @@ ninelee:defw	litS8
 	defb	  ad2i_e - ad2i
 ad2i:		vm
 		defw	litN8
-		defb	  39
+		defb	  7
 		defw	tail, minus
 ad2i_e:	defw	or
 	defw	base
