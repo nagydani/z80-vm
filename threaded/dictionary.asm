@@ -58,7 +58,6 @@ ccomma:	toBC
 	ld	(hl), c
 	jr	commax
 
-link_final_dictionary:
 scomma_link:
 	defw	ccomma_link
 	defb	"s,", 0
@@ -86,3 +85,17 @@ scomma0:	vm
 		defw	tail, ccomma
 scomma0e:
 	defw	tailor
+
+link_final_dictionary:
+allot_link:
+	defw	scomma_link
+	defb	"allot", 0
+	defw	comma
+
+; ( n -( heap )- )
+allot:	vm
+	defw	dp
+	defw	fetch
+	defw	plus
+	defw	dp
+	defw	tail, store

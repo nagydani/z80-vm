@@ -1,15 +1,20 @@
+cpu_link:
+	defw	link_final_literal
+	defb	"z80", 0
+	defw	comma
+
 cpu:	ex	(sp), hl
 	ret
 
 ;id_link:
-;	defw	link_final_literal
+;	defw	cpu_link
 ;	defb	"id", 0
 ;	defw	comma
 ;
 ;id:	jp	(ix)
 
 tickid_link:
-	defw	link_final_literal
+	defw	cpu_link
 ;	defw	id_link
 	defb	"'id", 0
 	defw	comma
