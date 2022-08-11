@@ -119,12 +119,19 @@ start:	ld	a, 10
 	ld	de, STK_BOT
 	ld	ix, vm_l
 
-test:	vm
+seedl:	vm
 
 	defw	input
 	defw	litN16, interpret
-	defw	tickidor
-
-	defw	tail, test
+	defw	litS8
+	defb	  seedlfe - seedlf
+seedlf:		vm
+		defw	litS8
+		defb	  fmsge - fmsg
+fmsg:			defb " fail", 13, 0
+fmsge:		defw	tail, type
+seedlfe:defw	or
+	defw	tailself
+	defb	  seedl - $
 
 	include	"sysvars.asm"

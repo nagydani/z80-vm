@@ -10,10 +10,6 @@ iword:		vm
 		defw	litS8
 		defb	  ifaile - ifail
 ifail:			vm
-			defw	litS8
-			defb	  ifailte - ifailt
-ifailt:				defb	" fail", 13, 0
-ifailte:		defw	type
 			defw	cut
 			defw	fail
 ifaile:		defw	tailor
