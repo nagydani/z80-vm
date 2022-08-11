@@ -14,13 +14,25 @@ ifail:			vm
 			defb	  ifailte - ifailt
 ifailt:				defb	" fail", 13, 0
 ifailte:		defw	type
+			defw	cut
 			defw	fail
 ifaile:		defw	tailor
 iworde:	defw	litS8
-	defb	  inume - inum
-inum:		vm
-		defw	pad
-		defw	tail, sToNumber
-inume:	defw	or
+	defb	  inumue - inumu
+inumu:		vm
+		defw	litS8
+		defb	  inume - inum
+inum:			vm
+			defw	pad
+			defw	tail, sToNumber
+inume:		defw	litS8
+		defb	  iunde - iund
+iund:			vm
+			defw	litS8
+			defb	  iundte - iundt
+iundt:				defb	"undefined", 13, 0
+iundte:			defw tail, type
+iunde:		defw	tailor
+inumue:	defw	or
 	defw	tailself
 	defb	  interpret - $
