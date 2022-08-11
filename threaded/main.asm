@@ -104,8 +104,8 @@ key:	in	a, (0)
 	include "chars.asm"
 	include	"input.asm"
 	include "output.asm"
-	include "vocabulary.asm"
 	include "interpreter.asm"
+	include "vocabulary.asm"
 	include	"compiler.asm"
 	include	"debug.asm"
 

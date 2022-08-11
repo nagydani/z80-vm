@@ -1,5 +1,5 @@
 skipstr_link:
-	defw	link_final_output
+	defw	link_final_interpreter
 	defb	"skipstr", 0
 	defw	comma
 

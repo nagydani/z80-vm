@@ -1,3 +1,8 @@
+interpret_link:
+	defw	link_final_output
+	defb	"interpret", 0
+	defw	comma
+
 interpret:
 	vm
 	defw	word
@@ -32,3 +37,21 @@ iunde:		defw	tailor
 inumue:	defw	or
 	defw	tailself
 	defb	  interpret - $
+
+meta_link:
+	defw	interpret_link
+	defb	"[", 0
+	defw	exec
+
+meta:	vm
+	defw	litN16, interpret
+	defw	tickidtailor
+
+link_final_interpreter:
+endmeta_link:
+	defw	meta_link
+	defb	"]", 0
+	defw	fail		; TODO not allowed in compile mode
+
+endmeta:vm
+	defw	fail
