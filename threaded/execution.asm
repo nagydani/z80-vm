@@ -1,6 +1,6 @@
 cpu_link:
 	defw	link_final_literal
-	defb	"z80", 0
+	defb	"cpu", 0
 	defw	comma
 
 cpu:	ex	(sp), hl
