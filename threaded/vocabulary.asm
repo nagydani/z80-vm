@@ -174,6 +174,17 @@ find:	vm
 	defw	search
 	defw	tail, skipstr
 
+does_link:
+	defw	find_link
+	defb	"does", 0
+	defw	comma
+
+does:	vm
+	defw	last
+	defw	cellplus
+	defw	skipstr
+	defw	tail, store
+
 immediate_link:
 	defw	find_link
 	defb	"immediate", 0
@@ -182,10 +193,7 @@ immediate_link:
 immediate:
 	vm
 	defw	litN16, exec
-	defw	last
-	defw	cellplus
-	defw	skipstr
-	defw	tail, store
+	defw	tail, does
 
 link_final_vocabulary:
 forget_link:
