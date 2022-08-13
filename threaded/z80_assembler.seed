@@ -20,11 +20,11 @@ create labels
 \ absolute backward label
 {: label	$ swap lbl ! }
 
-\ use absolute forward label
-{: l		lbl @ }
+\ use absolute backward label
+{: lb		lbl @ }
 
 \ relative forward label
-{: rlabel	l dup here - 1+ swap c! }
+{: rlabel	lb dup here - 1+ swap c! }
 
 \ relative forward jump
 {: jrf		here swap lbl ! 0 c, }
