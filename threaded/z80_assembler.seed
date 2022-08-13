@@ -1,0 +1,248 @@
+hex
+
+\ 16-bit little-endian comma
+{: w,		100 /mod swap c, c, }
+
+\ directives
+0 variable offset
+{: $		here offset @ - }
+{: org		here swap - offset ! }
+
+\ labels
+
+\ 8 labels must be enough for a block
+create labels
+8 cells allot
+
+\ access label
+{: lbl		cells labels + }
+
+\ absolute backward label
+{: label	$ swap lbl ! }
+
+\ use absolute forward label
+{: l		lbl @ }
+
+\ relative forward label
+{: rlabel	l dup here - 1+ swap c! }
+
+\ relative forward jump
+{: jrf		here swap lbl ! 0 c, }
+
+\ relative backward jump
+{: rel		$ - 1- c, }
+
+\ registers
+0 constant b
+1 constant c
+2 constant d
+3 constant e
+4 constant h
+5 constant l
+6 constant (hl)
+7 constant a
+{: 8*		8 * }
+
+\ register pairs
+0 constant bc
+10 constant de
+20 constant hl
+30 constant sp
+30 constant af
+
+\ conditions
+0 constant nz
+8 constant z
+10 constant nc
+18 constant c
+20 constant po
+28 constant pe
+30 constant p
+38 constant m
+
+\ 1 byte opcodes
+
+{: nop		0 c, }
+{: ld_rr,xx	swap 1 or c, w, }
+{: ld_(bc),a	2 c, }
+{: inc_rr	3 or c, }
+{: inc_r	8* 4 or c, }
+{: dec_r	8* 5 or c, }
+{: ld_r,x	swap 8* 6 or c, c, }
+{: rlca		7 c, }
+{: ex_af,af'	8 c, }
+{: add_hl,rr	9 or c, }
+{: ld_a,(bc)	A c, }
+{: dec_rr	B or c, }
+{: rrca		F c, }
+
+{: djnz		10 c, rel }
+{: djnz_f	10 c, jrf }
+{: ld_(de),a	12 c, }
+{: rla		17 c, }
+{: jr		18 c, rel }
+{: jr_f		18 c, jrf }
+{: ld_a,(de)	1A c, }
+{: rra		1F c, }
+
+{: jr_nz	20 c, rel }
+{: jr_nz_f	20 c, jrf }
+{: ld_(xx),hl	22 c, w, }
+{: daa		27 c, }
+{: jr_z		28 c, rel }
+{: jr_z_f	28 c, jrf }
+{: ld_hl,(xx)	2A c, w, }
+{: cpl		2F c, }
+
+{: jr_nc	30 c, rel }
+{: jr_nc_f	30 c, jrf }
+{: ld_(xx),a	32 c, w, }
+{: scf		37 c, }
+{: jr_c		38 c, rel }
+{: jr_c_f	38 c, jrf }
+{: ld_a,(xx)	3A c, w, }
+{: ccf		3F c, }
+
+{: ld_r,r	swap 8* or 40 or c, }
+{: halt		76 c, }
+
+{: add_a,r	80 or c, }
+{: adc_a,r	88 or c, }
+
+{: sub_r	90 or c, }
+{: sbc_a,r	98 or c, }
+
+{: and_r	A0 or c, }
+{: xor_r	A8 or c, }
+
+{: or_r		B0 or c, }
+{: cp_r		B8 or c, }
+
+{: ret_cc	C0 or c, }
+{: pop		C1 or c, }
+{: jp_cc	swap C2 or c, w, }
+{: jp		C3 c, w, }
+{: call_cc	swap C4 or c, w, }
+{: push		C5 or c, }
+{: add_a,x	C6 c, c, }
+{: rst		C7 or c, }
+{: ret		C9 c, }
+{: adc_a,x	CE c, c, }
+
+{: out_(x),a	D3 c, c, }
+{: sub_x	D6 c, c, }
+{: exx		D9 c, }
+{: in_a,(x)	DB c, c, }
+{: sbc_a,x	DE c, c, }
+
+{: ex_(sp),hl	E3 c, }
+{: and_x	E6 c, c, }
+{: jp_(hl)	E9 c, }
+{: ex_de,hl	EB c, }
+{: xor_x	EE c, c, }
+
+{: de		F3 c, }
+{: or_x		F6 c, c, }
+{: ld_sp,hl	F9 c, }
+{: ei		FB c, }
+{: cp_x		FE c, }
+
+\ ED-prefixed opcodes
+{: ed,		ED c, }
+
+{: in_r,(c)	ed, 8* 40 or c, }
+{: out_(c),r	ed, 8* 41 or c, }
+{: sbc_hl,rr	ed, 42 or c, }
+{: ld_(xx),rr	ed, 43 or c, w, }
+{: neg		ed, 44 c, }
+{: retn		ed, 45 c, }
+{: im_0		ed, 46 c, }
+{: ld_i,a	ed, 47 c, }
+{: adc_hl,rr	ed, 4A	or c, }
+{: reti		ed, 4D c, }
+{: ld_r,a	ed, 4F c, }
+
+{: im_1		ed, 56 c, }
+{: ld_a,i	ed, 57 c, }
+{: im_2		ed, 5E c, }
+{: ld_a,r	ed, 5F c, }
+
+{: rrd		ed, 67 c, }
+{: rld		ed, 6F c, }
+
+{: ldi		ed, A0 c, }
+{: cpi		ed, A1 c, }
+{: ini		ed, A2 c, }
+{: outi		ed, A3 c, }
+{: ldd		ed, A8 c, }
+{: cpd		ed, A9 c, }
+{: ind		ed, AA c, }
+{: outd		ed, AB c, }
+
+{: ldir		ed, B0 c, }
+{: cpir		ed, B1 c, }
+{: inir		ed, B2 c, }
+{: otir		ed, B3 c, }
+{: lddr		ed, B8 c, }
+{: cpdr		ed, B9 c, }
+{: indr		ed, BA c, }
+{: otdr		ed, BB c, }
+
+\ CB-prefixed opcodes
+{: cb,		CB c, }
+
+{: rlc		cb, c, }
+{: rrc		cb, 8 or c, }
+
+{: rl		cb, 10 or c, }
+{: rr		cb, 18 or c, }
+
+{: sla		cb, 20 or c, }
+{: sra		cb, 28 or c, }
+
+{: sll		cb, 30 or c, }
+{: srl		cb, 38 or c, }
+
+{: bit		cb, 40 or swap 8* or c, }
+
+{: res		cb, 80 or swap 8* or c, }
+
+{: set		cb, C0 or swap 8* or c, }
+
+\ DD-prefixed opcodes
+{: ix,		DD c, }
+
+{: inc_(ix+i)	ix, (hl) inc_r c, }
+{: dec_(ix+i)	ix, (hl) dec_r c, }
+{: ld_(ix+i),x	ix, 36 c, swap c, c, }
+{: ld_(ix+i),r	ix, (hl) swap ld_r,r c, }
+{: ld_r,(ix+i)	ix, swap (hl) ld_r,r c, }
+{: add_a,(ix+i)	ix, (hl) add_a,r c, }
+{: adc_a,(ix+i)	ix, (hl) adc_a,r c, }
+{: sub_(ix+i)	ix, (hl) sub_r c, }
+{: sbc_a,(ix+i)	ix, (hl) sbc_a,r c, }
+{: and_(ix+i)	ix, (hl) and_r c, }
+{: xor_(ix+i)	ix, (hl) xor_r c, }
+{: or_(ix+i)	ix, (hl) or_r c, }
+{: cp_(ix+i)	ix, (hl) cp_r c, }
+
+{: b_(ix+i)	ix, cb, c, (hl) }
+
+\ FD-prefixed opcodes
+{: iy,		FD c, }
+
+{: inc_(iy+i)	iy, (hl) inc_r c, }
+{: dec_(iy+i)	iy, (hl) dec_r c, }
+{: ld_(iy+i),x	iy, 36 c, swap c, c, }
+{: ld_(iy+i),r	iy, (hl) swap ld_r,r c, }
+{: ld_r,(iy+i)	iy, swap (hl) ld_r,r c, }
+{: add_a,(iy+i)	iy, (hl) add_a,r c, }
+{: adc_a,(iy+i)	iy, (hl) adc_a,r c, }
+{: sub_(iy+i)	iy, (hl) sub_r c, }
+{: sbc_a,(iy+i)	iy, (hl) sbc_a,r c, }
+{: and_(iy+i)	iy, (hl) and_r c, }
+{: xor_(iy+i)	iy, (hl) xor_r c, }
+{: or_(iy+i)	iy, (hl) or_r c, }
+{: cp_(iy+i)	iy, (hl) cp_r c, }
+
+{: b_(iy+i)	iy, cb, c, (hl) }
