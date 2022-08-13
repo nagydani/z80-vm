@@ -19,10 +19,10 @@ litS8:		ld	c, (hl)
 		add	hl, bc
 		jp	(ix)
 litS8e:	defw	comma
-	defw	here
 	defw	litN8
 	defb	  0
-	defw	tail, ccomma
+	defw	ccomma
+	defw	tail, here
 
 vmcomma_link:
 	defw	sopen_link
