@@ -3,6 +3,12 @@ hex
 \ 16-bit little-endian comma
 {: w,		100 /mod swap c, c, }
 
+\ 16-bit little-endian fetch
+{: w@		dup c@ swap 1+ c@ 100 * or }
+
+\ 16-bit little-endian store
+{: w!		dup >r 1+ >r 100 /mod r> c! r> c! }
+
 \ directives
 0 variable offset
 {: $		here offset @ - }
@@ -36,7 +42,7 @@ create labels
 {: fl1		here 1+ swap lbl ! 0 }
 
 \ absolute forward label
-{: flabel	lbl @ $ swap ! }
+{: flabel	lbl @ $ swap w! }
 
 \ registers
 0 constant b
