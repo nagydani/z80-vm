@@ -1,6 +1,6 @@
 sopen_link:
 	defw	link_final_comments
-	defb	"s{{", 0
+	defb	"{{", 0
 	defw	comma
 
 ; ( -( heap )- a )
@@ -34,17 +34,8 @@ vmcomma:vm
 		  vm
 	defw	tail, ccomma
 
-qopen_link:
-	defw	vmcomma_link
-	defb	"{{", 0
-	defw	comma
-
-qopen:	vm
-	defw	sopen
-	defw	tail, vmcomma
-
 sclose_link:
-	defw	qopen_link
+	defw	vmcomma_link
 	defb	"}}", 0
 	defw	comma
 
