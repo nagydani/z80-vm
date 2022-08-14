@@ -1,0 +1,171 @@
+\ pointer to cross-compiled vocabulary
+0 variable xcurrent
+
+{: xcons ( a -- a )
+$ swap }~ w,
+
+{: xlast ( -- a )
+xcurrent }~ w@
+
+\ target pointer to comma
+0 variable comma
+
+\ restart addresses
+ 0 constant start_rst
+ 8 constant vm_rst
+10 constant dat_rst
+18 constant ex_rst
+20 constant pop_rst
+28 constant push_rst
+
+\ system variables
+2000 constant DP
+2002 constant TIB
+
+\ labels
+7 constant start
+6 constant catch
+
+\ macros
+{: vm		vm_rst rst }
+{: dat		dat_rst rst }
+{: tobc		pop_rst rst }
+{: frombc	push_rst rst }
+{: next		ix, jp_(hl) }
+
+\ target create
+{: xcreate
+xlast
+xcons
+xcurrent w!
+word
+pad
+s,
+}
+
+\ native word definition
+{: native
+xcreate
+comma @ w, }
+
+create target
+0 org
+
+\ restart
+start fl1 jp
+8 align
+
+\ begin threading
+ex_(sp),hl
+0 label
+c (hl) ld_r,r
+hl inc_rr
+b (hl) ld_r,r
+hl inc_rr
+bc push
+ret
+8 align
+
+\ put data address on stack
+bc pop
+frombc
+next
+8 align
+
+\ catch exception
+bc pop
+catch fl1 jp
+8 align
+
+\ pop bc from data stack
+ex_de,hl
+hl dec_rr
+b (hl) ld_r,r
+hl dec_rr
+c (hl) ld_r,r
+ex_de,hl
+ret
+8 align
+
+\ push bc to data stack
+ex_de,hl
+(hl) c ld_r,r
+hl inc_rr
+(hl) b ld_r,r
+hl inc_rr
+ex_de,hl
+ret
+8 align
+
+xcreate , ( n -( heap )- )
+$ 2 + w,
+$ comma !
+tobc
+hl push
+DP ld_hl,(xx)
+(hl) c ld_r,r
+hl inc_rr
+(hl) b ld_r,r
+0 label
+hl inc_rr
+DP ld_(xx),hl
+hl pop
+next
+
+native c, ( c -( heap )- )
+tobc
+hl push
+DP ld_hl,(xx)
+(hl) c ld_r,r
+0 lb jr
+
+native bye ( -- )
+halt
+
+native emit ( c -( emit )- )
+de dec_rr
+de dec_rr
+ld_a,(de)
+D cp_x
+0 jr_nz_f
+a A ld_r,x
+0 rlabel
+0 out_(x),a
+next
+
+native key ( -( key )- c )
+0 in_a,(x)
+ld_(de),a
+de inc_rr
+a xor
+ld_(de),a
+de inc_rr
+next
+
+native input
+hl push
+hl FF00 ld_rr,xx
+TIB ld_(xx),hl
+0 label
+0 in_a,(x)
+A cp_x
+1 jr_z_f
+(hl) a ld_r,r
+hl inc_rr
+a h ld_r,r
+l and
+a inc_r
+0 lb jr_nz
+1 rlabel
+(hl) 0 ld_r,x
+hl pop
+next
+
+
+start flabel
+\ debug greeting
+a ascii X ld_r,x
+0 out_(x),a
+halt
+
+target dump
