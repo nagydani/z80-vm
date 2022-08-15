@@ -145,6 +145,22 @@ quot1:		vm
 		defw	litN8
 		defb	  "\""
 		defw	neq
+		defw	litS8
+		defb	  esc1e - esc1
+esc1:			vm
+			defw	litN8
+			defb	"\\"
+			defw	eq
+			defw	drop
+			defw	litN16, bite
+			defw	litS8
+			defb	  esc2e - esc2
+esc2:				vm
+				defw	litN8
+				defb	  0xA
+				defw	tail2
+esc2e:			defw	tailor
+esc1e:		defw	tickidor
 		defw	ccomma
 		defw	tailself
 		defb	  quot1 - $
