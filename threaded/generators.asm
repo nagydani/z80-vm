@@ -9,7 +9,8 @@ traverse:
 	vm
 	defw	fetch
 	defw	nonzero
-	defw	litN16, traverse
+	defw	tickself
+	defb	  traverse - $
 	defw	pend
 	defw	dup
 	defw	tail, cellplus
