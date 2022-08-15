@@ -33,8 +33,9 @@ empty_link:
 empty:	vm
 	defw	litS8
 	defb	  ioke - iok
-iok:		defb	" ok", 0x0D, 0
+iok:		defb	" ok", 0
 ioke:	defw	type
+	defw	cr
 	defw	tail, input
 
 input_link:
@@ -73,10 +74,7 @@ emit_link:
 emit:	dec	de
 	dec	de
 	ld	a, (de)
-	cp	0x0D
-	jr	nz, emit1
-	ld	a, 0x0A
-emit1:	out	(0), a
+	out	(0), a
 	jp	(ix)
 
 
@@ -128,8 +126,9 @@ seedl:	vm
 seedlf:		vm
 		defw	litS8
 		defb	  fmsge - fmsg
-fmsg:			defb " fail", 13, 0
-fmsge:		defw	tail, type
+fmsg:			defb " fail", 0
+fmsge:		defw	type
+		defw	tail, cr
 seedlfe:defw	or
 	defw	tailself
 	defb	  seedl - $

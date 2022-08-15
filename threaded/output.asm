@@ -26,7 +26,7 @@ cr_link:
 ; ( -( emit)- )
 cr:	vm
 	defw	litN8
-	defb	  0x0D
+	defb	  0x0A
 	defw	tail, emit
 
 intToDigit_link:
