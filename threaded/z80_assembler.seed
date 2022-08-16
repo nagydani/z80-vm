@@ -45,6 +45,9 @@ create labels
 \ use absolute forward label after a one-byte opcode
 {: fl1		here 1+ swap lbl ! 0 }
 
+\ use absolute forward label immediately
+{: fl0		here swap lbl ! 0 w, }
+
 \ absolute forward label
 {: flabel	lbl @ $ swap w! }
 
@@ -175,6 +178,7 @@ create labels
 {: im_0		ed, 46 c, }
 {: ld_i,a	ed, 47 c, }
 {: adc_hl,rr	ed, 4A	or c, }
+{: ld_rr,(xx)	ed, 4B or c, w, }
 {: reti		ed, 4D c, }
 {: ld_r,a	ed, 4F c, }
 
