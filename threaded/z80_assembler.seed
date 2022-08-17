@@ -160,7 +160,7 @@ create labels
 {: ex_de,hl	EB c, }
 {: xor_x	EE c, c, }
 
-{: de		F3 c, }
+{: di		F3 c, }
 {: or_x		F6 c, c, }
 {: ld_sp,hl	F9 c, }
 {: ei		FB c, }
