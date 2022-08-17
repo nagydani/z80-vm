@@ -73,7 +73,7 @@ create labels
 0 constant nz
 8 constant z
 10 constant nc
-18 constant c
+18 constant cf
 20 constant po
 28 constant pe
 30 constant p
