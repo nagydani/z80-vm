@@ -31,7 +31,7 @@ inume:		defw	litS8
 iund:			vm
 			defw	litS8
 			defb	  iundte - iundt
-iundt:				defb	"undefined", 13, 0
+iundt:				defb	"undefined", 10, 0
 iundte:			defw tail, type
 iunde:		defw	tailor
 inumue:	defw	or
