@@ -42,15 +42,12 @@ quotation_link:
 quotation:
 	vm
 	defw	here
-	defw	litN8
-		vm
-	defw	ccomma
+	defw	vmcomma
 	defw	litN16, compile
 	defw	tickidtailor
 
 quotate:vm
 	defw	sopen
-	defw	swap
 	defw	exec
 	defw	tail, sclose
 

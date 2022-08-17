@@ -29,9 +29,11 @@ inum:			vm
 inume:		defw	litS8
 		defb	  iunde - iund
 iund:			vm
+			defw	pad
+			defw	type
 			defw	litS8
 			defb	  iundte - iundt
-iundt:				defb	"undefined", 10, 0
+iundt:				defb	" undefined", 10, 0
 iundte:			defw tail, type
 iunde:		defw	tailor
 inumue:	defw	or

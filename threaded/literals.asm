@@ -3,7 +3,7 @@ sopen_link:
 	defb	"{{", 0
 	defw	comma
 
-; ( -( heap )- a )
+; ( -( heap )- )
 sopen:	vm
 	defw	litS8
 	defb	  litS8e - litS8
@@ -21,8 +21,7 @@ litS8:		ld	c, (hl)
 litS8e:	defw	comma
 	defw	litN8
 	defb	  0
-	defw	ccomma
-	defw	tail, here
+	defw	tail, ccomma
 
 vmcomma_link:
 	defw	sopen_link
