@@ -546,6 +546,15 @@ next
 
 ' selfref does
 
+native }~self
+c (hl) ld_r,r
+b FF ld_r,x
+bc add_hl,rr
+ex_(sp),hl
+ret
+
+' ~selfref does
+
 {: seedl bye }
 
 start flabel
