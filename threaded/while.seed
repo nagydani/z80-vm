@@ -1,7 +1,7 @@
 {: while
 >r
 dup >r
-{ r> drop r> drop ~ } |
+{ r> drop r> drop }~ } |
 r> r> swap
 >r dup >r
 execute

@@ -93,9 +93,23 @@ traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
 { 'endcomp }	{ w, }~fail			xcomps assoc
 { 'endtail }	{ w, word xfind 2 + w, }~ fail	xcomps assoc
 
+\ while loop
+{: while
+>r
+dup >r
+{ r> drop r> drop }~ } |
+r> r> swap
+>r dup >r
+execute
+r> r> swap
+}~self
+
 \ cross-compiler
 {: xcompile
 word
+{ pad c@ 0= drop }
+{ input word }
+while
 { xfind dup 2 + swap w@ xcomps recall }
 { pad s>number ' xliteral }
 |
@@ -157,14 +171,18 @@ comma @ w, }
 {: does
 xlast
 2 +
+offset @ +
 skipstr
-}~ w!
+w! }
+
+\ target tick is the tick
+{: ' x' }
 
 \ colon definitions
 {: {:
 native
 vm
-' xcompile
+{ xcompile }
 'id}~|
 
 \ beginning of cross-compilation
@@ -273,7 +291,7 @@ A cp_x
 (hl) a ld_r,r
 hl inc_rr
 a h ld_r,r
-l and
+l and_r
 a inc_r
 0 lb jr_nz
 1 rlabel
@@ -419,8 +437,7 @@ native carry?
 fail lb jr_c
 next
 
-native 'endcomp
-dat
+native endcomp
 0 flabel
 $ endcomp !
 vm
@@ -431,25 +448,7 @@ native }
 hl pop
 next
 
-'endcomp does
-
-\ empty word, writing " ok" in interpret mode
-xcreate
-0 fl0
-a bl ld_r,x
-0 out_(x),a
-a ascii o ld_r,x
-0 out_(x),a
-a ascii k ld_r,x
-0 out_(x),a
-a A ld_r,x
-0 out_(x),a
-next
-0 flabel
-vm
-x' drop w,
-x' input w,
-x' } w,
+' endcomp does
 
 \ arithmetic primitives
 
@@ -492,11 +491,11 @@ next
 
 native 1+
 tobc
-inc bc
+bc inc_rr
 frombc
 a b ld_r,r
 c or_r
-1 sub_a,x
+1 sub_x
 next
 
 native cell+
@@ -519,8 +518,7 @@ c sla
 b rl
 frombc
 next
-
-
+ 
 \ heap manipulation
 
 native here
@@ -528,7 +526,25 @@ bc DP ld_rr,(xx)
 frombc
 next
 
+\ self references
 
+{: selfref , dup dup here - c, }
+
+{: ~selfref selfref }~fail
+
+native 'self
+c (hl) ld_r,r
+b FF ld_r,x
+hl push
+bc add_hl,rr
+c l ld_r,r
+b h ld_r,r
+hl pop
+hl inc_rr
+frombc
+next
+
+' selfref does
 
 {: seedl bye }
 
@@ -541,7 +557,7 @@ de STK_BOT ld_rr,xx
 sp STK_TOP ld_rr,xx
 ix, hl vm_l lb ld_rr,xx
 vm
-\ x' seedl w,
+x' seedl w,
 x' cpu w,
 halt
 
