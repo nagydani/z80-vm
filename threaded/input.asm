@@ -74,13 +74,9 @@ word1e:	defw	litS8
 	defb	  word2e - word2
 word2:		vm
 		defw	litN8
-		defb	  0
-		defw	swap
-		defw	cstore
-		defw	dup
-		defw	cfetch
-		defw	whitespace
-		defw	drop
-		defw	tib
+		defb	  0		; a pad 0
+		defw	swap		; a 0 pad
+		defw	cstore		; a
+		defw	tib		; a tib
 		defw	tail, store
 word2e:	defw	tailor

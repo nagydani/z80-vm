@@ -28,7 +28,7 @@ STK_BOT:equ	0xC000
 empty_link:
 	defw	0
 	defb	0
-	defw	input
+	defw	emptyc
 
 empty:	vm
 	defw	litS8
@@ -36,6 +36,10 @@ empty:	vm
 iok:		defb	" ok", 0
 ioke:	defw	type
 	defw	cr
+	defw	tail, input
+
+emptyc:	vm
+	defw	drop
 	defw	tail, input
 
 input_link:

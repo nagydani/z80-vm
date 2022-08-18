@@ -8,15 +8,16 @@ cword:		vm
 		defw	dup
 		defw	cellplus
 		defw	swap
-		defw	fetch
-		defw	tail, exec
+		defw	tail, fetch
 cworde:	defw	litS8
 	defb	  cnume - cnum
 cnum:		vm
 		defw	pad
 		defw	sToNumber
-		defw	tail, literal
+		defw	litN16, literal
+		defw	tail2
 cnume:	defw	or
+	defw	exec
 	defw	tailself
 	defb	  compile - $
 
