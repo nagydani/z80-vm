@@ -1,5 +1,8 @@
 hex
 
+\ 16-bit negation
+{: negate	10000 swap - }
+
 \ 16-bit little-endian comma
 {: w,		100 /mod swap c, c, }
 
