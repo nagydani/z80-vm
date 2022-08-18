@@ -281,10 +281,64 @@ a inc_r
 hl pop
 next
 
+\ stack manipulation primitives
+
 native drop
 de dec_rr
 de dec_rr
 next
+
+native nip
+tobc
+de dec_rr
+de dec_rr
+frombc
+next
+
+native swap
+tobc
+bc push
+tobc
+bc push
+af pop
+bc pop
+af push
+frombc
+bc pop
+frombc
+next
+
+native dup
+hl push
+hl 2 negate ld_rr,xx
+0 label
+de add_hl,rr
+ldi
+ldi
+hl pop
+next
+
+native over
+hl push
+hl 4 negate ld_rr,xx
+0 lb jr
+
+native third
+hl push
+hl 6 negate ld_rr,xx
+0 lb jr
+
+native >r
+tobc
+bc push
+next
+
+native r>
+bc pop
+frombc
+next
+
+\ failure
 
 xcreate }~fail
 0 fl0
@@ -397,7 +451,53 @@ x' drop w,
 x' input w,
 x' } w,
 
-\ arithmetics
+\ arithmetic primitives
+
+native +
+tobc
+bc push
+tobc
+ex_(sp),hl
+bc add_hl,rr
+c l ld_r,r
+b h ld_r,r
+hl pop
+frombc
+next
+
+native -
+tobc
+bc push
+tobc
+bc push
+exx
+hl pop
+bc pop
+a and_r
+bc sbc_hl,rr
+hl push
+exx
+bc pop
+frombc
+next
+
+native 1-
+tobc
+bc dec_rr
+frombc
+a b ld_r,r
+c and_r
+1 add_a,x
+next
+
+native 1+
+tobc
+inc bc
+frombc
+a b ld_r,r
+c or_r
+1 sub_a,x
+next
 
 native cell+
 tobc
@@ -405,6 +505,30 @@ bc inc_rr
 bc inc_rr
 frombc
 next
+
+native cell-
+tobc
+bc dec_rr
+bc dec_rr
+frombc
+next
+
+native cells
+tobc
+c sla
+b rl
+frombc
+next
+
+
+\ heap manipulation
+
+native here
+bc DP ld_rr,(xx)
+frombc
+next
+
+
 
 {: seedl bye }
 
