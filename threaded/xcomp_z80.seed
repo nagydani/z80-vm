@@ -73,6 +73,10 @@ endcomp @ }
 {: 'endtail ( -- a )
 endtail @ }
 
+\ target 'quotate
+{: 'quotate ( -- a )
+quotate @ }
+
 \ create association
 {: assoc ( key value table -( heap )- )
 dup @ cons swap !
@@ -97,6 +101,16 @@ word
 |
 execute
 }~self
+
+\ cross-quotate
+{: xquotate
+x{{
+{ pad " {" s= xcompile }
+'id| \ TODO: string literals
+x}}
+}
+
+{ 'quotate }	{ drop quotate }		xcomps assoc
 
 \ restart addresses
  0 constant start_rst
@@ -365,6 +379,7 @@ next
 
 'endcomp does
 
+\ empty word, writing " ok" in interpret mode
 xcreate
 0 fl0
 a bl ld_r,x
@@ -381,6 +396,15 @@ vm
 x' drop w,
 x' input w,
 x' } w,
+
+\ arithmetics
+
+native cell+
+tobc
+bc inc_rr
+bc inc_rr
+frombc
+next
 
 {: seedl bye }
 
