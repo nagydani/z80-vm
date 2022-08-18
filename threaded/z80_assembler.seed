@@ -167,7 +167,7 @@ create labels
 {: or_x		F6 c, c, }
 {: ld_sp,hl	F9 c, }
 {: ei		FB c, }
-{: cp_x		FE c, }
+{: cp_x		FE c, c, }
 
 \ ED-prefixed opcodes
 {: ed,		ED c, }
