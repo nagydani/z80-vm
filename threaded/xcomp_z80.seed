@@ -1,5 +1,5 @@
 \ pointer to cross-compiled vocabulary
-0 variable xcurrent
+create xcurrent 0 w,
 
 {: xcons ( a -- a )
 $ swap }~ w,
@@ -7,8 +7,96 @@ $ swap }~ w,
 {: xlast ( -- a )
 xcurrent }~ w@
 
+{: xtraverse& ( a -( fail pend )- a )
+w@ 0<>
+offset @ +
+' xtraverse& &	\ TODO find out why 'self does not work
+dup
+2 +
+}
+
+{: xsearch ( a -( pad fail )- a )
+xtraverse& pad s= cut }~ nip
+
+{: xfind ( -( pad fail )- a )
+xcurrent xsearch }~ skipstr
+
+\ target tick
+{: x'
+word xfind 2 + offset @ }~ -
+
+\ target create
+{: xcreate
+xlast
+xcons
+xcurrent w!
+word
+pad
+s,
+}
+
+\ target pointer to 8-bit literal
+0 variable lit8
+
+\ target pointer to 16-bit literal
+0 variable lit16
+
+\ target pointer to 8-bit string literal
+0 variable lits
+
+{: xliteral ( x -( heap )- )
+{ FF <= lit8 @ w, }~ c, { lit16 @ w, }~ w, }~|
+
+{: x{{ ( -( heap )- a )
+lits @ w, 0 c, }~ here
+
+{: x}} ( a -( heap )- )
+dup here swap - swap 1- }~ c,
+
 \ target pointer to comma
 0 variable comma
+
+\ target pointer to endcomp
+0 variable endcomp
+
+\ target pointer to endtail
+0 variable endtail
+
+\ target pointer to quotate
+0 variable quotate
+
+\ target 'endcomp
+{: 'endcomp ( -- a )
+endcomp @ }
+
+\ target 'endtail
+{: 'endtail ( -- a )
+endtail @ }
+
+\ create association
+{: assoc ( key value table -( heap )- )
+dup @ cons swap !
+swap , , }
+
+\ recall asocciation
+{: recall ( key table -- value )
+traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
+
+\ target host associations
+0 variable xcomps
+
+{ comma @ }	' w,				xcomps assoc
+{ 'endcomp }	{ w, }~fail			xcomps assoc
+{ 'endtail }	{ w, word xfind 2 + w, }~ fail	xcomps assoc
+
+\ cross-compiler
+{: xcompile
+word
+{ xfind dup 2 + swap w@ xcomps recall }
+{ pad s>number ' xliteral }
+|
+execute
+}~self
 
 \ restart addresses
  0 constant start_rst
@@ -21,10 +109,23 @@ xcurrent }~ w@
 \ system variables
 2000 constant DP
 2002 constant TIB
+2004 constant FAIL
+2006 constant ERR_SP
+2008 constant CONTEXT
+200A constant CURRENT
+200C constant DICTIONARY
+200E constant PAD
+202E constant BASE
+
+\ memory layout
+C000 constant STK_BOT
+0000 constant STK_TOP
 
 \ labels
 7 constant start
 6 constant catch
+5 constant fail
+4 constant vm_l
 
 \ macros
 {: vm		vm_rst rst }
@@ -33,21 +134,26 @@ xcurrent }~ w@
 {: frombc	push_rst rst }
 {: next		ix, jp_(hl) }
 
-\ target create
-{: xcreate
-xlast
-xcons
-xcurrent w!
-word
-pad
-s,
-}
-
 \ native word definition
 {: native
 xcreate
 comma @ w, }
 
+\ change compile-time behavior
+{: does
+xlast
+2 +
+skipstr
+}~ w!
+
+\ colon definitions
+{: {:
+native
+vm
+' xcompile
+'id}~|
+
+\ beginning of cross-compilation
 create target
 0 org
 
@@ -57,7 +163,7 @@ start fl1 jp
 
 \ begin threading
 ex_(sp),hl
-0 label
+vm_l label
 c (hl) ld_r,r
 hl inc_rr
 b (hl) ld_r,r
@@ -119,17 +225,17 @@ DP ld_hl,(xx)
 (hl) c ld_r,r
 0 lb jr
 
-native bye ( -- )
+native bye ( -( halt )- )
 halt
+
+native cpu ( -- )
+ex_(sp),hl
+ret
 
 native emit ( c -( emit )- )
 de dec_rr
 de dec_rr
 ld_a,(de)
-D cp_x
-0 jr_nz_f
-a A ld_r,x
-0 rlabel
 0 out_(x),a
 next
 
@@ -161,11 +267,134 @@ a inc_r
 hl pop
 next
 
+native drop
+de dec_rr
+de dec_rr
+next
+
+xcreate }~fail
+0 fl0
+fail label
+bc FAIL ld_rr,xx
+catch flabel
+catch label
+sp ERR_SP ld_rr,(xx)
+hl pop
+a and_r
+bc sbc_hl,rr
+de pop
+a (hl) ld_r,r
+(hl) e ld_r,r
+e a ld_r,r
+hl inc_rr
+a (hl) ld_r,r
+(hl) d ld_r,r
+d a ld_r,r
+hl pop
+ERR_SP ld_(xx),hl
+catch lb jr_nz
+ex_de,hl
+de pop
+ex_(sp),hl
+ret
+
+native =
+tobc
+bc push
+tobc
+ex_(sp),hl
+a and_r
+bc sbc_hl,rr
+hl pop
+fail lb jr_nz
+1 label
+de inc_rr
+de inc_rr
+next
+
+native <>
+tobc
+bc push
+tobc
+ex_(sp),hl
+a and_r
+bc sbc_hl,rr
+hl pop
+fail lb jr_z
+1 lb jr
+
+native 0=
+ex_de,hl
+hl dec_rr
+a (hl) ld_r,r
+hl dec_rr
+(hl) or_r
+hl inc_rr
+hl inc_rr
+ex_de,hl
+fail lb jr_nz
+next
+
+native 0<>
+ex_de,hl
+hl dec_rr
+a (hl) ld_r,r
+hl dec_rr
+(hl) or_r
+hl inc_rr
+hl inc_rr
+ex_de,hl
+fail lb jr_z
+next
+
+native carry?
+fail lb jr_c
+next
+
+native 'endcomp
+dat
+0 flabel
+$ endcomp !
+vm
+comma @ w,
+fail lb w,
+
+native }
+hl pop
+next
+
+'endcomp does
+
+xcreate
+0 fl0
+a bl ld_r,x
+0 out_(x),a
+a ascii o ld_r,x
+0 out_(x),a
+a ascii k ld_r,x
+0 out_(x),a
+a A ld_r,x
+0 out_(x),a
+next
+0 flabel
+vm
+x' drop w,
+x' input w,
+x' } w,
+
+{: seedl bye }
 
 start flabel
-\ debug greeting
-a ascii X ld_r,x
-0 out_(x),a
+a A ld_r,x
+BASE ld_(xx),a
+hl DICTIONARY ld_rr,xx
+DP ld_(xx),hl
+de STK_BOT ld_rr,xx
+sp STK_TOP ld_rr,xx
+ix, hl vm_l lb ld_rr,xx
+vm
+\ x' seedl w,
+x' cpu w,
 halt
 
 target dump
