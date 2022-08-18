@@ -16,18 +16,8 @@ swap:	toBC
 	fromBC
 	jp	(ix)
 
-over_link:
-	defw	swap_link
-	defb	"over", 0
-	defw	comma
-
-; ( a b -- a b a )
-over:	push	hl
-	ld	hl, -4
-	jr	ontop
-
 dup_link:
-	defw	over_link
+	defw	swap_link
 	defb	"dup", 0
 	defw	comma
 
@@ -40,8 +30,28 @@ ontop:	add	hl, de
 	pop	hl
 	jp	(ix)
 
-drop_link:
+over_link:
 	defw	dup_link
+	defb	"over", 0
+	defw	comma
+
+; ( a b -- a b a )
+over:	push	hl
+	ld	hl, -4
+	jr	ontop
+
+third_link:
+	defw	over_link
+	defb	"third", 0
+	defw	comma
+
+; ( a b c -- a b c a )
+third:	push	hl
+	ld	hl, -6
+	jr	ontop
+
+drop_link:
+	defw	third_link
 	defb	"drop", 0
 	defw	comma
 
