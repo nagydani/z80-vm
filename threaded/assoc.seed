@@ -1,0 +1,8 @@
+{: assoc ( key value table -( heap )- )
+dup @ cons swap !
+swap , , }
+
+{: recall ( key table -- value )
+traverse& third over @ = cut drop drop nip cell+ cell+ @ }
+
+
