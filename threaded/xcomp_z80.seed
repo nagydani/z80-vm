@@ -140,7 +140,7 @@ x{{
 x}}
 }
 
-{ 'quotate }	{ drop quotate }		xcomps assoc
+{ 'quotate }	{ drop xquotate }		xcomps assoc
 
 \ restart addresses
  0 constant start_rst
@@ -808,8 +808,6 @@ x' handle w,
 
 \ literal constructors
 
-\ quotation
-
 \ 8-bit string literal
 $ lits !
 c (hl) ld_r,r
@@ -886,9 +884,21 @@ x' >lit does
 
 x' >lit does
 
+postpone compile
+
+\ quotation
+
+{: quotate {{ execute }~ }}
+
+x' quotate quotate !
+
+{: { here vm, ' compile 'id}~|
+
+'quotate does
+
 \ seed loop
 
-{: seedl ascii B emit }~ bye
+{: seedl { ascii B emit } execute }~ bye
 
 start flabel
 a A ld_r,x
