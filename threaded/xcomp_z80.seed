@@ -91,7 +91,8 @@ traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
 
 { comma @ }	' w,				xcomps assoc
 { 'endcomp }	{ w, }~fail			xcomps assoc
-{ 'endtail }	{ w, word xfind 2 + w, }~ fail	xcomps assoc
+{ 'endtail }	{ w, word xfind
+		offset @ - 2 + w, }~fail	xcomps assoc
 
 \ while loop
 {: while
@@ -770,6 +771,22 @@ ex_(sp),hl
 ret
 
 'endtail does
+
+native |
+vm
+FAIL 1- literal
+x' }~ w,
+x' handle w,
+
+{: }~| | }~ }
+
+'endcomp does
+
+{: 'id| 'id }~|
+
+{: 'id}~| 'id| }~ }
+
+'endcomp does
 
 {: seedl bye }
 
