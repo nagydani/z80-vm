@@ -62,6 +62,9 @@ dup here swap - swap 1- }~ c,
 \ target pointer to endtail
 0 variable endtail
 
+\ target pointer to >lit
+0 variable >lit
+
 \ target pointer to quotate
 0 variable quotate
 
@@ -93,6 +96,15 @@ traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
 { 'endcomp }	{ w, }~fail			xcomps assoc
 { 'endtail }	{ w, word xfind
 		offset @ - 2 + w, }~fail	xcomps assoc
+
+\ literal constructors
+
+{: x>lit
+{ pad " ascii" s= word pad c@ xliteral }
+{ pad " '" s= word xfind offset @ - 2 + xliteral }
+}~|
+
+{ >lit @ }	' x>lit				xcomps assoc
 
 \ while loop
 {: while
@@ -330,6 +342,12 @@ halt
 native cpu ( -- )
 ex_(sp),hl
 ret
+
+\ constants
+TIB constant tib
+PAD constant pad
+
+\ I/O effects
 
 native emit ( c -( emit )- )
 de dec_rr
@@ -711,11 +729,6 @@ next
 
 {: < 1- carry? <= }
 
-\ character ranges
-
-\ whitespace
-{: ws 20 <= }
-
 \ string functions
 
 {: nonempty dup c@ 0<> drop }
@@ -775,6 +788,8 @@ ret
 
 'endtail does
 
+\ disjunctions
+
 native |
 vm
 FAIL 1- literal
@@ -791,7 +806,89 @@ x' handle w,
 
 'endcomp does
 
-{: seedl bye }
+\ literal constructors
+
+\ quotation
+
+\ 8-bit string literal
+$ lits !
+c (hl) ld_r,r
+hl inc_rr
+b 0 ld_r,x
+ex_de,hl
+(hl) e ld_r,r
+hl inc_rr
+(hl) d ld_r,r
+hl inc_rr
+ex_de,hl
+bc add_hl,rr
+next
+
+\ 8-bit numeric literal
+$ lit8 !
+ldi
+a xor_r
+ld_(de),a
+de inc_rr
+next
+
+\ 16-bit numeric literal
+$ lit16 !
+ldi
+ldi
+next
+
+native {{
+vm
+lits @ xliteral
+x' , w,
+0 xliteral
+x' }~ w,
+x' c, w,
+
+native vm,
+vm_rst xliteral
+x' }~ w,
+x' c, w,
+
+{: }} dup here swap - swap 1- }~ c!
+
+\ numeric literal
+native literal
+vm
+x{{
+	vm
+	FF xliteral
+	x' <= w,
+	lit8 @ xliteral
+	x' , w,
+	x' }~ w,
+	x' c, w,
+x}}
+x{{
+	vm
+	lit16 @ xliteral
+	x' , w,
+	x' }~ w,
+	x' , w,
+x}}
+x' }~| w,
+
+{: >lit execute }~ literal
+
+x' >lit >lit !
+
+{: ' word find }~ cell+
+
+x' >lit does
+
+{: ascii word pad }~ c@
+
+x' >lit does
+
+\ seed loop
+
+{: seedl ascii B emit }~ bye
 
 start flabel
 a A ld_r,x
