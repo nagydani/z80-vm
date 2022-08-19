@@ -168,6 +168,12 @@ C000 constant STK_BOT
 xcreate
 comma @ w, }
 
+\ postpone colon definition
+
+{: postpone
+native
+0 jp }
+
 \ constant definition
 {: constant
 native
@@ -186,6 +192,15 @@ w! }
 \ target quotation
 {: {
 $
+vm
+' xcompile
+'id}~|
+
+\ postponed colon definition
+{: {::
+word xfind
+3 +
+$ swap w!
 vm
 ' xcompile
 'id}~|
@@ -734,6 +749,27 @@ ex_(sp),hl
 ret
 
 { selfref }~fail does
+
+postpone word
+
+postpone find
+
+\ tail call
+
+{: endtail
+, word find cell+ , }~fail
+
+x' endtail endtail !
+
+native }~
+a (hl) ld_r,r
+hl inc_rr
+h (hl) ld_r,r
+l a ld_r,r
+ex_(sp),hl
+ret
+
+'endtail does
 
 {: seedl bye }
 
