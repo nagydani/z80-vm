@@ -114,6 +114,9 @@ while
 { xfind dup 2 + swap w@ xcomps recall }
 { pad s>number ' xliteral }
 |
+swap
+offset @ -
+swap
 execute
 }~self
 
