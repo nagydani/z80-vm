@@ -142,8 +142,9 @@ x}}
 2008 constant CONTEXT
 200A constant CURRENT
 200C constant DICTIONARY
-200E constant PAD
-202E constant BASE
+200E constant BASE
+2010 constant PAD
+  20 constant PAD_LEN
 
 \ memory layout
 C000 constant STK_BOT
@@ -167,6 +168,13 @@ C000 constant STK_BOT
 xcreate
 comma @ w, }
 
+\ constant definition
+{: constant
+native
+bc swap ld_rr,xx
+frombc
+next }
+
 \ change compile-time behavior
 {: does
 xlast
@@ -175,17 +183,21 @@ offset @ +
 skipstr
 w! }
 
-\ target tick is the tick
-{: ' x' }
+\ target quotation
+{: {
+$
+vm
+' xcompile
+'id}~|
 
 \ colon definitions
 {: {:
 native
 vm
-{ xcompile }
+' xcompile
 'id}~|
 
-\ beginning of cross-compilation
+\ Beginning of cross-compilation
 create target
 0 org
 
@@ -255,6 +267,42 @@ tobc
 hl push
 DP ld_hl,(xx)
 (hl) c ld_r,r
+0 lb jr
+
+native @
+tobc
+ld_a,(bc)
+bc inc_rr
+ld_(de),a
+ld_a,(bc)
+0 label
+de inc_rr
+ld_(de),a
+de inc_rr
+next
+
+native c@
+tobc
+ld_a,(bc)
+ld_(de),a
+xor a
+0 lb jr
+
+native c!
+de dec_rr
+0 label
+de dec_rr
+ld_a,(de)
+ld_(bc),a
+next
+
+native !
+tobc
+de dec_rr
+bc inc_rr
+ld_a,(de)
+ld_(bc),a
+bc dec_rr
 0 lb jr
 
 native bye ( -( halt )- )
@@ -448,7 +496,122 @@ native }
 hl pop
 next
 
-' endcomp does
+'endcomp does
+
+native 'id
+bc 0 fl1 ld_rr,xx
+frombc
+0 flabel
+next
+
+native execute
+tobc
+bc push
+ret
+
+native &
+tobc
+de push
+exx
+ERR_SP ld_hl,(xx)
+hl push
+FAIL ld_hl,(xx)
+hl push
+hl FAIL ld_rr,xx
+hl push
+ERR_SP sp ld_(xx),rr
+exx
+FAIL bc ld_(xx),rr
+bc 6 ld_rr,xx
+bc push
+1 label
+bc 0 fl1 ld_rr,xx
+bc push
+next
+2 label
+0 flabel
+' cpu w,
+hl inc_rr
+hl inc_rr
+hl push
+exx
+hl pop
+sp add_hl,rr
+e (hl) ld_r,r
+hl inc_rr
+d (hl) ld_r,r
+de push
+exx
+ex_(sp),hl
+1 lb jr
+
+native handle
+hl push
+tobc
+bc inc_rr
+bc push
+tobc
+bc push
+exx
+bc pop
+hl pop
+a (hl) ld_r,r
+(hl) c ld_r,r
+c a ld_r,r
+hl inc_rr
+a (hl) ld_r,r
+(hl) b ld_r,r
+b a ld_r,r
+hl dec_rr
+exx
+de dec_rr
+de dec_rr
+de push
+de inc_rr
+de inc_rr
+bc ERR_SP ld_rr,(xx)
+bc push
+hl push
+ERR_SP sp ld_(xx),rr
+exx
+hl 0 fl1 ld_rr,xx
+hl push
+tobc
+bc push
+ret
+0 flabel
+' cpu w,
+hl ERR_SP ld_rr,(xx)
+a and_r
+sp sbc_hl,rr
+0 jr_nz_f
+exx
+hl pop
+de pop
+(hl) e ld_r,r
+hl inc_rr
+(hl) d ld_r,r
+hl pop
+ERR_SP ld_(xx),hl
+de pop
+exx
+hl pop
+next
+0 rlabel
+sp add_hl,rr
+hl inc_rr
+hl inc_rr
+hl inc_rr
+hl inc_rr
+c (hl) ld_r,r
+hl inc_rr
+b (hl) ld_r,r
+hl 6 ld_rr,xx
+bc add_hl,rr
+sp sbc_hl,rr
+ex_(sp),hl
+hl 1 lb ld_rr,xx
+next
 
 \ arithmetic primitives
 
@@ -518,7 +681,26 @@ c sla
 b rl
 frombc
 next
- 
+
+\ comparisons
+
+{: >= over swap - carry? drop }
+
+{: <= over - carry? drop }
+
+{: > 1+ carry? >= }
+
+{: < 1- carry? <= }
+
+\ character ranges
+
+\ whitespace
+{: ws 20 <= }
+
+\ string functions
+
+{: nonempty dup c@ 0<> drop }
+
 \ heap manipulation
 
 native here
@@ -529,8 +711,6 @@ next
 \ self references
 
 {: selfref , dup dup here - c, }
-
-{: ~selfref selfref }~fail
 
 native 'self
 c (hl) ld_r,r
@@ -544,7 +724,7 @@ hl inc_rr
 frombc
 next
 
-' selfref does
+x' selfref does
 
 native }~self
 c (hl) ld_r,r
@@ -553,7 +733,7 @@ bc add_hl,rr
 ex_(sp),hl
 ret
 
-' ~selfref does
+{ selfref }~fail does
 
 {: seedl bye }
 
