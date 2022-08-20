@@ -166,11 +166,22 @@ C000 constant STK_BOT
 {: frombc	push_rst rst }
 {: next		ix, jp_(hl) }
 
+\ cross string literal
+{: xlits
+bite
+drop
+{ bite ascii " <>
+        { ascii \ = drop ' bite { A } }~|
+        'id| c,
+}~self
+{ 0 }~ c,
+}~|
+
 \ cross-quotate
 {: xquotate
 x{{
 { pad " {" s= drop vm ' xcompile 'id}~|
-{ pad type cr }~fail
+{ pad " \"" s= drop xlits }
 |
 x}}
 }
@@ -894,9 +905,23 @@ x' quotate quotate !
 
 'quotate does
 
+{: bite
+tib @ dup c@ 0<> swap 1+ tib }~ !
+
+{: "
+here bite drop
+	{ bite ascii " <>
+		{ ascii \ = ' bite { A } }~|
+		'id| c,
+	}~self
+	{ 0 }~ c,
+}~|
+
+'quotate does
+
 \ seed loop
 
-{: seedl { } drop ascii B emit }~ bye
+{: seedl " Hello" c@ emit }~ bye
 
 start flabel
 a A ld_r,x
