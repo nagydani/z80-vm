@@ -905,6 +905,8 @@ x' quotate quotate !
 
 'quotate does
 
+\ quoted string literal
+
 {: bite
 tib @ dup c@ 0<> swap 1+ tib }~ !
 
@@ -919,9 +921,25 @@ here bite drop
 
 'quotate does
 
+\ output functions
+
+\ ascii code of space (a.k.a. blank)
+bl constant bl
+
+\ emit one space
+{: space bl }~ emit
+
+\ emit a newline (a.k.a. carriage return)
+{: cr A }~ emit
+
+{: type
+{ dup c@ 0<> emit 1+ }~self
+'id|
+}~ drop
+
 \ seed loop
 
-{: seedl " Hello" c@ emit }~ bye
+{: seedl " Hello" type cr }~ bye
 
 start flabel
 a A ld_r,x
