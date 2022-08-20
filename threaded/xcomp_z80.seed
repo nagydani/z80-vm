@@ -123,24 +123,11 @@ word
 { pad c@ 0= drop }
 { input word }
 while
-{ xfind dup 2 + swap w@ xcomps recall }
+{ xfind dup 2 + offset @ - swap w@ xcomps recall }
 { pad s>number ' xliteral }
 |
-swap
-offset @ -
-swap
 execute
 }~self
-
-\ cross-quotate
-{: xquotate
-x{{
-{ pad " {" s= xcompile }
-'id| \ TODO: string literals
-x}}
-}
-
-{ 'quotate }	{ drop xquotate }		xcomps assoc
 
 \ restart addresses
  0 constant start_rst
@@ -178,6 +165,17 @@ C000 constant STK_BOT
 {: tobc		pop_rst rst }
 {: frombc	push_rst rst }
 {: next		ix, jp_(hl) }
+
+\ cross-quotate
+{: xquotate
+x{{
+{ pad " {" s= drop vm ' xcompile 'id}~|
+{ pad type cr }~fail
+|
+x}}
+}
+
+{ 'quotate }	{ drop xquotate }		xcomps assoc
 
 \ native word definition
 {: native
@@ -792,7 +790,7 @@ ret
 
 native |
 vm
-FAIL 1- literal
+FAIL 1- xliteral
 x' }~ w,
 x' handle w,
 
@@ -898,7 +896,7 @@ x' quotate quotate !
 
 \ seed loop
 
-{: seedl { ascii B emit } execute }~ bye
+{: seedl { } drop ascii B emit }~ bye
 
 start flabel
 a A ld_r,x
