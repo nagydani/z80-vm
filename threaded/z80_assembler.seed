@@ -149,6 +149,7 @@ create labels
 {: add_a,x	C6 c, c, }
 {: rst		C7 or c, }
 {: ret		C9 c, }
+{: call		CD c, w, }
 {: adc_a,x	CE c, c, }
 
 {: out_(x),a	D3 c, c, }
