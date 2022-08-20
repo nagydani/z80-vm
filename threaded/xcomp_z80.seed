@@ -51,7 +51,7 @@ s,
 lits @ w, 0 c, }~ here
 
 {: x}} ( a -( heap )- )
-dup here swap - swap 1- }~ c,
+dup here swap - swap 1- }~ c!
 
 \ target pointer to comma
 0 variable comma
