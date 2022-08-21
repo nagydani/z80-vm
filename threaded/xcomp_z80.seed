@@ -163,7 +163,7 @@ execute
 
 \ memory layout
 C000 constant STK_BOT
-0000 constant STK_TOP
+FF00 constant STK_TOP
 
 \ labels
 7 constant start
@@ -960,7 +960,7 @@ bl constant bl
 
 \ seed loop
 
-{: seedl " Hello" type cr }~ bye
+{: seedl input tib @ type cr }~self
 
 start flabel
 a A ld_r,x
