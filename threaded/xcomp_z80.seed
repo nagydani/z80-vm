@@ -507,6 +507,8 @@ de pop
 ex_(sp),hl
 ret
 
+\ integer comparison primitives
+
 native =
 tobc
 bc push
@@ -560,6 +562,8 @@ native carry?
 fail lb jr_c
 next
 
+\ successful end of computation
+
 native endcomp
 0 flabel
 $ endcomp !
@@ -573,17 +577,23 @@ next
 
 'endcomp does
 
+\ reference to identity
+
 native 'id
 bc 0 fl1 ld_rr,xx
 frombc
 0 flabel
 next
 
+\ execute quotation
+
 native execute
 $ exec !
 tobc
 bc push
 ret
+
+\ pend
 
 native &
 tobc
@@ -621,7 +631,9 @@ exx
 ex_(sp),hl
 1 lb jr
 
-native handle
+\ handle effect
+
+native handle ( x h e -- )
 hl push
 tobc
 bc inc_rr
@@ -840,7 +852,7 @@ next
 
 \ string comparison primitives (perf. crit.)
 
-\ compare two strings
+\ compare two strings for equality
 0 label
 ex_de,hl
 hl dec_rr
@@ -1098,10 +1110,40 @@ x' execute does
 
 x' execute does
 
-\ output functions
+\ character functions
 
 \ ascii code of space (a.k.a. blank)
 bl constant bl
+
+\ check whitespace
+{: ws ( c -( fail )- c )
+bl }~ <=
+
+\ check printable
+{: printable ( c -( fail )- c )
+ascii ! >= ascii ~ }~ <=
+
+\ decimal digit
+{: ddigit ( c -( fail )- c )
+ascii 0 >= ascii 9 }~ <=
+
+\ lowercase letter
+{: lower ( c -( fail )- c )
+ascii a >= ascii z }~ <=
+
+\ uppercase letter
+{: upper ( c -( fail )- c )
+ascii A >= ascii Z }~ <=
+
+\ letter
+{: letter ( c -( fail )- c )
+' lower ' upper }~|
+
+\ alphanumeric
+{: alphanum ( c -( fail )- c )
+' ddigit ' letter }~|
+
+\ output functions
 
 \ emit one space
 {: space ( -( emit )- )
