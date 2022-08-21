@@ -760,6 +760,92 @@ b rl
 frombc
 next
 
+native u* ( n n -- l h )
+tobc
+bc push
+tobc
+bc push
+exx
+bc pop
+de pop
+hl 0 ld_rr,xx
+a 10 ld_r,x
+0 label
+hl add_hl,rr
+ex_de,hl
+hl adc_hl,rr
+ex_de,hl
+1 jr_nc_f
+bc add_hl,rr
+2 jr_nc_f
+de inc_rr
+1 rlabel
+2 rlabel
+a dec_r
+0 lb jr_nz
+de push
+hl push
+exx
+bc pop
+frombc
+bc pop
+frombc
+next
+
+native /mod ( n n -- n n )
+tobc
+bc push
+tobc
+bc push
+exx
+bc pop
+de pop
+hl 0 ld_rr,xx
+a b ld_r,r
+b 8 ld_r,x
+0 label
+rla
+hl adc_hl,rr
+de sbc_hl,rr
+1 jr_nc_f
+de add_hl,rr
+1 rlabel
+0 djnz
+rla
+cpl
+b a ld_r,r
+a c ld_r,r
+c b ld_r,r
+b 8 ld_r,x
+0 label
+rla
+hl adc_hl,rr
+de sbc_hl,rr
+1 jr_nc_f
+de add_hl,rr
+1 rlabel
+0 djnz
+rla
+cpl
+b c ld_r,r
+c a ld_r,r
+bc push
+hl push
+exx
+bc pop
+frombc
+bc pop
+frombc
+next
+
+\ arithmetics
+
+{: * u* drop }
+
+{: / /mod swap drop }
+
+{: mod /mod drop }
+
 \ comparisons
 
 {: >= over swap - carry? drop }
