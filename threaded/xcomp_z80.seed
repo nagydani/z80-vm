@@ -1149,7 +1149,7 @@ x' execute does
 
 x' execute does
 
-\ character functions
+\ character filters
 
 \ ascii code of space (a.k.a. blank)
 bl constant bl
@@ -1181,6 +1181,18 @@ ascii A >= ascii Z }~ <=
 \ alphanumeric
 {: alphanum ( c -( fail )- c )
 ' ddigit ' letter }~|
+
+\ character mappers
+
+\ capitalize
+{: >upper ( c -- c )
+{ lower DF }~ and
+'id}~|
+
+\ un-capitalize
+{: >lower ( c -- c )
+{ upper 20 }~ or
+'id}~|
 
 \ output functions
 
