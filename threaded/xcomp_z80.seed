@@ -62,6 +62,12 @@ dup here swap - swap 1- }~ c!
 \ target pointer to endtail
 0 variable endtail
 
+\ target pointer to selfref
+0 variable selfref
+
+\ target pointer to ~selfref
+0 variable ~selfref
+
 \ target pointer to >lit
 0 variable >lit
 
@@ -96,6 +102,12 @@ traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
 { 'endcomp }	{ w, }~fail			xcomps assoc
 { 'endtail }	{ w, word xfind
 		offset @ - 2 + w, }~fail	xcomps assoc
+
+\ self references
+{: sref w, dup dup here - c, }
+
+{ selfref @ }	' sref				xcomps assoc
+{ ~selfref @ }	{ sref }~fail			xcomps assoc
 
 \ literal constructors
 
@@ -617,6 +629,8 @@ de inc_rr
 de inc_rr
 bc ERR_SP ld_rr,(xx)
 bc push
+exx
+bc push
 hl push
 ERR_SP sp ld_(xx),rr
 exx
@@ -626,7 +640,7 @@ tobc
 bc push
 ret
 0 flabel
-' cpu w,
+x' cpu w,
 hl ERR_SP ld_rr,(xx)
 a and_r
 sp sbc_hl,rr
@@ -753,6 +767,8 @@ next
 
 {: selfref , dup dup here - c, }
 
+x' selfref selfref !
+
 native 'self
 c (hl) ld_r,r
 b FF ld_r,x
@@ -773,6 +789,8 @@ b FF ld_r,x
 bc add_hl,rr
 ex_(sp),hl
 ret
+
+$ ~selfref !
 
 { selfref }~fail does
 
@@ -797,25 +815,7 @@ ret
 
 'endtail does
 
-\ disjunctions
-
-native |
-vm
-FAIL 1- xliteral
-x' }~ w,
-x' handle w,
-
-{: }~| | }~ }
-
-'endcomp does
-
-{: 'id| 'id }~|
-
-{: 'id}~| 'id| }~ }
-
-'endcomp does
-
-\ literal constructors
+\ literal opcodes
 
 \ 8-bit string literal
 $ lits !
@@ -844,6 +844,26 @@ $ lit16 !
 ldi
 ldi
 next
+
+\ disjunctions
+
+native |
+vm
+FAIL 1- xliteral
+x' }~ w,
+x' handle w,
+
+{: }~| | }~ }
+
+'endcomp does
+
+{: 'id| 'id }~|
+
+{: 'id}~| 'id| }~ }
+
+'endcomp does
+
+\ literal constructors
 
 native {{
 vm
