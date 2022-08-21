@@ -838,27 +838,9 @@ bc pop
 frombc
 next
 
-\ arithmetics
+\ string comparison primitives (perf. crit.)
 
-{: * u* drop }
-
-{: / /mod swap drop }
-
-{: mod /mod drop }
-
-\ comparisons
-
-{: >= over swap - carry? drop }
-
-{: <= over - carry? drop }
-
-{: > 1+ carry? >= }
-
-{: < 1- carry? <= }
-
-\ string functions
-
-\ compare two strings (performance critical)
+\ compare two strings
 0 label
 ex_de,hl
 hl dec_rr
@@ -901,18 +883,37 @@ hl push
 ccf
 1 lb jr
 
-{: nonempty dup c@ 0<> drop }
-
-\ heap manipulation
+\ more heap primitives
 
 native here
 bc DP ld_rr,(xx)
 frombc
 next
 
+\ tail call
+
+postpone word
+
+postpone find
+
+{: endtail
+, word find cell+ , }~fail
+
+x' endtail endtail !
+
+native }~
+a (hl) ld_r,r
+hl inc_rr
+h (hl) ld_r,r
+l a ld_r,r
+ex_(sp),hl
+ret
+
+'endtail does
+
 \ self references
 
-{: selfref , dup dup here - c, }
+{: selfref , dup dup here - }~ c,
 
 x' selfref selfref !
 
@@ -941,26 +942,23 @@ $ ~selfref !
 
 { selfref }~fail does
 
-postpone word
+\ arithmetics
 
-postpone find
+{: * u* }~ drop
 
-\ tail call
+{: / /mod swap }~ drop
 
-{: endtail
-, word find cell+ , }~fail
+{: mod /mod }~ drop
 
-x' endtail endtail !
+\ comparisons
 
-native }~
-a (hl) ld_r,r
-hl inc_rr
-h (hl) ld_r,r
-l a ld_r,r
-ex_(sp),hl
-ret
+{: >= over swap - carry? }~ drop
 
-'endtail does
+{: <= over - carry? }~ drop
+
+{: > 1+ carry? }~ >=
+
+{: < 1- carry? }~ <= 
 
 \ literal opcodes
 
