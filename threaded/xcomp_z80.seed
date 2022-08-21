@@ -850,6 +850,45 @@ bc pop
 frombc
 next
 
+\ bitwise logic primitives
+
+native and ( n n -- n )
+tobc
+de dec_rr
+ld_a,(de)
+b and_r
+ld_(de),a
+de dec_rr
+ld_a,(de)
+c and_r
+0 label
+ld_(de),a
+de inc_rr
+de inc_rr
+next
+
+native or ( n n -- n )
+tobc
+de dec_rr
+ld_a,(de)
+b or_r
+ld_(de),a
+de dec_rr
+ld_a,(de)
+c or_r
+0 lb jr
+
+native xor ( n n -- n )
+tobc
+de dec_rr
+ld_a,(de)
+b xor_r
+ld_(de),a
+de dec_rr
+ld_a,(de)
+c xor_r
+0 lb jr
+
 \ string comparison primitives (perf. crit.)
 
 \ compare two strings for equality
