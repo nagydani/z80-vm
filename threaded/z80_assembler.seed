@@ -182,7 +182,7 @@ create labels
 {: im_0		ed, 46 c, }
 {: ld_i,a	ed, 47 c, }
 {: adc_hl,rr	ed, 4A	or c, }
-{: ld_rr,(xx)	ed, 4B or c, w, }
+{: ld_rr,(xx)	ed, swap 4B or c, w, }
 {: reti		ed, 4D c, }
 {: ld_r,a	ed, 4F c, }
 
