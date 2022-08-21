@@ -74,6 +74,9 @@ dup here swap - swap 1- }~ c!
 \ target pointer to quotate
 0 variable quotate
 
+\ target pointer to execute
+0 variable exec
+
 \ target 'endcomp
 {: 'endcomp ( -- a )
 endcomp @ }
@@ -103,6 +106,15 @@ traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
 { 'endtail }	{ w, word xfind
 		offset @ - 2 + w, }~fail	xcomps assoc
 
+\ comments
+
+{: comments
+{ pad " \\" s= drop }~ \
+{ pad " (" s= drop }~ (
+}~|
+
+{ exec @ }	' comments			xcomps assoc
+
 \ self references
 {: sref w, dup dup here - c, }
 
@@ -112,8 +124,8 @@ traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
 \ literal constructors
 
 {: x>lit
-{ pad " ascii" s= word pad c@ xliteral }
-{ pad " '" s= word xfind offset @ - 2 + xliteral }
+{ pad " ascii" s= drop word pad c@ xliteral }
+{ pad " '" s= drop word xfind offset @ - 2 + xliteral }
 }~|
 
 { >lit @ }	' x>lit				xcomps assoc
@@ -568,6 +580,7 @@ frombc
 next
 
 native execute
+$ exec !
 tobc
 bc push
 ret
@@ -759,6 +772,49 @@ next
 
 \ string functions
 
+\ compare two strings (performance critical)
+0 label
+ex_de,hl
+hl dec_rr
+d (hl) ld_r,r
+hl dec_rr
+e (hl) ld_r,r
+hl dec_rr
+b (hl) ld_r,r
+hl dec_rr
+c (hl) ld_r,r
+ex_de,hl
+1 label
+ld_a,(bc)
+bc inc_rr
+(hl) cp_r
+hl inc_rr
+scf
+nz ret_cc
+a or_r
+1 lb jr_nz
+ret
+
+native s= ( a a -( fail )- a )
+vm
+x' over w,
+x' cpu w,
+hl push
+0 lb call
+1 label
+hl pop
+cf fail lb jp_cc
+next
+
+native s<> ( a a -( fail )- a )
+vm
+x' over w,
+x' cpu w,
+hl push
+0 lb call
+ccf
+1 lb jr
+
 {: nonempty dup c@ 0<> drop }
 
 \ heap manipulation
@@ -946,25 +1002,41 @@ here bite drop
 
 'quotate does
 
+\ comments
+
+\ skip the rest of the line
+{: \ 0 tib @ }~ c!
+
+x' execute does
+
+\ skip till the closing paren
+{: ( { word pad " )" s<> drop }~self 'id }~|
+
+x' execute does
+
 \ output functions
 
 \ ascii code of space (a.k.a. blank)
 bl constant bl
 
 \ emit one space
-{: space bl }~ emit
+{: space ( -( emit )- )
+bl }~ emit
 
 \ emit a newline (a.k.a. carriage return)
-{: cr A }~ emit
+{: cr ( -( emit )- )
+A }~ emit
 
-{: type
+{: type ( a -( emit )- )
 { dup c@ 0<> emit 1+ }~self
 'id|
 }~ drop
 
 \ seed loop
 
-{: seedl input tib @ type cr }~self
+{: seedl " Hello" type cr { input tib @ type cr }~self execute }
+
+\ initialization
 
 start flabel
 a A ld_r,x
