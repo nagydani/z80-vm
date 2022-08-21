@@ -934,12 +934,16 @@ hl push
 ccf
 1 lb jr
 
-\ more heap primitives
+\ more heap (a.k.a. dictionary) primitives
 
+\ first unallocated address
 native here
 bc DP ld_rr,(xx)
 frombc
 next
+
+\ pointer to first unallocated address
+DP constant dp
 
 \ tail call
 
@@ -1070,9 +1074,28 @@ x' }~ w,
 x' c, w,
 
 native vm,
-vm_rst xliteral
+vm
+vm_rst C7 or xliteral
 x' }~ w,
 x' c, w,
+
+native dat,
+vm
+dat_rst C7 or xliteral
+x' }~ w,
+x' c, w,
+
+native frombc,
+vm
+push_rst C7 or xliteral
+x' }~ w,
+x' c, w,
+
+native next,
+vm
+E9DD xliteral
+x' }~ w,
+x' , w,
 
 {: }} dup here swap - swap 1- }~ c!
 
@@ -1239,6 +1262,69 @@ dup c@ 0<> }~ drop
 { nonempty 1+ swap 1+ swap }~self
 ' drop
 }~|
+
+\ dictionary (a.k.a. heap) functions
+
+\ put a string on the heap
+{: s, ( a -( heap )- )
+{ dup c@ 0<> c, 1+ }~self
+{ drop 0 }~ c,
+}~|
+
+\ allocate a given number of bytes
+{: allot ( n -( heap )- )
+dp @ + dp }~ !
+
+\ vocabulary functions
+
+\ skip word name
+{: skipstr ( a -- a )
+dup length + }~ 1+
+
+\ vocabulary in which words are searched
+CONTEXT constant context
+
+\ vocabulary in which words are created
+CURRENT constant current
+
+\ word buffer
+PAD constant pad
+
+\ extend a list
+{: cons ( a -( heap )- a )
+here swap }~ ,
+
+\ last word in the current vocabulary
+{: last ( -- a )
+current @ }~ @
+
+\ create new word returning the payload address
+{: create ( -( heap )- )
+last cons current @ ! word pad s, ' , , }~ dat,
+
+\ create a new variable with an initial value
+{: variable ( n -( heap )- )
+create }~ ,
+
+\ redefine last word
+{: redefine ( -( heap )- )
+last cell+ skipstr cell+ dp }~ !
+
+\ create constant
+{: constant ( n -( heap )- )
+create redefine 1 \ LD BC,xx
+c, , frombc, }~ next,
+
+\ create effect
+{: effect ( -( heap )- )
+create redefine C3 \ JP xx
+c, 'id }~ comma
+
+\ create postponed word
+native postpone ( -( heap )- )
+x' effect jp
+
+
 
 \ output functions
 
