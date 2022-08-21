@@ -474,6 +474,7 @@ sp ERR_SP ld_rr,(xx)
 hl pop
 a and_r
 bc sbc_hl,rr
+bc add_hl,rr
 de pop
 a (hl) ld_r,r
 (hl) e ld_r,r
