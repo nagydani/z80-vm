@@ -238,16 +238,20 @@ vm
 word xfind
 3 +
 $ swap w!
+here
 vm
 ' xcompile
-'id}~|
+' drop
+}~|
 
 \ colon definitions
 {: {:
 native
+here
 vm
 ' xcompile
-'id}~|
+' drop
+}~|
 
 \ Beginning of cross-compilation
 create target
