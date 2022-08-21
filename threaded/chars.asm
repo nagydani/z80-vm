@@ -190,7 +190,7 @@ tonumber_link:
 	defb	">number", 0
 	defw	comma
 
-; ( a n -( fail )- n )
+; ( a n -- n )
 tonumber:
 	vm
 	defw	base		; a n base
@@ -200,7 +200,6 @@ tonumber:
 	defw	cfetch		; a n c
 	defw	digitToInt	; a n n
 	defw	plus		; a n
-	defw	carry		; a n
 	defw	swap		; n a
 	defw	oneplus		; n a
 	defw	dup		; n a a
@@ -322,7 +321,7 @@ nonempty:
 link_final_chars:
 strlen_link:
 	defw	nonempty_link
-	defb	"strlen", 0
+	defb	"length", 0
 	defw	comma
 
 ; ( a -- n )
