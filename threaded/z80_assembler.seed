@@ -37,7 +37,7 @@ create labels
 {: lb		lbl @ }
 
 \ relative forward label
-{: rlabel	lb dup here - 1+ swap c! }
+{: rlabel	lb dup here swap - 1- swap c! }
 
 \ relative forward jump
 {: jrf		here swap lbl ! 0 c, }
