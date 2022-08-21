@@ -1194,6 +1194,52 @@ ascii A >= ascii Z }~ <=
 { upper 20 }~ or
 'id}~|
 
+\ numerals
+
+BASE constant base
+
+\ set hexadecimal base
+{: hex ( -( base )- )
+10 base }~ !
+
+\ set decimal base
+{: decimal ( -( decimal )- )
+A base }~ !
+
+\ digit to integer conversion
+{: digit>int ( c -( fail )- n )
+alphanum
+ascii 0 -
+carry?
+{ 9 }~ <=
+{ 7 }~ -
+|
+base c@ }~ <
+
+\ auxiliary numeral conversion
+{: >number ( a n -- n )
+base c@ * over c@ digit>int + swap 1+ dup c@
+{ ws drop }~ drop
+{ drop swap }~ >number
+}~|
+
+\ string numeral to integer conversion
+{: s>number ( a -- n )
+0 }~ >number
+
+\ more string functions
+
+\ non-empty filter
+{: nonempty ( a -( fail )- a )
+dup c@ 0<> }~ drop
+
+\ string length
+{: length ( a -- n )
+0 swap
+{ nonempty 1+ swap 1+ swap }~self
+' drop
+}~|
+
 \ output functions
 
 \ emit one space
