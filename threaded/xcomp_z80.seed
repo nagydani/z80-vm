@@ -357,7 +357,7 @@ native c@
 tobc
 ld_a,(bc)
 ld_(de),a
-xor a
+a xor_r
 0 lb jr
 
 native c!
@@ -868,7 +868,7 @@ de sbc_hl,rr
 1 jr_nc_f
 de add_hl,rr
 1 rlabel
-0 djnz
+0 lb djnz
 rla
 cpl
 b a ld_r,r
@@ -882,7 +882,7 @@ de sbc_hl,rr
 1 jr_nc_f
 de add_hl,rr
 1 rlabel
-0 djnz
+0 lb djnz
 rla
 cpl
 b c ld_r,r
@@ -1449,8 +1449,29 @@ x' execute does
 
 x' }~fail does		\ TODO: not allowed in compile mode
 
+\ numeral functions
+
+\ convert integer to digit
+{: >digit ( n -- c )
+{ 9 <= ascii 0 }
+{ [ ascii A A - xliteral ] }
+| }~ +
+
+\ emit positive number w/o trailing space
+{: .nz ( n -( emit )- )
+{ 0<> base c@ /mod .nz >digit }~ emit
+' drop
+}~|
+
+\ emit positive number w/ trailing space
+{: . ( n -( emit )- )
+{ 0= ascii 0 emit }~ drop
+' .nz
+| }~ space
+
 \ input functions
 
+\ get next word from the input buffer
 {:: word ( -( tib pad fail )- )
 tib @ wsskip pad
 { over c@ printable over c! pad
@@ -1474,8 +1495,8 @@ does
 \ seed loop
 
 {: seedl
-context @ traverse& type cr
-}~fail
+4000 .
+}
 
 native seed
 bc SEED ld_rr,xx
