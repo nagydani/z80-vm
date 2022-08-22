@@ -1328,7 +1328,7 @@ dp @ + dp }~ !
 
 \ traverse linked list
 {: traverse& ( a -( fail & )- a )
-@ 0<> 'self & dup }~ cell+
+@ 0<> ' traverse& & dup }~ cell+  \ TODO: why 'self isn't working?
 
 \ vocabulary functions
 
@@ -1427,7 +1427,7 @@ A }~ emit
 
 \ emit all context words
 {: words ( -( emit )- )
-{ context @ traverse& type space }~ fail
+{ context @ traverse& type space }~fail
 'id}~|
 
 \ interpreter functions
@@ -1495,7 +1495,7 @@ does
 \ seed loop
 
 {: seedl
-4000 .
+words
 }
 
 native seed
