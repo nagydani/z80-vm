@@ -172,10 +172,10 @@ execute
 1008 constant CONTEXT
 100A constant CURRENT
 100C constant SEED
-100E constant DICTIONARY
-1010 constant BASE
-1011 constant PAD
+100E constant BASE
+101F constant PAD
   20 constant PAD_LEN
+103F constant DICTIONARY
 
 \ memory layout
 C000 constant STK_BOT
@@ -361,6 +361,7 @@ a xor_r
 0 lb jr
 
 native c!
+tobc
 de dec_rr
 0 label
 de dec_rr
@@ -1342,9 +1343,6 @@ CONTEXT constant context
 \ vocabulary in which words are created
 CURRENT constant current
 
-\ word buffer
-PAD constant pad
-
 \ extend a list
 {: cons ( a -( heap )- a )
 here swap }~ ,
@@ -1473,16 +1471,17 @@ x' }~fail does		\ TODO: not allowed in compile mode
 
 \ get next word from the input buffer
 {:: word ( -( tib pad fail )- )
-tib @ wsskip pad
+tib @ wsskip
+pad
 { over c@ printable over c! pad
-[ PAD_LEN xliteral ] + < 1+ swap 1+ swap }~self
+20 + < 1+ swap 1+ swap }~self     \ TODO: PAD_LEN xliteral ??
 { 0 swap c! tib }~ !
 }~|
 
 \ empty word
 
 {:
-" ok" type cr }~ input
+"  ok" type cr }~ input
 
 $
 vm
@@ -1495,8 +1494,10 @@ does
 \ seed loop
 
 {: seedl
-words
-}
+input
+word
+pad type cr
+}~self
 
 native seed
 bc SEED ld_rr,xx
