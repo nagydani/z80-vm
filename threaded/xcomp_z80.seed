@@ -108,12 +108,15 @@ traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
 
 \ comments
 
-{: comments
-{ pad " \\" s= drop }~ \
-{ pad " (" s= drop }~ (
+{: comments_and_meta
+{
+	{ pad " \\" s= drop }~ \
+	{ pad " (" s= drop }~ (
+}~|
+{ pad " [" s= drop ' interpret 'id}~|
 }~|
 
-{ exec @ }	' comments			xcomps assoc
+{ exec @ }	' comments_and_meta		xcomps assoc
 
 \ self references
 {: sref w, dup dup here - c, }
@@ -162,15 +165,16 @@ execute
 28 constant push_rst
 
 \ system variables
-2000 constant DP
-2002 constant TIB
-2004 constant FAIL
-2006 constant ERR_SP
-2008 constant CONTEXT
-200A constant CURRENT
-200C constant DICTIONARY
-200E constant BASE
-2010 constant PAD
+1000 constant DP
+1002 constant TIB
+1004 constant FAIL
+1006 constant ERR_SP
+1008 constant CONTEXT
+100A constant CURRENT
+100C constant SEED
+100E constant DICTIONARY
+1010 constant BASE
+1011 constant PAD
   20 constant PAD_LEN
 
 \ memory layout
@@ -701,6 +705,48 @@ bc add_hl,rr
 sp sbc_hl,rr
 ex_(sp),hl
 hl 1 lb ld_rr,xx
+next
+
+\ cut handler
+native cut
+exx
+ERR_SP ld_hl,(xx)
+e (hl) ld_r,r
+hl inc_rr
+d (hl) ld_r,r
+hl inc_rr
+c (hl) ld_r,r
+hl inc_rr
+b (hl) ld_r,r
+hl inc_rr
+ex_de,hl
+(hl) c ld_r,r
+hl inc_rr
+(hl) b ld_r,r
+ex_de,hl
+e (hl) ld_r,r
+hl inc_rr
+d (hl) ld_r,r
+hl inc_rr
+ex_de,hl
+ERR_SP ld_(xx),hl
+de inc_rr
+hl C negate ld_rr,xx
+de add_hl,rr
+hl push
+scf
+sp sbc_hl,rr
+c l ld_r,r
+b h ld_r,r
+hl pop
+0 jr_z_f
+lddr
+0 rlabel
+ex_de,hl
+hl inc_rr
+ld_sp,hl
+bc pop
+exx
 next
 
 \ arithmetic primitives
@@ -1263,6 +1309,11 @@ dup c@ 0<> }~ drop
 ' drop
 }~|
 
+\ discard trailing whitespace
+{: wsskip ( a -- a )
+{ dup c@ 0<> ws drop 1+ }~self
+'id}~|
+
 \ dictionary (a.k.a. heap) functions
 
 \ put a string on the heap
@@ -1274,6 +1325,10 @@ dup c@ 0<> }~ drop
 \ allocate a given number of bytes
 {: allot ( n -( heap )- )
 dp @ + dp }~ !
+
+\ traverse linked list
+{: traverse& ( a -( fail & )- a )
+@ 0<> 'self & dup }~ cell+
 
 \ vocabulary functions
 
@@ -1320,11 +1375,39 @@ c, , frombc, }~ next,
 create redefine C3 \ JP xx
 c, 'id }~ comma
 
-\ create postponed word
+\ postpone colon definition
 native postpone ( -( heap )- )
 x' effect jp
 
+\ search vocabulary
+{: search ( a -( pad fail )- a )
+traverse& pad s= cut }~ nip
 
+\ find word in context vocabulary
+{:: find ( -( pad fail )- a )
+context @ search }~ skipstr
+
+\ create colon definition
+native {: ( -( heap )- )
+vm
+x' create w,
+x' redefine w,
+x' { w,
+x' }~ w,
+x' drop w,
+
+\ postponed colon definition
+native {:: ( -( heap )- )
+vm
+x' { w,
+x' current w,
+x' @ w,
+x' search w,
+x' skipstr w,
+x' cell+ w, 
+x' 1+ w,
+x' }~ w,
+x' ! w,
 
 \ output functions
 
@@ -1341,9 +1424,42 @@ A }~ emit
 'id|
 }~ drop
 
+\ interpreter functions
+
+\ interpreter
+{: interpret
+word
+{ find cell+ ' execute { cut }~fail }~|
+{ { pad }~ s>number { pad type "  undefined" type }~ cr }~|
+| }~self
+
+\ unnamed macro
+
+{: [ ' interpret 'id}~|
+
+x' execute does
+
+{: ] }~fail
+
+x' }~fail does		\ TODO: not allowed in compile mode
+
+\ input functions
+
+{:: word ( -( tib pad fail )- )
+tib @ wsskip pad
+{ over c@ printable over c! pad
+[ PAD_LEN xliteral ] + < 1+ swap 1+ swap }~self
+{ 0 swap c! tib }~ !
+}~|
+
 \ seed loop
 
 {: seedl " Hello" type cr { input tib @ type cr }~self execute }
+
+native seed
+bc SEED ld_rr,xx
+CONTEXT bc ld_(xx),rr
+next
 
 \ initialization
 
@@ -1352,6 +1468,11 @@ a A ld_r,x
 BASE ld_(xx),a
 hl DICTIONARY ld_rr,xx
 DP ld_(xx),hl
+hl xlast ld_rr,xx
+SEED hl ld_(xx),hl
+hl SEED ld_rr,xx
+CONTEXT ld_(xx),hl
+CURRENT ld_(xx),hl
 de STK_BOT ld_rr,xx
 sp STK_TOP ld_rr,xx
 ix, hl vm_l lb ld_rr,xx
