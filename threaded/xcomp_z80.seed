@@ -408,7 +408,7 @@ next
 
 native input
 hl push
-hl FF00 ld_rr,xx
+hl STK_TOP ld_rr,xx
 TIB ld_(xx),hl
 0 label
 0 in_a,(x)
@@ -620,7 +620,7 @@ bc push
 next
 2 label
 0 flabel
-' cpu w,
+x' cpu w,
 hl inc_rr
 hl inc_rr
 hl push
@@ -1419,10 +1419,16 @@ bl }~ emit
 {: cr ( -( emit )- )
 A }~ emit
 
+\ emit a string
 {: type ( a -( emit )- )
 { dup c@ 0<> emit 1+ }~self
 'id|
 }~ drop
+
+\ emit all context words
+{: words ( -( emit )- )
+{ context @ traverse& type space }~ fail
+'id}~|
 
 \ interpreter functions
 
@@ -1452,9 +1458,24 @@ tib @ wsskip pad
 { 0 swap c! tib }~ !
 }~|
 
+\ empty word
+
+{:
+" ok" type cr }~ input
+
+$
+vm
+x' drop w,
+x' }~ w,
+x' input w,
+
+does
+
 \ seed loop
 
-{: seedl " Hello" type cr { input tib @ type cr }~self execute }
+{: seedl
+context @ traverse& type cr
+}~fail
 
 native seed
 bc SEED ld_rr,xx
