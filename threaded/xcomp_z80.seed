@@ -1469,7 +1469,7 @@ BASE ld_(xx),a
 hl DICTIONARY ld_rr,xx
 DP ld_(xx),hl
 hl xlast ld_rr,xx
-SEED hl ld_(xx),hl
+SEED ld_(xx),hl
 hl SEED ld_rr,xx
 CONTEXT ld_(xx),hl
 CURRENT ld_(xx),hl
