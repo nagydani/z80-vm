@@ -1495,8 +1495,9 @@ does
 
 {: seedl
 input
-word
-pad type cr
+' interpret
+{ "  fail" type }~ cr
+|
 }~self
 
 native seed
