@@ -1200,7 +1200,8 @@ tib @ dup c@ 0<> swap 1+ tib }~ !
 here bite drop
 	{ bite ascii " <>
 		{ ascii \ = ' bite { A } }~|
-		'id| c,
+		'id|
+		c,
 	}~self
 	{ 0 }~ c,
 }~|
@@ -1504,6 +1505,28 @@ native seed
 bc SEED ld_rr,xx
 CONTEXT bc ld_(xx),rr
 next
+
+\ debugging
+
+native .s
+hl push
+hl STK_BOT ld_rr,xx
+0 label
+a and_r
+de sbc_hl,rr
+de add_hl,rr
+1 jr_nz_f
+hl pop
+vm
+x' }~ w,
+x' cr w,
+1 rlabel
+ldi
+ldi
+vm
+x' . w,
+x' cpu w,
+0 lb jr
 
 \ initialization
 
