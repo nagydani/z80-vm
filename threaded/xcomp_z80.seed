@@ -1048,7 +1048,7 @@ $ ~selfref !
 
 {: * u* }~ drop
 
-{: / /mod swap }~ drop
+{: / /mod }~ nip
 
 {: mod /mod }~ drop
 
