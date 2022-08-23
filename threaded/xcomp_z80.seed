@@ -1196,11 +1196,13 @@ x' quotate quotate !
 {: bite
 tib @ dup c@ 0<> swap 1+ tib }~ !
 
-{: qt bite ascii " <> c, }~ qt
-
 {: "
 here bite drop
-' qt
+{ bite ascii " <>
+{ ascii \ = drop ' bite { A } }~|
+'id|
+c,
+}~self
 { 0 }~ c,
 }~|
 
@@ -1476,6 +1478,15 @@ pad
 [ PAD_LEN xliteral ] + < 1+ swap 1+ swap }~self
 { 0 swap c! tib }~ !
 }~|
+
+\ compiler
+
+{:: compile
+word
+{ find dup cell+ swap }~ @
+{ pad s>number ' literal }
+| execute
+}~self
 
 \ empty word
 
