@@ -110,10 +110,10 @@ traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
 
 {: comments_and_meta
 {
-	{ pad " \\" s= drop }~ \
-	{ pad " (" s= drop }~ (
+	{ drop pad " \\" s= drop }~ \
+	{ drop pad " (" s= drop }~ (
 }~|
-{ pad " [" s= drop ' interpret 'id}~|
+{ drop pad " [" s= drop ' interpret 'id}~|
 }~|
 
 { exec @ }	' comments_and_meta		xcomps assoc
@@ -127,8 +127,8 @@ traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
 \ literal constructors
 
 {: x>lit
-{ pad " ascii" s= drop word pad c@ xliteral }
-{ pad " '" s= drop word xfind offset @ - 2 + xliteral }
+{ drop pad " ascii" s= drop word pad c@ xliteral }
+{ drop pad " '" s= drop word xfind offset @ - 2 + xliteral }
 }~|
 
 { >lit @ }	' x>lit				xcomps assoc
@@ -714,39 +714,39 @@ exx
 ERR_SP ld_hl,(xx)
 e (hl) ld_r,r
 hl inc_rr
-d (hl) ld_r,r
+d (hl) ld_r,r		\ DE = handler pointer
 hl inc_rr
 c (hl) ld_r,r
 hl inc_rr
 b (hl) ld_r,r
-hl inc_rr
+hl inc_rr		\ BC = previous handler address
 ex_de,hl
 (hl) c ld_r,r
 hl inc_rr
-(hl) b ld_r,r
+(hl) b ld_r,r		\ restore previous handler
 ex_de,hl
 e (hl) ld_r,r
 hl inc_rr
 d (hl) ld_r,r
 hl inc_rr
-ex_de,hl
-ERR_SP ld_(xx),hl
+ex_de,hl		\ HL = previous ERR_SP
+ERR_SP ld_(xx),hl	\ restore previous ERR_SP
 de inc_rr
 hl C negate ld_rr,xx
-de add_hl,rr
+de add_hl,rr		\ HL points below the handler frame
 hl push
 scf
 sp sbc_hl,rr
 c l ld_r,r
-b h ld_r,r
+b h ld_r,r		\ BC = length of stack below handler frame
 hl pop
 0 jr_z_f
-lddr
+lddr			\ move stack up
 0 rlabel
 ex_de,hl
 hl inc_rr
 ld_sp,hl
-bc pop
+bc pop			\ discard threading
 exx
 next
 
@@ -1196,14 +1196,12 @@ x' quotate quotate !
 {: bite
 tib @ dup c@ 0<> swap 1+ tib }~ !
 
+{: qt bite ascii " <> c, }~ qt
+
 {: "
 here bite drop
-	{ bite ascii " <>
-		{ ascii \ = ' bite { A } }~|
-		'id|
-		c,
-	}~self
-	{ 0 }~ c,
+' qt
+{ 0 }~ c,
 }~|
 
 'quotate does
@@ -1475,7 +1473,7 @@ x' }~fail does		\ TODO: not allowed in compile mode
 tib @ wsskip
 pad
 { over c@ printable over c! pad
-20 + < 1+ swap 1+ swap }~self     \ TODO: PAD_LEN xliteral ??
+[ PAD_LEN xliteral ] + < 1+ swap 1+ swap }~self
 { 0 swap c! tib }~ !
 }~|
 
@@ -1500,6 +1498,7 @@ input
 { "  fail" type }~ cr
 |
 }~self
+
 
 native seed
 bc SEED ld_rr,xx
