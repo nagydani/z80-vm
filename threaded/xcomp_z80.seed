@@ -1,7 +1,7 @@
 \ pointer to cross-compiled vocabulary
 create xcurrent 0 w,
 
-{: xcons ( a -- a )
+{: xlink ( a -- a )
 $ swap }~ w,
 
 {: xlast ( -- a )
@@ -28,7 +28,7 @@ word xfind 2 + offset @ }~ -
 \ target create
 {: xcreate
 xlast
-xcons
+xlink
 xcurrent w!
 word
 pad
@@ -80,7 +80,7 @@ dup here swap - swap 1- }~ c!
 
 \ create association
 {: assoc ( key value table -( heap )- )
-dup @ cons swap !
+dup @ link swap !
 swap , , }
 
 \ recall asocciation
@@ -1371,7 +1371,7 @@ CONTEXT constant context
 CURRENT constant current
 
 \ extend a list
-{: cons ( a -( heap )- a )
+{: link ( a -( heap )- a )
 here swap }~ ,
 
 \ last word in the current vocabulary
@@ -1384,7 +1384,7 @@ context @ current }~ !
 
 \ create new word returning the payload address
 {: create ( -( heap )- )
-last cons current @ ! word pad s, 0 c, ' , , }~ dat,
+last link current @ ! word pad s, 0 c, ' , , }~ dat,
 
 \ create a new variable with an initial value
 {: variable ( n -( heap )- )
