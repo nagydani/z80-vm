@@ -1,5 +1,9 @@
 hex
 
+vocabulary z80
+
+z80 definitions
+
 \ 16-bit negation
 {: negate	10000 swap - }
 
