@@ -33,6 +33,7 @@ xcurrent w!
 word
 pad
 s,
+0 c,
 }
 
 \ target pointer to 8-bit literal
@@ -1309,7 +1310,7 @@ dup c@ 0<> }~ drop
 \ put a string on the heap
 {: s, ( a -( heap )- )
 { dup c@ 0<> c, 1+ }~self
-{ drop 0 }~ c,
+' drop
 }~|
 
 \ allocate a given number of bytes
@@ -1346,7 +1347,7 @@ context @ current }~ !
 
 \ create new word returning the payload address
 {: create ( -( heap )- )
-last cons current @ ! word pad s, ' , , }~ dat,
+last cons current @ ! word pad s, 0 c, ' , , }~ dat,
 
 \ create a new variable with an initial value
 {: variable ( n -( heap )- )
