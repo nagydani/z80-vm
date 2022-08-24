@@ -10,7 +10,7 @@ xcurrent }~ w@
 {: xtraverse& ( a -( fail pend )- a )
 w@ 0<>
 offset @ +
-' xtraverse& &	\ TODO find out why 'self does not work
+'self &
 dup
 2 +
 }
@@ -1330,7 +1330,7 @@ dp @ + dp }~ !
 
 \ traverse linked list
 {: traverse& ( a -( fail & )- a )
-@ 0<> ' traverse& & dup }~ cell+  \ TODO: why 'self isn't working?
+@ 0<> 'self & dup }~ cell+
 
 \ vocabulary functions
 
