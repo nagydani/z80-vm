@@ -1,9 +1,5 @@
 hex
 
-vocabulary z80
-
-z80 definitions
-
 \ 16-bit negation
 {: negate	10000 swap - }
 
@@ -18,6 +14,11 @@ z80 definitions
 
 \ dump the tail of the heap
 {: dump		{ here < dup c@ emit 1+ }~self ' drop }~|
+
+\ new vocabulary for assembly instructions
+vocabulary z80
+
+z80 definitions
 
 \ directives
 0 variable offset
