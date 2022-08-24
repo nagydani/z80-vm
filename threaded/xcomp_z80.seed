@@ -1432,6 +1432,14 @@ x' 1+ w,
 x' }~ w,
 x' ! w,
 
+\ change compile mode behavior
+{: does ( x -( heap )- )
+last cell+ skipstr }~ !
+
+\ make most recently defined word immediate
+{: immediate ( -( heap )- )
+' execute }~ does
+
 \ output functions
 
 \ emit one space
