@@ -79,10 +79,7 @@ scomma1e:
 	defw	litS8
 	defb	  scomma0e - scomma0
 scomma0:	vm
-		defw	drop
-		defw	litN8
-		defb	  0
-		defw	tail, ccomma
+		defw	tail, drop
 scomma0e:
 	defw	tailor
 

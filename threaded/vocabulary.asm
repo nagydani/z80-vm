@@ -74,10 +74,13 @@ create:	vm
 	defw	word
 	defw	pad
 	defw	scomma
+	defw	litN8
+	defb	  0
+	defw	ccomma
 	defw	litN16, comma
 	defw	comma
 	defw	litN8
-	dat
+		  dat
 	defw	tail, ccomma
 
 variable_link:
@@ -138,8 +141,42 @@ effect:	vm
 	defw	tickid
 	defw	tail, comma
 
-colon_link:
+vocabulary_link:
 	defw	effect_link
+	defb	"vocabulary", 0
+	defw	comma
+
+; ( -( heap )- )
+vocabulary:
+	vm
+	defw	here
+	defw	last
+	defw	comma
+	defw	create
+	defw	redefine
+	defw	vmcomma
+	defw	literal
+	defw	litN16, context
+	defw	comma
+	defw	litN16, tail
+	defw	comma
+	defw	litN16, store
+	defw	tail, comma
+
+definitions_link:
+	defw	vocabulary_link
+	defb	"definitions", 0
+	defw	comma
+
+definitions:
+	vm
+	defw	context
+	defw	fetch
+	defw	current
+	defw	tail, store
+
+colon_link:
+	defw	definitions_link
 	defb	"{:", 0
 	defw	fail		; TODO: compile-time error
 
