@@ -77,18 +77,6 @@ dup here swap - swap 1- }~ c!
 \ target pointer to execute
 0 variable exec
 
-\ target 'endcomp
-{: 'endcomp ( -- a )
-endcomp @ }
-
-\ target 'endtail
-{: 'endtail ( -- a )
-endtail @ }
-
-\ target 'quotate
-{: 'quotate ( -- a )
-quotate @ }
-
 \ create association
 {: assoc ( key value table -( heap )- )
 dup @ cons swap !
@@ -96,33 +84,33 @@ swap , , }
 
 \ recall asocciation
 {: recall ( key table -- value )
-traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
+traverse& third over @ @ = cut drop drop nip cell+ cell+ @ }
 
 \ target host associations
 0 variable xcomps
 
-{ comma @ }	' w,				xcomps assoc
-{ 'endcomp }	{ w, }~fail			xcomps assoc
-{ 'endtail }	{ w, word xfind
-		offset @ - 2 + w, }~fail	xcomps assoc
+comma   ' w,                            xcomps assoc
+endcomp { w, }~fail                     xcomps assoc
+endtail { w, word xfind
+        offset @ - 2 + w, }~fail        xcomps assoc
 
 \ comments
 
 {: comments_and_meta
 {
-	{ drop pad " \\" s= drop }~ \
-	{ drop pad " (" s= drop }~ (
+  { drop pad " \\" s= drop }~ \
+  { drop pad " (" s= drop }~ (
 }~|
 { drop pad " [" s= drop ' interpret 'id}~|
 }~|
 
-{ exec @ }	' comments_and_meta		xcomps assoc
+exec    ' comments_and_meta             xcomps assoc
 
 \ self references
 {: sref w, dup dup here - c, }
 
-{ selfref @ }	' sref				xcomps assoc
-{ ~selfref @ }	{ sref }~fail			xcomps assoc
+selfref ' sref                          xcomps assoc
+~selfref { sref }~fail                  xcomps assoc
 
 \ literal constructors
 
@@ -131,7 +119,7 @@ traverse& third over @ execute = cut drop drop nip cell+ cell+ @ }
 { drop pad " '" s= drop word xfind offset @ - 2 + xliteral }
 }~|
 
-{ >lit @ }	' x>lit				xcomps assoc
+>lit    ' x>lit                         xcomps assoc
 
 \ while loop
 {: while
@@ -214,7 +202,7 @@ x{{
 x}}
 }
 
-{ 'quotate }	{ drop xquotate }		xcomps assoc
+quotate { drop xquotate }               xcomps assoc
 
 \ native word definition
 {: native
@@ -580,7 +568,7 @@ native }
 hl pop
 next
 
-'endcomp does
+x' endcomp does
 
 \ reference to identity
 
@@ -1011,7 +999,7 @@ l a ld_r,r
 ex_(sp),hl
 ret
 
-'endtail does
+x' endtail does
 
 \ self references
 
@@ -1102,13 +1090,13 @@ x' handle w,
 
 {: }~| | }~ }
 
-'endcomp does
+x' endcomp does
 
 {: 'id| 'id }~|
 
 {: 'id}~| 'id| }~ }
 
-'endcomp does
+x' endcomp does
 
 \ literal constructors
 
@@ -1189,7 +1177,7 @@ x' quotate quotate !
 
 {: { here vm, ' compile 'id}~|
 
-'quotate does
+x' quotate does
 
 \ quoted string literal
 
@@ -1206,7 +1194,7 @@ c,
 { 0 }~ c,
 }~|
 
-'quotate does
+x' quotate does
 
 \ comments
 
