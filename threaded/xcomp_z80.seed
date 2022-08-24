@@ -1000,6 +1000,9 @@ bc DP ld_rr,(xx)
 frombc
 next
 
+\ the first address of the writeable part of the dictionary
+DICTIONARY constant dictionary
+
 \ pointer to first unallocated address
 DP constant dp
 
@@ -1540,6 +1543,12 @@ next
 
 \ debugging
 
+\ forget a word and what was defined after it.
+{: forget
+word current @ context @ = search dictionary >=
+cell- dup @ current @ ! dp }~ !
+
+\ output data stack content
 native .s
 hl push
 hl STK_BOT ld_rr,xx
