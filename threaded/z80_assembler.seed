@@ -13,7 +13,7 @@ hex
 {: w!		dup >r 1+ >r 100 /mod r> c! r> c! }
 
 \ dump the tail of the heap
-{: dump		{ here < dup c@ emit 1+ }~self ' drop }~|
+{: dump		here over - write }
 
 \ new vocabulary for assembly instructions
 vocabulary z80
