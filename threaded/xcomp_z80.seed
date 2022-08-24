@@ -211,10 +211,14 @@ xcreate
 comma @ w, }
 
 \ postpone colon definition
-
 {: postpone
 native
 0 jp }
+
+\ effect definition
+{: effect ( x -- )
+native
+jp }
 
 \ constant definition
 {: constant
@@ -380,14 +384,16 @@ PAD constant pad
 
 \ I/O effects
 
-native emit ( c -( emit )- )
+$
 de dec_rr
 de dec_rr
 ld_a,(de)
 0 out_(x),a
 next
 
-native write ( a n -( write )- )
+effect emit ( c -( emit )- )
+
+$
 tobc
 bc push
 tobc
@@ -409,7 +415,9 @@ bc pop
 frombc
 next
 
-native key ( -( key )- c )
+effect write ( a n -( write )- )
+
+$
 0 in_a,(x)
 ld_(de),a
 de inc_rr
@@ -418,7 +426,9 @@ ld_(de),a
 de inc_rr
 next
 
-native input
+effect key ( -( key )- c )
+
+$
 hl push
 hl STK_TOP ld_rr,xx
 TIB ld_(xx),hl
@@ -436,6 +446,8 @@ a inc_r
 (hl) 0 ld_r,x
 hl pop
 next
+
+effect input ( -( input tib )- )
 
 \ stack manipulation primitives
 
@@ -1388,9 +1400,9 @@ create redefine 1 \ LD BC,xx
 c, , frombc, }~ next,
 
 \ create effect
-{: effect ( -( heap )- )
+{: effect ( x -( heap )- )
 create redefine C3 \ JP xx
-c, 'id }~ comma
+c, }~ comma
 
 \ create vocabulary
 {: vocabulary ( -( heap )- )
@@ -1399,8 +1411,8 @@ create redefine
 vm, literal ' context , ' }~ , ' ! }~ ,
 
 \ postpone colon definition
-native postpone ( -( heap )- )
-x' effect jp
+{: postpone ( -( heap )- )
+'id }~ effect
 
 \ search vocabulary
 {: search ( a -( pad fail )- a )
@@ -1520,10 +1532,15 @@ word
 | execute
 }~self
 
-\ empty word
+\ ok effect
+{ "  ok" type }~ cr
 
+effect ok
+
+
+\ empty word
 {:
-"  ok" type cr }~ input
+ok }~ input
 
 $
 vm
