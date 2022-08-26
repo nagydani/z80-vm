@@ -1,0 +1,97 @@
+hex
+
+\ execute n times
+{: times ( x n -- )
+{ 1- carry? >r dup >r execute r> r> }~self
+{ drop }~ drop
+}~|
+
+\ extract least significant 8 bits
+{: lsb		100 /mod swap }
+
+\ 16-bit little-endian comma
+{: w,		lsb c, c, }
+
+\ 32-bit little-endian comma
+{: d,		{ lsb c, } 3 times c, }
+
+\ 64-bit little-endian comma
+{: q,		{ lsb c, } 7 times c, }
+
+\ 64-bit virtual address comma
+{: a,		w, 1 w, 0 d, }
+
+\ 16-bit little-endian store
+{: w!		dup >r 1+ >r 100 /mod r> c! r> c! }
+
+\ dump the tail of the heap
+{: dump		here over - write }
+
+\ new vocabulary for assembly instructions
+vocabulary amd64
+
+amd64 definitions
+
+\ directives
+0 variable offset
+{: $		here offset @ - }
+{: org		here swap - offset ! }
+{: align	{ dup $ swap mod 0<> drop 0 c, }~self ' drop }~|
+
+\ labels
+
+\ 8 labels must be enough for a block
+create labels
+8 cells allot
+
+\ access label
+{: lbl		cells labels + }
+
+\ absolute backward label
+{: label	$ swap lbl ! }
+
+\ use absolute backward label
+{: lb		lbl @ }
+
+\ use absolute forward label after a one-byte opcode
+{: fl1		here 1+ swap lbl ! 0 }
+
+\ use absolute forward label immediately (32 bits)
+{: fl0		here swap lbl ! 0 w, 1 w, }
+
+\ absolute forward label (only 16 bits!)
+{: flabel	lbl @ $ swap w! }
+
+\ relative forward jump
+{: jrf		here swap lbl ! 0 d, }
+
+\ relative forward label
+{: rlabel	lb dup here swap - 4 - swap w! }
+
+\ registers
+0 constant rax
+1 constant rcx
+2 constant rdx
+3 constant rbx
+4 constant rsp
+5 constant rbp
+6 constant rsi
+7 constant rdi
+
+\ relative jump
+{: rel		{ $ 4 + - carry? d, } { w, FFFF w, } }~|
+
+\ opcodes
+
+{: mov_rr,x	swap B8 + c, d, }
+{: mov_rr,aa	swap B8 + c, w, 1 w, }
+{: mov_rr,xx	swap 48 c, B8 + c, q, }
+{: mov_[rr],rr	48 c, 89 c, 8 * + c, }
+{: mov_[aa],rr	48 c, 89 c, 8 * 4 + c, 25 c, w, 1 w, }
+{: syscall	50F w, }
+{: add_rr,s	48 c, 83 c, swap C0 + c, c, }
+{: call		E8 c, rel }
+{: call_f	E8 c, jrf }
+{: jmp		E9 c, rel }
+{: jmp_f	E9 c, jrf }
+{: ret		C3 c, }
