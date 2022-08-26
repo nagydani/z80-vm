@@ -165,9 +165,10 @@ execute
 18030 constant CURRENT
 18038 constant SEED
 18040 constant BASE
-18041 constant PAD
+18041 constant EMIT_BUF
+18042 constant PAD
    20 constant PAD_LEN
-18061 constant TIB_BUF
+18062 constant TIB_BUF
   100 constant TIB_BUF_LEN
 
 18168 constant EFFECTS
@@ -210,7 +211,7 @@ FFFF jmp
 }
 
 \ effect definition
-{: effect ( x -- )
+{: effect ( -- )
 native
 effects @ dup 8 + effects !
 jmp_[aa]
