@@ -1,0 +1,487 @@
+\ pointer to cross-compiled vocabulary
+create xcurrent 0 w,
+
+{: xlink ( a -- a )
+8 align
+{ 0<> $ swap }~ a,
+{ $ swap }~ q,
+}~|
+
+{: xlast ( -- a )
+xcurrent }~ w@
+
+{: xtraverse& ( a -( fail pend )- a )
+w@ 0<>
+offset @ +
+'self &
+dup
+8 +
+}
+
+{: xsearch ( a -( pad fail )- a )
+xtraverse& 10 + pad s= cut }~ nip
+
+{: xfind ( -( pad fail )- a )
+xcurrent xsearch 10 }~ -
+
+\ target tick
+{: x'
+word xfind }~ w@
+
+\ target pointer to callcomp
+0 variable callcomp
+
+\ target create
+{: xcreate
+xlast
+xlink
+xcurrent w!
+here
+0 a,
+callcomp @ offset @ +
+a,
+word
+pad
+s,
+0 c,
+$ swap w!
+}
+
+\ target literal
+{: xliteral ( x -( heap )- )
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+rax swap mov_rr,xx
+}
+
+{: x{{ ( -( heap )- a )
+$ call }~ here
+
+{: x}} ( a -( heap )- )
+dup here swap - swap 4 - w!
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+rax pop
+}
+
+\ target pointer to endcomp
+0 variable endcomp
+
+\ target pointer to endtail
+0 variable endtail
+
+\ target pointer to >lit
+0 variable >lit
+
+\ target pointer to quotate
+0 variable quotate
+
+\ target pointer to execute
+0 variable exec
+
+\ create association
+{: assoc ( key value table -( heap )- )
+dup @ link swap !
+swap , , }
+
+\ recall association
+{: recall ( key table -- value )
+traverse& third over @ @ = cut drop drop nip cell+ cell+ @ }
+
+\ target host associations
+0 variable xcomps
+
+callcomp	' call			xcomps assoc
+endcomp		{ jmp }~fail		xcomps assoc
+endtail		{ drop word xfind
+		w@ jmp }~fail
+
+\ comments and unnamed macros
+
+{: comments_and_meta
+{
+  { drop pad " \\" s= drop }~ \
+  { drop pad " (" s= drop }~ (
+}~|
+{ drop pad " [" s= drop ' interpret 'id}~|
+}~|
+
+exec		' comments_and_meta	xcomps assoc
+
+\ literal constructors
+
+{: x>lit
+{ drop pad " ascii" s= drop word pad c@ xliteral }
+{ drop pad " '" s= drop word xfind w@ xliteral }
+}~|
+
+>lit		' x>lit			xcomps assoc
+
+\ while loop
+{: while
+>r
+dup >r
+{ r> drop r> drop }~ } |
+r> r> swap
+>r dup >r
+execute
+r> r> swap
+}~self
+
+\ cross-compiler
+{: xcompile
+word
+{ pad c@ 0= drop }
+{ input word }
+while
+{ xfind dup 8 + w@ swap w@ xcomps recall }
+{ pad s>number ' xliteral }
+|
+execute
+}~self
+
+\ Offsets in ELF header
+
+0 variable headersLength
+0 variable f_EntryPoint
+0 variable f_ProgramHeaders
+0 variable f_SectionHeaders
+0 variable f_SizeInFile
+0 variable f_TotalFileSize
+0 variable f_StringTableVA
+0 variable f_StringTableOffset
+
+{: 0c, 0 c, }
+
+{: field here swap ! }
+
+\ system variables
+18000 constant HEAP_BOT
+18008 constant DP
+18010 constant TIB
+18018 constant FAIL
+18020 constant ERR_SP
+18028 constant CONTEXT
+18030 constant CURRENT
+18038 constant SEED
+18040 constant BASE
+18041 constant PAD
+   20 constant PAD_LEN
+18061 constant TIB_BUF
+  100 constant TIB_BUF_LEN
+
+18168 constant EFFECTS
+
+\ effect pointer for cross-compiling
+EFFECTS variable effects
+
+\ cross string literal
+{: xlits
+bite
+drop
+{ bite ascii " <>
+        { ascii \ = drop ' bite { A } }~|
+        'id| c,
+}~self
+{ 0 }~ c,
+}~|
+
+\ cross quotatae
+{: xquotate
+x{{
+{ pad " {" s= drop ' xcompile 'id}~|
+{ pad " \"" s= drop xlits }
+|
+x}}
+}
+
+quotate		{ drop xquotate }	xcomps assoc
+
+\ native word definition
+{: native
+xcreate
+$ here 10 - w!
+}
+
+\ postpone colon definition
+{: postpone
+native
+FFFF jmp
+}
+
+\ effect definition
+{: effect ( x -- )
+native
+effects @ dup 8 + effects !
+jmp_[aa]
+}
+
+\ constant definition
+{: constant
+native
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+mov_rr,x
+ret
+}
+
+\ change compile mode behavior
+{: does
+xlast
+8 +
+w! }
+
+\ target quotation
+{: {
+$ ' xcompile 'id}~|
+
+\ postponed colon definition
+{: {::
+word xfind w@ offset @ + \ host address of jmp instruction
+1+ \ host address of jmp relative address
+dup
+4 + \ host address of jmp anchor
+here swap -
+swap w!
+} \ TODO: adjust interpret mode behavior address, too
+
+\ colon definitions
+{: {:
+native
+here
+' xcompile
+' drop
+}~|
+
+\ Beginning of cross-compilation
+create ELF
+
+0 org
+
+\ Signature
+7F c, ascii E c, ascii L c, ascii F c,
+
+\ Class 2, 64-bit
+2 c,
+
+\ Little-endian
+1 c,
+
+\ ELF version
+1 c,
+
+\ OS ABI
+0c,
+
+\ Extended ABI
+0 q,
+
+\ Executable file type
+2 w,
+
+\ Target architecture x86_64
+3E w,
+
+\ Additional ELF version
+1 d,
+
+f_EntryPoint field
+
+0 w, 1 w, 0 d,
+
+f_ProgramHeaders field
+
+0 q,
+
+f_SectionHeaders field
+
+0 q,
+
+\ Unused flags
+0 d,
+
+\ Header size
+40 w,
+
+\ Program header entry size
+38 w,
+
+\ Number of program header entries
+1 w,
+
+\ Section header entry size
+40 w,
+
+\ Number of section header entries
+4 w,
+
+\ Index of string table section
+3 w,
+
+\ Program Headers
+
+$ f_ProgramHeaders @ w!
+
+\ Program header type: 1 = loadable segment
+1 d,
+
+\ Program header flags: 7 = read + write + execute
+7 d,
+
+\ Loadable segment offset in the file
+0 q,
+
+\ Virtual address 10000
+0 w, 1 w, 0 d,
+
+\ Physical address ???
+0 w, 1 w, 0 d,
+
+f_SizeInFile field
+0 q,
+
+\ Size in memory
+0 w, 1 w, 0 d,
+
+\ Alignment
+8000 q,
+
+\ Section Headers
+
+$ f_SectionHeaders @ w!
+
+\ null header
+' 0c, 40 times
+
+\ .text segment
+
+\ Offset of .text in the table
+1 d,
+
+\ Loadable "bits" section
+1 d,
+
+\ Flags: 6 = allocated + executable
+6 q,
+
+\ Virtual address 10000
+0 w, 1 w, 0 d,
+
+\ Offset in the file
+0 q,
+
+f_TotalFileSize field
+0 q,
+
+\ Linked section index
+0 d,
+
+\ Info ???
+0 d,
+
+\ Alignment
+10 q,
+
+\ Section entry size
+0 q,
+
+\ .bss segment
+
+\ Offset of .bss in the table
+7 d,
+
+\ Type: nobits
+8 d,
+
+\ Flags: writable, allocated, executable
+7 q,
+
+\ Virtual address
+8000 w, 1 w, 0 d,
+
+\ Offset in the file
+0 q,
+
+\ Section size
+8000 q,
+
+\ Linked section index
+0 d,
+
+\ Info ???
+0 d,
+
+\ Alignment
+10 q,
+
+\ Section entry size
+0 q,
+
+
+
+\ String Table Section
+C d,
+
+\ Type: string table
+3 d,
+
+\ No need to load it
+0 q,
+
+f_StringTableVA field
+0 w, 1 w, 0 d,
+
+f_StringTableOffset field
+0 q,
+
+\ Length
+16 q,
+
+\ Other stuff
+0 d, 0 d, 1 q, 0 q,
+
+$ f_EntryPoint @ w!
+
+\ Output greeting
+rax 1 mov_rr,x
+rdi 1 mov_rr,x
+rsi 0 fl1 mov_rr,aa
+rdx 1 fl1 mov_rr,x
+syscall
+
+\ Get heap bottom
+rax C mov_rr,x
+rdi 0 mov_rr,x
+syscall
+HEAP_BOT rax mov_[aa],rr
+
+\ Exit program
+rax 3C mov_rr,x
+rdi 0 mov_rr,x
+syscall
+
+0 flabel
+
+" Hello, world!"
+here swap - 1 lb w!
+
+2 flabel
+
+0 q,
+
+$ dup dup
+f_SizeInFile @ w!
+f_StringTableVA @ w!
+f_StringTableOffset @ w!
+
+0 c,
+
+" .text" drop
+" .bss" drop
+" .shstrtab" drop
+
+$ f_TotalFileSize @ w!
+
+ELF dump
+
+bye
