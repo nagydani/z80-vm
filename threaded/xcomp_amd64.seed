@@ -156,22 +156,21 @@ execute
 {: field here swap ! }
 
 \ system variables
-18000 constant HEAP_BOT
+18000 constant SEED
 18008 constant DP
 18010 constant TIB
 18018 constant FAIL
 18020 constant ERR_SP
 18028 constant CONTEXT
 18030 constant CURRENT
-18038 constant SEED
-18040 constant BASE
-18041 constant EMIT_BUF
-18042 constant PAD
+18038 constant BASE
+18039 constant EMIT_BUF
+1803A constant PAD
    20 constant PAD_LEN
-18062 constant TIB_BUF
+1805A constant TIB_BUF
   100 constant TIB_BUF_LEN
 
-18168 constant EFFECTS
+18160 constant EFFECTS
 
 \ effect pointer for cross-compiling
 EFFECTS variable effects
@@ -443,30 +442,42 @@ f_StringTableOffset field
 
 $ f_EntryPoint @ w!
 
-\ Output greeting
-rax 1 mov_rr,x
-rdi 1 mov_rr,x
-rsi 0 fl1 mov_rr,aa
-rdx 1 fl1 mov_rr,x
-syscall
-
-\ Get heap bottom
-rax C mov_rr,x
+\ Get heap top
+rax C mov_rr,x  \ brk
 rdi 0 mov_rr,x
 syscall
-HEAP_BOT rax mov_[aa],rr
+DP rax mov_[aa],rr
+
+7 jmp_f \ jump over the initial dictionary
+
+0 label \ low-level heap allocation of rcx bytes
+rax push
+rbx push
+rcx push
+rax C mov_rr,x \ brk
+rdi 0 mov_rr,x
+syscall
+rcx pop
+rcx DP add_rr,[aa]
+rax rcx cmp_rr,rr
+1 jnc_fs
+rax C mov_rr,x \ brk
+rdi rcx mov_rr,rr
+syscall
+1 rslabel
+rbx pop
+rax pop
+ret
+
+7 rlabel \ the dictionary is ready here
+
+rbx effects @ mov_rr,x \ initialize stack pointer
 
 \ Exit program
 rax 3C mov_rr,x
 rdi 0 mov_rr,x
 syscall
 
-0 flabel
-
-" Hello, world!"
-here swap - 1 lb w!
-
-2 flabel
 
 0 q,
 
