@@ -1,3 +1,16 @@
+\ assembler macros
+
+{: binary
+rcx rax mov_rr,rr
+rbx 8 sub_rr,s
+rax rbx mov_rr,[rr]
+}
+
+{: binary_cmp
+binary
+rax rcx cmp_rr,rr
+}
+
 \ pointer to cross-compiled vocabulary
 create xcurrent 0 w,
 
@@ -515,12 +528,71 @@ rcx jmp			\ continue with handler
 
 x' endcomp does
 
+native 0=
+rax rax or_rr,rr
+2 lb jnz_s
+ret
+
+native 0<>
+rax rax or_rr,rr
+2 lb jz_s
+ret
+
+native =
+binary_cmp
+2 lb jnz_s
+ret
+
+native <>
+binary_cmp
+2 lb jz_s
+ret
+
+native >
+binary_cmp
+2 lb jbe_s
+ret
+
+native >=
+binary_cmp
+2 lb jb_s
+ret
+
+native <
+binary_cmp
+2 lb jae_s
+ret
+
+native <=
+2 lb ja_s
+ret
+
 native }
 ret
 
 x' endcomp does
 
+native ,
+rcx 4 mov rr,x
+1 lb call
+rcx DP mov_rr,[aa]
+rcx rax mov_[rr],rr
+rcx 8 add_rr,s
+DP rcx mov_[aa],rr
+rbx 8 sub_rr,s
+rax rbx mov_rr,[rr]
+ret
 
+native c,
+rcx 1 mov rr,x
+1 lb call
+rcx DP mov_rr,[aa]
+rcx rax mov_[rr],rl
+rcx inc_rr
+DP rcx mov_[aa],rr
+rbx 8 sub_rr,s
+rax rbx mov_rr,[rr]
+ret
 
 7 rlabel \ the dictionary is ready here
 
