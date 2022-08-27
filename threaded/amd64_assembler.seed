@@ -131,6 +131,14 @@ create labels
 {: jnc_fs		73 c, jrfs }
 {: jz_fs		74 c, jrfs }
 {: jnz_fs		75 c, jrfs }
+{: jc			0F c, 82 c, rel }
+{: jb			}~ jc
+{: jnc			0F c, 83 c, rel }
+{: jae			}~ jnc
+{: jz			0F c, 84 c, rel }
+{: jnz			0F c, 85 c, rel }
+{: jbe			0F c, 86 c, rel }
+{: ja			0F c, 87 c, rel }
 {: ret			C3 c, }
 {: push			50 + c, }
 {: pop			58 + c, }
