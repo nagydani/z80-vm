@@ -19,7 +19,8 @@ dup
 }
 
 {: xsearch ( a -( pad fail )- a )
-xtraverse& 10 + pad s= cut }~ nip
+xtraverse& 10 +
+pad s= cut }~ nip
 
 {: xfind ( -( pad fail )- a )
 xcurrent xsearch 10 }~ -
@@ -229,6 +230,7 @@ ret
 {: does
 xlast
 8 +
+offset @ +
 w! }
 
 \ target quotation
@@ -471,6 +473,7 @@ rcx 5 mov_rr,x
 1 lb call
 rcx DP mov_rr,[aa]
 rcx E8 mov_byte_[rr],x \ call
+2 label
 rcx inc_rr
 rax rcx sub_rr,rr
 rax 4 sub_rr,s
@@ -480,6 +483,41 @@ DP rcx mov_[aa],rr
 rbx 8 sub_rr,s
 rax rbx mov_rr,[rr]
 ret
+
+native endcomp
+$ endcomp !
+rcx 5 mov_rr,x
+1 lb call
+rcx DP mov_rr,[aa]
+rcx E9 mov_byte_[rr],x \ jmp
+2 lb call
+2 jmp_f
+
+native }~fail
+2 rlabel
+2 label
+rcx FAIL mov_rr,aa
+rbx rax mov_[rr],rr	\ save TOS
+3 label
+rsp ERR_SP mov_rr,[aa]	\ restore rsp
+rdx pop			\ handler pointer in rdx
+rcx rdx cmp_rr,rr	\ compare with current effect's
+rbx pop			\ rbx = previous handler address
+rax rdx mov_rr,[rr]
+rdx rbx mov_[rr],rr	\ restore previous handler address
+rbx rax mov_rr,rr	\ rbx = current handler address
+rax pop			\ rax = previous ERR_SP
+ERR_SP rax mov_[aa],rr	\ restore previous ERR_SP
+3 lb jnz_s		\ next handler, if not found
+rcx rbx mov_rr,rr	\ rcx = current handler address
+rbx pop			\ restore data stack pointer
+rax rbx mov_rr,[rr]	\ restore TOS
+rcx jmp			\ continue with handler
+
+native }
+ret
+
+x' endcomp does
 
 
 

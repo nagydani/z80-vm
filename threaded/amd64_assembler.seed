@@ -90,6 +90,9 @@ create labels
 \ relative jump
 {: rel		{ $ 4 + - carry? d, } { w, FFFF w, } }~|
 
+\ short relative jump
+{: srel		$ 1+ - c, }
+
 \ opcodes
 
 {: mov_rr,x		swap B8 + c, d, }
@@ -113,9 +116,17 @@ create labels
 {: jmp			E9 c, rel }
 {: jmp_f		E9 c, jrf }
 {: jmp_[aa]		FF c, 24 c, 25 c, w, 1 w, }
+{: jmp_rr		FF c, E0 or c, }
+{: jc_s			72 c, srel }
+{: jnc_s		73 c, srel }
+{: jz_s			74 c, srel }
+{: jnz_s		75 c, srel }
 {: jc_fs		72 c, jrfs }
 {: jnc_fs		73 c, jrfs }
+{: jz_fs		74 c, jrfs }
+{: jnz_fs		75 c, jrfs }
 {: ret			C3 c, }
 {: push			50 + c, }
 {: pop			58 + c, }
 {: inc_rr		48 c, FF c, C0 or c, }
+
