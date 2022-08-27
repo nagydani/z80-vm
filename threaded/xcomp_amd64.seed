@@ -564,6 +564,7 @@ binary_cmp
 ret
 
 native <=
+binary_cmp
 2 lb ja_s
 ret
 
