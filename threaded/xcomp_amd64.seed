@@ -201,7 +201,6 @@ quotate		{ drop xquotate }	xcomps assoc
 \ native word definition
 {: native
 xcreate
-$ here 10 - w!
 }
 
 \ postpone colon definition
@@ -229,7 +228,7 @@ ret
 \ change compile mode behavior
 {: does
 xlast
-8 +
+10 +
 offset @ +
 w! }
 
@@ -513,6 +512,8 @@ rcx rbx mov_rr,rr	\ rcx = current handler address
 rbx pop			\ restore data stack pointer
 rax rbx mov_rr,[rr]	\ restore TOS
 rcx jmp			\ continue with handler
+
+x' endcomp does
 
 native }
 ret
