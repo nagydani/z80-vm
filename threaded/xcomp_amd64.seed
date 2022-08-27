@@ -442,34 +442,35 @@ f_StringTableOffset field
 
 $ f_EntryPoint @ w!
 
-\ Get heap top
+7 jmp_f \ jump over the initial dictionary
+
+0 label \ get heap top
 rax C mov_rr,x  \ brk
 rdi 0 mov_rr,x
 syscall
-DP rax mov_[aa],rr
+ret
 
-7 jmp_f \ jump over the initial dictionary
-
-0 label \ low-level heap allocation of rcx bytes
+1 label \ low-level heap allocation of rcx bytes
 rax push
 rbx push
 rcx push
-rax C mov_rr,x \ brk
-rdi 0 mov_rr,x
-syscall
+0 lb call
 rcx pop
 rcx DP add_rr,[aa]
 rax rcx cmp_rr,rr
-1 jnc_fs
-rax C mov_rr,x \ brk
-rdi rcx mov_rr,rr
-syscall
-1 rslabel
+2 jnc_fs
+0 lb call
+2 rslabel
 rbx pop
 rax pop
 ret
 
+
+
 7 rlabel \ the dictionary is ready here
+
+0 lb call
+DP rax mov_[aa],rr \ initialize dictionary pointer
 
 rbx effects @ mov_rr,x \ initialize stack pointer
 
