@@ -446,7 +446,6 @@ $ f_EntryPoint @ w!
 
 0 label \ get heap top
 rax C mov_rr,x  \ brk
-rdi 0 mov_rr,x
 syscall
 ret
 
@@ -454,11 +453,13 @@ ret
 rax push
 rbx push
 rcx push
+rdi 0 mov_rr,x
 0 lb call
 rcx pop
 rcx DP add_rr,[aa]
 rax rcx cmp_rr,rr
 2 jnc_fs
+rdi rcx mov_rr,rr
 0 lb call
 2 rslabel
 rbx pop
@@ -469,6 +470,7 @@ ret
 
 7 rlabel \ the dictionary is ready here
 
+rdi 0 mov_rr,x
 0 lb call
 DP rax mov_[aa],rr \ initialize dictionary pointer
 
