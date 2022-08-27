@@ -574,7 +574,7 @@ ret
 x' endcomp does
 
 native ,
-rcx 4 mov rr,x
+rcx 4 mov_rr,x
 1 lb call
 rcx DP mov_rr,[aa]
 rcx rax mov_[rr],rr
@@ -585,7 +585,7 @@ rax rbx mov_rr,[rr]
 ret
 
 native c,
-rcx 1 mov rr,x
+rcx 1 mov_rr,x
 1 lb call
 rcx DP mov_rr,[aa]
 rcx rax mov_[rr],rl
