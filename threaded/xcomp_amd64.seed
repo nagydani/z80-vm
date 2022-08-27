@@ -466,6 +466,21 @@ rbx pop
 rax pop
 ret
 
+$ callcomp !
+rcx 5 mov_rr,x
+1 lb call
+rcx DP mov_rr,[aa]
+rcx E8 mov_byte_[rr],x \ call
+rcx inc_rr
+rax rcx sub_rr,rr
+rax 4 sub_rr,s
+rcx rax mov_[rr],er
+rcx 4 add_rr,s
+DP rcx mov_[aa],rr
+rbx 8 sub_rr,s
+rax rbx mov_rr,[rr]
+ret
+
 
 
 7 rlabel \ the dictionary is ready here
