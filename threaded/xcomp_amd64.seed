@@ -595,7 +595,34 @@ rbx 8 sub_rr,s
 rax rbx mov_rr,[rr]
 ret
 
+native @
+rax rax mov_rr,[rr]
+ret
 
+native c@
+rcx rax mov_rl,[rr]
+rax rax xor_rr,rr
+rax rcx mov_rl,rl
+ret
+
+native !
+binary
+rcx rax mov_[rr],rr
+rbx 8 sub_rr,s
+rax rbx mov_rr,[rr]
+ret
+
+native c!
+binary
+rcx rax mov_[rr],rl
+rbx 8 sub_rr,s
+rax rbx mov_rr,[rr]
+ret
+
+native bye
+rax 3C mov_rr,x \ Exit program
+rdi 0 mov_rr,x
+syscall
 
 7 rlabel \ the dictionary is ready here
 
@@ -605,10 +632,7 @@ DP rax mov_[aa],rr \ initialize dictionary pointer
 
 rbx effects @ mov_rr,x \ initialize stack pointer
 
-\ Exit program
-rax 3C mov_rr,x
-rdi 0 mov_rr,x
-syscall
+x' bye call
 
 
 0 q,

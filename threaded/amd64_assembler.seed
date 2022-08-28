@@ -99,10 +99,12 @@ create labels
 {: mov_rr,aa		swap B8 + c, w, 1 w, }
 {: mov_rr,xx		swap 48 c, B8 + c, q, }
 {: mov_rr,rr		48 c, 89 c, 8 * + C0 or c, }
+{: mov_rl,rl		88 c, 8 * + C0 or c, }
 {: mov_byte_[rr],x      C6 c, swap c, c, }
 {: mov_[rr],rr		48 c, 89 c, 8 * + c, }
 {: mov_[rr],er		89 c, 8 * + c, }
 {: mov_[rr],rl		88 c, 8 * + c, }
+{: mov_rl,[rr]		8A c, swap 8 * + c, }
 {: mov_rr,[rr]		48 c, 8B c, swap 8 * + c, }
 {: mov_[aa],rr		48 c, 89 c, 8 * 4 + c, 25 c, w, 1 w, }
 {: mov_rr,[aa]		48 c, 8B c, swap 8 * 4 + c, 25 c, w, 1 w, }
@@ -113,6 +115,7 @@ create labels
 {: sub_rr,rr		48 c, 29 c, 8 * + C0 or c, }
 {: cmp_rr,rr		48 c, 39 c, 8 * + C0 or c, }
 {: or_rr,rr		48 c, 09 c, 8 * + C0 or c, }
+{: xor_rr,rr		48 c, 31 c, 8 * + C0 or c, }
 {: call			E8 c, rel }
 {: call_f		E8 c, jrf }
 {: jmp			E9 c, rel }
