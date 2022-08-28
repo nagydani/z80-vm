@@ -647,29 +647,140 @@ rdi 1 mov_rr,x
 rsi EMIT_BUF mov_rr,aa
 rdx 1 mov_rr,x
 syscall
+rax 1 cmp_rr,s
+rbx pop
+rax pop
+lb 2 jnz
+ret
+
+effect emit ( -( emit fail )- )
+
+native stdwrite
+binary
+rbx push
+rsi rax mov_rr,rr \ buffer
+rdx rcx mov_rr,rr \ length
+rax 1 mov_rr,x \ write
+rdi 1 mov_rr,x \ stdout
+syscall
+rbx pop
+ret
+
+effect write ( -( write )- )
+
+native stdkey
+rax push
+rbx push
+rax 0 mov_rr,x
+rdi 0 mov_rr,x
+rsi EMIT_BUF mov_rr,aa
+rdx 1 mov_rr,x
+syscall
+rax rax or_rr,rr
+rbx pop
+rax pop
+2 lb jz
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+rax rax xor_rr,rr
+rax EMIT_BUF mov_rl,[aa]
+ret
+
+effect key ( -( key fail )- c )
+
+\ edit a line of text on stdin (quick and dirty)
+native stdinput
+rax push
+rbx push
+rsi TIB_BUF mov_rr,aa
+TIB rsi mov_[aa],rr
+3 label
+rsi push
+rax 0 mov_rr,x
+rdi 0 mov_rr,x
+rdx 1 mov_rr,x
+syscall
+rsi pop
+rax 1 cmp_rr,s
+4 jnz_fs 
+rax rsi mov_rl,[rr]
+rax A cmp_rr,s
+5 jnz_fs
+rsi inc_rr
+rcx TIB_BUF TIB_BUF_LEN + 1+ mov_rr,aa
+rsi rcx cmp_rr,rr
+3 lb jnz_s
+4 rslabel
+5 rslabel
+rsi 0 mov_byte_[rr],x
 rbx pop
 rax pop
 ret
 
-effect emit
+effect input
 
-native stdwrite
-rdx rax mov_rr,rr
+\ stack manipulation primitives
+
+native drop
 rbx 8 sub_rr,s
-rsi rbx mov_rr,[rr]
-rbx 8 sub_rr,s
-rbx push
-rax 1 mov_rr,x
-rdi 1 mov_rr,x
-syscall
-rbx pop
 rax rbx mov_rr,[rr]
 ret
 
-effect write
+native nip
+rbx 8 sub_rr,s
+ret
 
-6 label
-" Hello"
+native swap
+binary
+rbx rcx mov_[rr],rr
+rbx 8 add_rr,s
+ret
+
+native dup
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+ret
+
+native over
+binary
+rbx 8 add_rr,s
+rbx rcx mov_[rr],rr
+rbx 8 add_rr,s
+ret
+
+native third
+rcx rbx mov_rr,rr
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+rcx 10 sub_rr,s
+rax rcx mov_rr,[rr]
+ret
+
+native >r
+binary
+rcx rsp xchg_rr,[rr]
+rcx jmp_rr
+
+native r>
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+rcx pop
+rax pop
+rcx jmp_rr
+
+\ reference to identity
+native 'id
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+rax x' } mov_rr,aa
+ret
+
+\ execute computation
+native execute
+binary
+rcx jmp_rr
+
+
 
 7 rlabel \ the dictionary is ready here
 
@@ -683,6 +794,11 @@ rcx x' stdemit mov_rr,aa
 EFFECTS rcx mov_[aa],rr
 rcx x' stdwrite mov_rr,aa
 EFFECTS 8 + rcx mov_[aa],rr
+rcx x' stdkey mov_rr,aa
+EFFECTS 10 + rcx mov_[aa],rr
+rcx x' stdinput mov_rr,aa
+EFFECTS 18 + rcx mov_[aa],rr
+
 
 \ execute seed loop
 x' bye call \ exit for now
