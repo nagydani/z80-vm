@@ -768,6 +768,8 @@ rcx pop
 rax pop
 rcx jmp_rr
 
+\ execution control
+
 \ reference to identity
 native 'id
 rbx rax mov_[rr],rr
@@ -788,6 +790,7 @@ binary			\ effect reference in rcx
 rcx 3 add_rr,s
 rdx rdx xor_rr,rr
 rdx rcx mov_er,[rr]	\ handler pointer in rdx
+3 label
 rcx ERR_SP mov_rr,[aa]	\ ERR_SP in rcx
 rcx push		\ save previous ERR_SP
 rcx rdx mov_rr,[rr]	\ previous handler address in rcx
@@ -804,6 +807,51 @@ rcx pop
 ERR_SP rcx mov_[aa],rr	\ restore ERR_SP
 rsp 8 add_rr,s		\ discard data stack pointer
 ret
+
+\ disjunction combinator
+native |
+rdx FAIL mov_rr,aa
+3 lb jmp
+
+\ cut handler
+native cut
+rsi ERR_SP mov_rr,[aa]
+rdi rsi mov_rr,rr
+std
+rcx rdi mov_rr,[rr]	\ handler ptr in rcx
+rdi 8 add_rr,s
+rdx rdi mov_rr,[rr]	\ previous handler reference in rdx
+rdi 8 add_rr,s
+rcx rdx mov_[rr],rr	\ restore previous handler
+rcx rdi mov_rr,[rr]	\ previous ERR_SP in rcx
+ERR_SP rcx mov_[aa],rr	\ restore previous ERR_SP
+rdi 10 add_rr,s		\ rdi points to top of handler frame
+rcx rsi mov_rr,rr
+rcx rsp sub_rr,rr	\ length of stack to move
+rep_movsb		\ cannot be zero due to return addr.
+rsp rdi mov_rr,rr	\ set stack pointer to destination
+ret
+
+\ arithmetic mappers
+
+native 1-
+rax dec_rr
+ret
+
+native 1+
+rax inc_rr
+ret
+
+native cell-
+rax 8 sub_rr,s
+ret
+
+native cell+
+rax 8 add_rr,s
+ret
+
+native cells
+rax 3 shl_rr,s
 
 
 
