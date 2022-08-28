@@ -780,6 +780,31 @@ native execute
 binary
 rcx jmp_rr
 
+\ handle effect
+native handle
+rbx rax mov_[rr],rr	\ save TOS
+rbx push		\ save data stack pointer
+binary			\ effect reference in rcx
+rcx 3 add_rr,s
+rdx rdx xor_rr,rr
+rdx rcx mov_er,[rr]	\ handler pointer in rdx
+rcx ERR_SP mov_rr,[aa]	\ ERR_SP in rcx
+rcx push		\ save previous ERR_SP
+rcx rdx mov_rr,[rr]	\ previous handler address in rcx
+rcx push		\ save previous handler address
+rdx push		\ save handler pointer
+ERR_SP rsp mov_[aa],rr
+binary			\ handler reference in rcx
+rdx rcx mov_[rr],rr	\ handler reference changed
+x' execute call		\ execute code with effects
+rcx pop			\ handler ptr in rcx
+rdx pop			\ previous handler addr. in rdx
+rcx rdx mov_[rr],rr	\ restore handler
+rcx pop
+ERR_SP rcx mov_[aa],rr	\ restore ERR_SP
+rsp 8 add_rr,s		\ discard data stack pointer
+ret
+
 
 
 7 rlabel \ the dictionary is ready here
