@@ -151,4 +151,5 @@ create labels
 {: push			50 + c, }
 {: pop			58 + c, }
 {: inc_rr		48 c, FF c, C0 or c, }
-
+{: std			FD c, }
+{: shr_rr,s		48 c, C1 c, swap E8 or c, c, }
