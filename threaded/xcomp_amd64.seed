@@ -1,9 +1,13 @@
 \ assembler macros
 
-{: binary
-rcx rax mov_rr,rr
+{: torax
 rbx 8 sub_rr,s
 rax rbx mov_rr,[rr]
+}
+
+{: binary
+rcx rax mov_rr,rr
+torax
 }
 
 {: binary_cmp
@@ -234,7 +238,15 @@ jmp_[aa]
 native
 rbx rax mov_[rr],rr
 rbx 8 add_rr,s
-mov_rr,x
+rax swap mov_rr,x
+ret
+}
+
+{: address
+native
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+rax swap mov_rr,aa
 ret
 }
 
@@ -492,8 +504,7 @@ rax 4 sub_rr,s
 rcx rax mov_[rr],er
 rcx 4 add_rr,s
 DP rcx mov_[aa],rr
-rbx 8 sub_rr,s
-rax rbx mov_rr,[rr]
+torax
 ret
 
 native endcomp
@@ -580,8 +591,7 @@ rcx DP mov_rr,[aa]
 rcx rax mov_[rr],rr
 rcx 8 add_rr,s
 DP rcx mov_[aa],rr
-rbx 8 sub_rr,s
-rax rbx mov_rr,[rr]
+torax
 ret
 
 native c,
@@ -591,8 +601,7 @@ rcx DP mov_rr,[aa]
 rcx rax mov_[rr],rl
 rcx inc_rr
 DP rcx mov_[aa],rr
-rbx 8 sub_rr,s
-rax rbx mov_rr,[rr]
+torax
 ret
 
 native @
@@ -608,15 +617,13 @@ ret
 native !
 binary
 rcx rax mov_[rr],rr
-rbx 8 sub_rr,s
-rax rbx mov_rr,[rr]
+torax
 ret
 
 native c!
 binary
 rcx rax mov_[rr],rl
-rbx 8 sub_rr,s
-rax rbx mov_rr,[rr]
+torax
 ret
 
 native bye
@@ -624,16 +631,61 @@ rax 3C mov_rr,x \ Exit program
 rdi 0 mov_rr,x
 syscall
 
+\ constnats
+TIB address tib
+PAD address pad
+
+\ I/O effects
+
+native stdemit
+EMIT_BUF rax mov_[aa],rl
+torax
+rax push
+rbx push
+rax 1 mov_rr,x
+rdi 1 mov_rr,x
+rsi EMIT_BUF mov_rr,aa
+rdx 1 mov_rr,x
+syscall
+rbx pop
+rax pop
+ret
+
+effect emit
+
+native stdwrite
+rdx rax mov_rr,rr
+rbx 8 sub_rr,s
+rsi rbx mov_rr,[rr]
+rbx 8 sub_rr,s
+rbx push
+rax 1 mov_rr,x
+rdi 1 mov_rr,x
+syscall
+rbx pop
+rax rbx mov_rr,[rr]
+ret
+
+effect write
+
+6 label
+" Hello"
+
 7 rlabel \ the dictionary is ready here
 
 rdi 0 mov_rr,x
-0 lb call
+0 lb call \ get heap bottom
 DP rax mov_[aa],rr \ initialize dictionary pointer
+rbx effects @ mov_rr,aa \ initialize stack pointer
 
-rbx effects @ mov_rr,x \ initialize stack pointer
+\ initialize effects
+rcx x' stdemit mov_rr,aa
+EFFECTS rcx mov_[aa],rr
+rcx x' stdwrite mov_rr,aa
+EFFECTS 8 + rcx mov_[aa],rr
 
-x' bye call
-
+\ execute seed loop
+x' bye call \ exit for now
 
 0 q,
 
