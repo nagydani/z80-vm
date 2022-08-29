@@ -49,6 +49,12 @@ word xfind }~ w@
 \ target pointer to callcomp
 0 variable callcomp
 
+\ target pointer to endcomp
+0 variable endcomp
+
+\ target pointer to execute
+0 variable exec
+
 \ target create
 {: xcreate
 xlast
@@ -72,8 +78,15 @@ rbx 8 add_rr,s
 rax swap mov_rr,xx
 }
 
+\ target address literal
+{: xaliteral ( a -( heap )- )
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+rax swap mov_rr,aa
+}
+
 {: x{{ ( -( heap )- a )
-$ call }~ here
+1FFFF call }~ here
 
 {: x}} ( a -( heap )- )
 dup here swap - swap 4 - w!
@@ -82,21 +95,6 @@ rbx 8 add_rr,s
 rax pop
 }
 
-\ target pointer to endcomp
-0 variable endcomp
-
-\ target pointer to endtail
-0 variable endtail
-
-\ target pointer to >lit
-0 variable >lit
-
-\ target pointer to quotate
-0 variable quotate
-
-\ target pointer to execute
-0 variable exec
-
 \ create association
 {: assoc ( key value table -( heap )- )
 dup @ link swap !
@@ -104,36 +102,42 @@ swap , , }
 
 \ recall association
 {: recall ( key table -- value )
-traverse& third over @ @ = cut drop drop nip cell+ cell+ @ }
+traverse& third over @ s= cut drop drop nip cell+ cell+ @ }
+
+\ compile tail call to self
+{: tail jmp }~fail
 
 \ target host associations
 0 variable xcomps
 
-callcomp	' call			xcomps assoc
-endcomp		{ jmp }~fail		xcomps assoc
-endtail		{ drop word xfind
-		w@ jmp }~fail
+\ ends of computation
 
-\ comments and unnamed macros
+" }"		{ drop ret }~fail	xcomps assoc
+" }~"		{ drop word xfind
+		w@ jmp }~fail		xcomps assoc
+" }~fail"	' tail			xcomps assoc
+" }~|"		' tail			xcomps assoc
+" }~self"	{ drop dup
+		offset @ - jmp }~fail	xcomps assoc
+" 'id}~|"	' tail			xcomps assoc
 
-{: comments_and_meta
-{
-  { drop pad " \\" s= drop }~ \
-  { drop pad " (" s= drop }~ (
-}~|
-{ drop pad " [" s= drop ' interpret 'id}~|
-}~|
+\ comments
 
-exec		' comments_and_meta	xcomps assoc
+" \\"		{ drop }~ \		xcomps assoc
+" ("		{ drop }~ (		xcomps assoc
+
+\ unnamed macros
+
+" ["		{ drop ' interpret
+		'id}~|			xcomps assoc
+
 
 \ literal constructors
 
-{: x>lit
-{ drop pad " ascii" s= drop word pad c@ xliteral }
-{ drop pad " '" s= drop word xfind w@ xliteral }
-}~|
-
->lit		' x>lit			xcomps assoc
+" ascii"	{ drop word pad
+		c@ xliteral }		xcomps assoc
+" '"		{ drop word xfind
+		w@ xaliteral }		xcomps assoc
 
 \ while loop
 {: while
@@ -152,11 +156,32 @@ word
 { pad c@ 0= drop }
 { input word }
 while
-{ xfind dup 8 + w@ swap w@ xcomps recall }
+{ xfind w@
+  { pad xcomps recall }
+  { ' call }
+}~|
 { pad s>number ' xliteral }
 |
+
 execute
 }~self
+
+\ cross string literal
+{: xlits
+bite
+drop
+{ bite ascii " <>
+        { ascii \ = drop ' bite { A } }~|
+        'id| c,
+}~self
+{ 0 }~ c,
+}~|
+
+
+\ quoted literals
+" {"		{ drop 
+		x{{ ' xcompile 'id | }~ x}}	xcomps assoc
+" \""		{ drop x{{ xlits }~ x}}		xcomps assoc
 
 \ Offsets in ELF header
 
@@ -193,28 +218,6 @@ execute
 \ effect pointer for cross-compiling
 EFFECTS variable effects
 
-\ cross string literal
-{: xlits
-bite
-drop
-{ bite ascii " <>
-        { ascii \ = drop ' bite { A } }~|
-        'id| c,
-}~self
-{ 0 }~ c,
-}~|
-
-\ cross quotatae
-{: xquotate
-x{{
-{ pad " {" s= drop ' xcompile 'id}~|
-{ pad " \"" s= drop xlits }
-|
-x}}
-}
-
-quotate		{ drop xquotate }	xcomps assoc
-
 \ native word definition
 {: native
 xcreate
@@ -223,7 +226,7 @@ xcreate
 \ postpone colon definition
 {: postpone
 native
-FFFF jmp
+1FFFF jmp
 }
 
 \ effect definition
@@ -242,6 +245,7 @@ rax swap mov_rr,x
 ret
 }
 
+\ address definition (because of 16-bit cells)
 {: address
 native
 rbx rax mov_[rr],rr
@@ -256,6 +260,9 @@ xlast
 10 +
 offset @ +
 w! }
+
+{: immediate
+exec @ }~ does
 
 \ target quotation
 {: {
@@ -539,6 +546,8 @@ rcx jmp			\ continue with handler
 
 x' endcomp does
 
+\ arithmetic filters
+
 native 0=
 rax rax or_rr,rr
 2 lb jnz_s
@@ -548,6 +557,8 @@ native 0<>
 rax rax or_rr,rr
 2 lb jz
 ret
+
+\ relations
 
 native =
 binary_cmp
@@ -579,13 +590,10 @@ binary_cmp
 2 lb ja
 ret
 
-native }
-ret
-
-x' endcomp does
+\ heap manipulation
 
 native ,
-rcx 4 mov_rr,x
+rcx 8 mov_rr,x
 1 lb call
 rcx DP mov_rr,[aa]
 rcx rax mov_[rr],rr
@@ -625,6 +633,12 @@ binary
 rcx rax mov_[rr],rl
 torax
 ret
+
+native allot
+binary
+1 lb jmp
+
+\ end Seed execution
 
 native bye
 rax 3C mov_rr,x \ Exit program
@@ -770,6 +784,14 @@ rcx jmp_rr
 
 \ execution control
 
+\ end of computation
+native }
+ret
+
+{ c@ c, }~fail
+
+does
+
 \ reference to identity
 native 'id
 rbx rax mov_[rr],rr
@@ -779,8 +801,15 @@ ret
 
 \ execute computation
 native execute
+$ exec !
 binary
 rcx jmp_rr
+
+\ tail call to self
+{: }~self
+drop dup }~ jmp
+
+immediate
 
 \ handle effect
 native handle
@@ -853,7 +882,30 @@ ret
 native cells
 rax 3 shl_rr,s
 
+\ literal constructors
 
+{: literal
+48 c, 89 c, 03 c,
+48 c, 43 c, C3 c, 08 c,
+48 c, B8 c, }~ ,
+
+{: >lit execute }~ literal
+
+postpone word
+
+{: ascii word pad }~ c@
+
+x' >lit does
+
+postpone find
+
+{: ' word find }~ @
+
+
+\ Seed loop
+{: seedl
+ascii H emit
+}~self
 
 7 rlabel \ the dictionary is ready here
 
@@ -874,7 +926,7 @@ EFFECTS 18 + rcx mov_[aa],rr
 
 
 \ execute seed loop
-x' bye call \ exit for now
+x' seedl jmp
 
 0 q,
 
