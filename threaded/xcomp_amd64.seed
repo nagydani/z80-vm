@@ -1061,17 +1061,83 @@ c,
 
 x' quotate does
 
+\ character filters
 
-\ String functions
+\ ascii code of space (a.k.a. blank)
+bl constant bl
+
+\ check whitespace
+{: ws
+bl }~ <=
+
+\ check printable
+{: printable
+ascii ! >= ascii ~ }~ <=
+
+\ decimal digit
+{: ddigit
+ascii 0 >= ascii 9 }~ <=
+
+\ lowercase letter
+{: lower
+ascii a >= ascii z }~ <=
+
+\ uppercase letter
+{: upper
+ascii A >= ascii Z }~ <=
+
+\ letter
+{: letter
+' lower ' upper }~|
+
+\ alphanumeric
+{: alphanum
+' ddigit ' letter }~|
+
+\ character mappers
+
+\ capitalize
+{: >upper
+{ lower DF }~ and
+'id}~|
+
+\ un-capitalize
+{: >lower
+{ upper 20 }~ or
+'id}~|
+
+\ numerals
+
+\ string functions
 
 \ non-empty filter
 {: nonempty
 dup c@ 0<> }~ drop
 
+\ string length
+{: length
+0 swap
+{ nonempty 1+ swap 1+ swap }~self
+' drop
+}~|
+
+\ discard leading whitespace
+{: wsskip
+{ dup c@ 0<> ws drop 1+ }~self
+'id}~|
+
+\ I/O functions
+
+{: type
+dup length }~ write
+
+{: cr
+ascii A }~ emit
 
 \ Seed loop
 {: seedl
-ascii H emit
+input
+tib type cr
 }~self
 
 7 rlabel \ the dictionary is ready here
