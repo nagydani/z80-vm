@@ -5,6 +5,11 @@ rbx 8 sub_rr,s
 rax rbx mov_rr,[rr]
 }
 
+{: fromrax
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+}
+
 {: binary
 rcx rax mov_rr,rr
 torax
@@ -73,15 +78,13 @@ $ swap w!
 
 \ target literal
 {: xliteral ( x -( heap )- )
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 rax swap mov_rr,xx
 }
 
 \ target address literal
 {: xaliteral ( a -( heap )- )
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 rax swap mov_rr,aa
 }
 
@@ -90,8 +93,7 @@ rax swap mov_rr,aa
 
 {: x}} ( a -( heap )- )
 dup here swap - swap 4 - w!
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 rax pop
 }
 
@@ -239,8 +241,7 @@ jmp_[aa]
 \ constant definition
 {: constant
 native
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 rax swap mov_rr,x
 ret
 }
@@ -248,8 +249,7 @@ ret
 \ address definition (because of 16-bit cells)
 {: address
 native
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 rax swap mov_rr,aa
 ret
 }
@@ -263,6 +263,21 @@ w! }
 
 {: immediate
 exec @ }~ does
+
+\ alias
+{: alias
+xcreate
+word
+xfind
+dup
+w@ \ interpret mode behavior
+8 +
+w@ \ compile mode behavior
+does
+xlast
+8 +
+offset @ +
+w! }
 
 \ target quotation
 {: {
@@ -592,12 +607,29 @@ ret
 
 \ heap manipulation
 
+DP address dp
+
+native here
+fromrax
+rax DP mov_rr,[aa]
+ret
+
 native ,
 rcx 8 mov_rr,x
 1 lb call
 rcx DP mov_rr,[aa]
 rcx rax mov_[rr],rr
 rcx 8 add_rr,s
+DP rcx mov_[aa],rr
+torax
+ret
+
+native d,
+rcx 4 mov_rr,x
+1 lb call
+rcx DP mov_rr,[aa]
+rcx rax mov_[rr],er
+rcx 4 add_rr,s
 DP rcx mov_[aa],rr
 torax
 ret
@@ -616,6 +648,12 @@ native @
 rax rax mov_rr,[rr]
 ret
 
+native d@
+rcx rax mov_er,[rr]
+rax rax xor_rr,rr
+rax rcx mov_er,er
+ret
+
 native c@
 rcx rax mov_rl,[rr]
 rax rax xor_rr,rr
@@ -625,6 +663,12 @@ ret
 native !
 binary
 rcx rax mov_[rr],rr
+torax
+ret
+
+native d!
+binary
+rcx rax mov_[rr],er
 torax
 ret
 
@@ -694,8 +738,7 @@ rax rax or_rr,rr
 rbx pop
 rax pop
 2 lb jz
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 rax rax xor_rr,rr
 rax EMIT_BUF mov_rl,[aa]
 ret
@@ -751,8 +794,7 @@ rbx 8 add_rr,s
 ret
 
 native dup
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 ret
 
 native over
@@ -764,8 +806,7 @@ ret
 
 native third
 rcx rbx mov_rr,rr
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 rcx 10 sub_rr,s
 rax rcx mov_rr,[rr]
 ret
@@ -776,8 +817,7 @@ rcx rsp xchg_rr,[rr]
 rcx jmp_rr
 
 native r>
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 rcx pop
 rax pop
 rcx jmp_rr
@@ -794,8 +834,7 @@ does
 
 \ reference to identity
 native 'id
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 rax x' } mov_rr,aa
 ret
 
@@ -804,12 +843,6 @@ native execute
 $ exec !
 binary
 rcx jmp_rr
-
-\ tail call to self
-{: }~self
-drop dup }~ jmp
-
-immediate
 
 \ handle effect
 native handle
@@ -841,6 +874,21 @@ ret
 native |
 rdx FAIL mov_rr,aa
 3 lb jmp
+
+\ tail disjunction
+alias }~| |
+
+x' endcomp does
+
+\ disjunction with identity
+native 'id|
+x' 'id call
+x' | jmp
+
+\ tail disjunction with identity
+alias 'id}~| 'id|
+
+x' endcomp does
 
 \ cut handler
 native cut
@@ -897,8 +945,7 @@ ret
 native u* ( n n -- l h )
 binary
 rcx mul_rr
-rbx rax mov_[rr],rr
-rbx 8 add_rr,s
+fromrax
 rax rdx mov_rr,rr
 ret
 
@@ -946,7 +993,80 @@ postpone find
 
 {: ' word find }~ @
 
+x' >lit does
 
+{: {{
+E8 c, 0 d,
+}~ here
+
+{: }}
+dup here swap - swap 4 - d!
+59 c,
+48 c, 89 c, 03 c,
+48 c, 83 c, C3 c, 08 c,
+58 c,
+FF c, E1 }~ c,
+
+\ tail call
+
+native }~
+2 lb jmp \ not permitted in interpret mode
+
+{ drop word find @ here - 5 + E9 c, d, }~fail
+
+does
+
+\ self references
+
+\ tail call to self
+native }~self
+2 lb jmp \ not permitted in interpret mode
+
+{ drop dup here - 5 + E9 c, d, }~fail
+
+does
+
+\ self reference
+native 'self
+2 lb jmp \ not permitted in interpret mode
+
+{ drop dup }~ literal
+
+does
+
+postpone compile
+
+\ quotation
+
+{: quotate {{ execute }~ }}
+
+{: { here ' compile 'id}~|
+
+x' quotate does
+
+\ quoted string literal
+
+{: bite
+tib @ dup c@ 0<> swap 1+ tib }~ !
+
+{: "
+here bite drop
+{ bite ascii " <>
+{ ascii \ = drop ' bite { A } }~|
+'id|
+c,
+}~self
+{ 0 }~ c,
+}~|
+
+x' quotate does
+
+
+\ String functions
+
+\ non-empty filter
+{: nonempty
+dup c@ 0<> }~ drop
 
 
 \ Seed loop
