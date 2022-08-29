@@ -882,6 +882,51 @@ ret
 native cells
 rax 3 shl_rr,s
 
+\ binary arithmetic primitives
+
+native +
+binary
+rax rcx add_rr,rr
+ret
+
+native -
+binary
+rax rcx sub_rr,rr
+ret
+
+native u* ( n n -- l h )
+binary
+rcx mul_rr
+rbx rax mov_[rr],rr
+rbx 8 add_rr,s
+rax rdx mov_rr,rr
+ret
+
+native /mod ( n n -- n n )
+binary
+rdx rdx xor_rr,rr
+rcx div_rr
+rbx rdx mov_[rr],rr
+rbx 8 add_rr,s
+ret
+
+\ binary bitwise logic primitives
+
+native and
+binary
+rax rcx and_rr,rr
+ret
+
+native or
+binary
+rax rcx or_rr,rr
+ret
+
+native xor
+binary
+rax rcx xor_rr,rr
+ret
+
 \ literal constructors
 
 {: literal
@@ -900,6 +945,8 @@ x' >lit does
 postpone find
 
 {: ' word find }~ @
+
+
 
 
 \ Seed loop
