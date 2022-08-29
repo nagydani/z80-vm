@@ -1337,7 +1337,7 @@ dup c@ 0<> }~ drop
 ' drop
 }~|
 
-\ discard trailing whitespace
+\ discard leading whitespace
 {: wsskip ( a -- a )
 { dup c@ 0<> ws drop 1+ }~self
 'id}~|
