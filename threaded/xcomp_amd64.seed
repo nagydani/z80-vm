@@ -557,7 +557,7 @@ ERR_SP rax mov_[aa],rr	\ restore previous ERR_SP
 rcx rbx mov_rr,rr	\ rcx = current handler address
 rbx pop			\ restore data stack pointer
 rax rbx mov_rr,[rr]	\ restore TOS
-rcx jmp			\ continue with handler
+rcx jmp_rr		\ continue with handler
 
 x' endcomp does
 
@@ -846,13 +846,13 @@ rcx jmp_rr
 
 \ handle effect
 native handle
-rbx rax mov_[rr],rr	\ save TOS
-rbx push		\ save data stack pointer
 binary			\ effect reference in rcx
 rcx 3 add_rr,s
 rdx rdx xor_rr,rr
 rdx rcx mov_er,[rr]	\ handler pointer in rdx
 3 label
+rbx rax mov_[rr],rr	\ save TOS
+rbx push		\ save data stack pointer
 rcx ERR_SP mov_rr,[aa]	\ ERR_SP in rcx
 rcx push		\ save previous ERR_SP
 rcx rdx mov_rr,[rr]	\ previous handler address in rcx
@@ -1132,12 +1132,14 @@ dup c@ 0<> }~ drop
 dup length }~ write
 
 {: cr
-ascii A }~ emit
+A }~ emit
 
 \ Seed loop
 {: seedl
-input
-tib type cr
+{ ascii A emit }~fail
+{ ascii B emit }
+|
+bye
 }~self
 
 7 rlabel \ the dictionary is ready here
