@@ -517,6 +517,7 @@ rbx pop
 rax pop
 ret
 
+native callcomp
 $ callcomp !
 rcx 5 mov_rr,x
 1 lb call
@@ -532,10 +533,7 @@ DP rcx mov_[aa],rr
 torax
 ret
 
-native 'callcomp
-fromrax
-rax callcomp @ mov_rr,aa
-ret
+callcomp does
 
 native endcomp
 $ endcomp !
@@ -1293,12 +1291,10 @@ last
 link
 current @ !
 here cell+ cell+ ,
-'callcomp ,
+' callcomp ,
 word pad s, 0 c,
 here 11 +
-48 c, 89 c, 03 c,	\ mov [rbx], rax
-48 c, 83 c, C3 c, 08 c,	\ add rbx, 8
-48 c, B8 c, ,		\ mov rax, address
+literal
 C3 c,			\ ret
 }
 
@@ -1306,10 +1302,31 @@ C3 c,			\ ret
 {: variable
 create }~ ,
 
-{: redefine last word
+\ redefine last word
+{: redefine
 last
 cell+ cell+ cell+ skipstr
 dp }~ !
+
+\ create constant
+{: constant
+create redefine
+literal
+C3 }~ c,		\ ret
+
+\ create effect with default handler
+{: effect ( x -( heap )- )
+create redefine
+here 7 +
+FF c, 24 c, 25 c, d,	\ jmp [address]
+}~ ,
+
+\ create vocabulary
+{: vocabulary ( -( heap )- )
+here last ,
+create redefine
+literal
+' context callcomp ' ! }~ endcomp
 
 \ I/O functions
 
