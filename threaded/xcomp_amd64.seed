@@ -543,7 +543,6 @@ native }~fail
 2 rlabel
 2 label
 rcx FAIL mov_rr,aa
-rbx rax mov_[rr],rr	\ save TOS
 3 label
 rsp ERR_SP mov_rr,[aa]	\ restore rsp
 rdx pop			\ handler pointer in rdx
@@ -557,16 +556,20 @@ ERR_SP rax mov_[aa],rr	\ restore previous ERR_SP
 3 lb jnz_s		\ next handler, if not found
 rcx rbx mov_rr,rr	\ rcx = current handler address
 rbx pop			\ restore data stack pointer
-rax rbx mov_rr,[rr]	\ restore TOS
+rax pop			\ restore TOS
 rcx jmp_rr		\ continue with handler
 
 x' endcomp does
+
+native carry?
+2 lb jc
+ret
 
 \ arithmetic filters
 
 native 0=
 rax rax or_rr,rr
-2 lb jnz_s
+2 lb jnz
 ret
 
 native 0<>
@@ -852,14 +855,17 @@ rcx 3 add_rr,s
 rdx rdx xor_rr,rr
 rdx rcx mov_er,[rr]	\ handler pointer in rdx
 3 label
-rbx rax mov_[rr],rr	\ save TOS
+rbx 10 sub_rr,s		\ data stack pointer to be saved
+rcx rbx mov_rr,[rr]	\ TOS to be saved
+rcx push		\ save TOS
 rbx push		\ save data stack pointer
+rbx 10 add_rr,s		\ current data stack pointer
 rcx ERR_SP mov_rr,[aa]	\ ERR_SP in rcx
 rcx push		\ save previous ERR_SP
 rcx rdx mov_rr,[rr]	\ previous handler address in rcx
 rcx push		\ save previous handler address
 rdx push		\ save handler pointer
-ERR_SP rsp mov_[aa],rr
+ERR_SP rsp mov_[aa],rr  \ set new ERR_SP
 binary			\ handler reference in rcx
 rdx rcx mov_[rr],rr	\ handler reference changed
 x' execute call		\ execute code with effects
@@ -868,7 +874,7 @@ rdx pop			\ previous handler addr. in rdx
 rcx rdx mov_[rr],rr	\ restore handler
 rcx pop
 ERR_SP rcx mov_[aa],rr	\ restore ERR_SP
-rsp 8 add_rr,s		\ discard data stack pointer
+rsp 10 add_rr,s		\ discard data stack pointer and TOS
 ret
 
 \ disjunction combinator
@@ -1107,7 +1113,52 @@ ascii A >= ascii Z }~ <=
 { upper 20 }~ or
 'id}~|
 
+\ arithmetics
+
+{: * u* }~ drop
+
+{: / /mod }~ nip
+
+{: mod /mod }~ drop
+
 \ numerals
+
+BASE address base
+
+\ set hexadecimal base
+{: hex
+10 base }~ c!
+
+\ set decimal base
+{: decimal
+A base }~ c!
+
+\ digit to integer conversion
+{: digit>int
+alphanum
+ascii 0 -
+carry?
+{ 9 }~ <=
+{ 7 }~ -
+|
+base c@ }~ <
+
+\ auxiliary numeral conversion
+{: >number
+base c@ * over c@ digit>int + swap 1+ dup c@
+{ ws drop }~ drop
+{ drop swap }~ >number
+}~|
+
+\ string numeral to integer conversion
+{: s>number
+0 }~ >number
+
+\ convert integer to digit
+{: >digit
+{ 9 <= ascii 0 }
+{ 37 }
+| }~ +
 
 \ string functions
 
@@ -1129,24 +1180,42 @@ dup c@ 0<> }~ drop
 
 \ I/O functions
 
-\ {: type
-\ dup length }~ write
-
 {: type
-{ nonempty dup c@ emit 1+ }~self
-'id}~|
+dup length write }~ drop
 
+\ emit new line (a.k.a. carriage return)
 {: cr
 A }~ emit
 
+\ emit space
+{: space
+bl }~ emit
+
+\ emit positive number w/o trailing space
+{: .nz
+{ 0<> base c@ /mod .nz >digit }~ emit
+' drop
+}~|
+
+\ emit number w/ trailing space
+{: .
+{ 0= ascii 0 emit }~ drop
+' .nz
+| }~ space
+
+
+
 \ Seed loop
 {: seedl
-" Hello world!"
-type cr
+key
+emit
 }~self
 
 7 rlabel \ the dictionary is ready here
 
+\ initialize base
+rax A mov_rr,x
+BASE rax mov_[aa],rl
 rdi 0 mov_rr,x
 0 lb call \ get heap bottom
 DP rax mov_[aa],rr \ initialize dictionary pointer

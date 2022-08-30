@@ -1506,7 +1506,7 @@ x' }~fail does		\ TODO: not allowed in compile mode
 ' drop
 }~|
 
-\ emit positive number w/ trailing space
+\ emit number w/ trailing space
 {: . ( n -( emit )- )
 { 0= ascii 0 emit }~ drop
 ' .nz
