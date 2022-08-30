@@ -954,7 +954,6 @@ ret
 \ pend
 native &
 rsi pop			\ return address in rsi
-rsi push
 binary			\ failure handler in rcx
 rax push		\ save TOS
 rbx push		\ save data stack pointer
@@ -1355,9 +1354,8 @@ bl }~ emit
 
 \ emit all context words
 {: words
-context @		\ TODO: why is traverse& not working properly?
-{ @ 0<> dup cell+ cell+ cell+ type space }~self
-'id}~|
+{ context @ traverse& cell+ cell+ type space }~fail
+'id}~| 
 
 \ Seed loop
 {: seedl
