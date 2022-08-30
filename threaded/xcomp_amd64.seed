@@ -611,6 +611,36 @@ binary_cmp
 2 lb ja
 ret
 
+\ compare strings for equality
+3 label
+torax
+rsi rbx mov_rr,[rr]
+rdi rax mov_rr,rr
+rcx rcx xor_rr,rr
+4 label
+rcx rsi cmp_rl,[rr]
+5 jz_fs
+rcx rdi cmp_rl,[rr]
+6 jz_fs
+cmpsb
+4 lb jz_s
+6 rslabel
+stc
+ret
+5 rslabel
+rcx rdi cmp_rl,[rr]
+ret
+
+native s=
+3 lb call
+2 lb jc
+ret
+
+native s<>
+3 lb call
+2 lb jnc
+ret
+
 \ heap manipulation
 
 DP address dp
@@ -1009,6 +1039,8 @@ binary
 rax rcx xor_rr,rr
 ret
 
+postpone word
+
 \ literal constructors
 
 {: literal
@@ -1017,8 +1049,6 @@ ret
 48 c, B8 c, }~ ,
 
 {: >lit execute }~ literal
-
-postpone word
 
 {: ascii word pad }~ c@
 
@@ -1095,6 +1125,14 @@ c,
 }~|
 
 x' quotate does
+
+\ comments
+
+\ skip the rest of the line
+{: \ 0 tib @ }~ c!
+
+\ skip till the closing paren
+{: ( { word pad " )" s<> drop }~self 'id }~|
 
 \ character filters
 

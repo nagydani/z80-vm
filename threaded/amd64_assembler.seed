@@ -121,6 +121,8 @@ create labels
 {: sub_rr,rr		48 c, 29 c, 8 * + C0 or c, }
 {: cmp_rr,s		48 c, 83 c, swap F8 + c, c, }
 {: cmp_rr,rr		48 c, 39 c, 8 * + C0 or c, }
+{: cmp_rr,[rr]		48 c, 3B c, swap 8 * + c, }
+{: cmp_rl,[rr]		3A c, swap 8 * + c, }
 {: and_rr,rr		48 c, 21 c, 8 * + C0 or c, }
 {: or_rr,rr		48 c, 09 c, 8 * + C0 or c, }
 {: xor_rr,rr		48 c, 31 c, 8 * + C0 or c, }
@@ -156,11 +158,15 @@ create labels
 {: pop			58 + c, }
 {: inc_rr		48 c, FF c, C0 or c, }
 {: dec_rr		48 c, FF c, C8 or c, }
+{: clc			F8 c, }
+{: stc			F9 c, }
+{: cld			FC c, }
 {: std			FD c, }
 {: shl_rr,s		48 c, C1 c, swap E0 or c, c, }
 {: shr_rr,s		48 c, C1 c, swap E8 or c, c, }
 {: rep_movsq		F3 c, 48 c, A5 c, }
 {: rep_movsb		F3 c, A4 c, }
+{: cmpsb		A6 c, }
 {: mul_rr		48 c, F7 c, E0 or c, }
 {: div_rr		48 c, F7 c, F0 or c, }
 
