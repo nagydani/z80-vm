@@ -271,6 +271,7 @@ word
 xfind
 dup
 w@ \ interpret mode behavior
+swap
 8 +
 w@ \ compile mode behavior
 does
@@ -1128,18 +1129,20 @@ dup c@ 0<> }~ drop
 
 \ I/O functions
 
+\ {: type
+\ dup length }~ write
+
 {: type
-dup length }~ write
+{ nonempty dup c@ emit 1+ }~self
+'id}~|
 
 {: cr
 A }~ emit
 
 \ Seed loop
 {: seedl
-{ ascii A emit }~fail
-{ ascii B emit }
-|
-bye
+" Hello world!"
+type cr
 }~self
 
 7 rlabel \ the dictionary is ready here
