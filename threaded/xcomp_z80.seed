@@ -1297,11 +1297,11 @@ BASE constant base
 
 \ set hexadecimal base
 {: hex ( -( base )- )
-10 base }~ !
+10 base }~ c!
 
 \ set decimal base
 {: decimal ( -( decimal )- )
-A base }~ !
+A base }~ c!
 
 \ digit to integer conversion
 {: digit>int ( c -( fail )- n )
