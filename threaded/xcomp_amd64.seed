@@ -766,7 +766,7 @@ rax 1 cmp_rr,s
 4 jnz_fs 
 rax rsi mov_rl,[rr]
 rax A cmp_rr,s
-5 jnz_fs
+5 jz_fs
 rsi inc_rr
 rcx TIB_BUF TIB_BUF_LEN + 1+ mov_rr,aa
 rsi rcx cmp_rr,rr
@@ -1207,8 +1207,8 @@ bl }~ emit
 
 \ Seed loop
 {: seedl
-key
-emit
+input
+tib @ type cr
 }~self
 
 7 rlabel \ the dictionary is ready here
