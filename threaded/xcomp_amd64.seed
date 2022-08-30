@@ -1206,6 +1206,43 @@ dup c@ 0<> }~ drop
 { dup c@ 0<> ws drop 1+ }~self
 'id}~|
 
+\ dictionary (a.k.a. heap) functions
+
+\ put a string on the heap (w/o the trailing zero)
+{: s,
+{ dup c@ 0<> c, 1+ }~self
+' drop
+}~|
+
+\ list functions
+
+\ list extension
+{: link
+here swap }~ ,
+
+\ list traversal
+{: traverse&
+@ 0<> 'self & dup }~ cell+
+
+\ vocabulary functions
+
+\ vocabulary in which words are searched
+CONTEXT address context
+
+\ vocabulary in which words are created
+CURRENT address current
+
+\ last word in the current vocabulary
+{: last
+current @ }~ @
+
+\ make current vocabulary the same as the context vocabulary
+{: definitions
+context @ current }~ !
+
+\ create new word returning the payload address
+
+
 \ I/O functions
 
 {: type
@@ -1231,28 +1268,32 @@ bl }~ emit
 ' .nz
 | }~ space
 
-
-
-\ countdown generator
-{: cd& 0<> 1- 'self & }~ dup
+\ emit all context words
+{: words
+context @
+{ @ 0<> dup 18 + type space }~self
+'id}~|
 
 \ Seed loop
 {: seedl
-
-{ A cd& . }~fail
-'id|
+words
 cr
+bye
 }~self
 
 7 rlabel \ the dictionary is ready here
 
-\ initialize base
 rax A mov_rr,x
-BASE rax mov_[aa],rl
+BASE rax mov_[aa],rl \ initialize numeral base
 rdi 0 mov_rr,x
 0 lb call \ get heap bottom
 DP rax mov_[aa],rr \ initialize dictionary pointer
 rbx effects @ mov_rr,aa \ initialize stack pointer
+rcx xcurrent @ mov_rr,aa \ initial vocabulary
+rdx SEED mov_rr,aa \ seed vocabulary pointer
+rdx rcx mov_[rr],rr \ initialize it
+CONTEXT rdx mov_[aa],rr \ initialize context vocabulary
+CURRENT rdx mov_[aa],rr \ initialize current vocabulary
 
 \ initialize effects
 rcx x' stdemit mov_rr,aa
@@ -1286,3 +1327,4 @@ $ f_TotalFileSize @ w!
 ELF dump
 
 bye
+v
