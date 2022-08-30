@@ -532,6 +532,11 @@ DP rcx mov_[aa],rr
 torax
 ret
 
+native 'callcomp
+fromrax
+rax callcomp @ mov_rr,aa
+ret
+
 native endcomp
 $ endcomp !
 rcx 5 mov_rr,x
@@ -1264,6 +1269,10 @@ here swap }~ ,
 
 \ vocabulary functions
 
+\ skip word name
+{: skipstr ( a -- a )
+dup length + }~ 1+
+
 \ vocabulary in which words are searched
 CONTEXT address context
 
@@ -1279,7 +1288,28 @@ current @ }~ @
 context @ current }~ !
 
 \ create new word returning the payload address
+{: create
+last
+link
+current @ !
+here cell+ cell+ ,
+'callcomp ,
+word pad s, 0 c,
+here 11 +
+48 c, 89 c, 03 c,	\ mov [rbx], rax
+48 c, 83 c, C3 c, 08 c,	\ add rbx, 8
+48 c, B8 c, ,		\ mov rax, address
+C3 c,			\ ret
+}
 
+\ create a new variable with an initial value
+{: variable
+create }~ ,
+
+{: redefine last word
+last
+cell+ cell+ cell+ skipstr
+dp }~ !
 
 \ I/O functions
 
@@ -1308,8 +1338,8 @@ bl }~ emit
 
 \ emit all context words
 {: words
-context @
-{ @ 0<> dup 18 + type space }~self
+context @		\ TODO: why is traverse& not working properly?
+{ @ 0<> dup cell+ cell+ cell+ type space }~self
 'id}~|
 
 \ Seed loop
@@ -1365,4 +1395,3 @@ $ f_TotalFileSize @ w!
 ELF dump
 
 bye
-v
