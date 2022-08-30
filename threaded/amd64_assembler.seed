@@ -126,6 +126,7 @@ create labels
 {: xor_rr,rr		48 c, 31 c, 8 * + C0 or c, }
 {: call			E8 c, rel }
 {: call_f		E8 c, jrf }
+{: call_rr		FF c, D0 or c, }
 {: jmp			E9 c, rel }
 {: jmp_f		E9 c, jrf }
 {: jmp_[aa]		FF c, 24 c, 25 c, w, 1 w, }

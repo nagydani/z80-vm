@@ -140,6 +140,8 @@ traverse& third over @ s= cut drop drop nip cell+ cell+ @ }
 		c@ xliteral }		xcomps assoc
 " '"		{ drop word xfind
 		w@ xaliteral }		xcomps assoc
+" 'self"	{ drop dup
+		offset @ - xaliteral }	xcomps assoc
 
 \ while loop
 {: while
@@ -916,6 +918,32 @@ rep_movsb		\ cannot be zero due to return addr.
 rsp rdi mov_rr,rr	\ set stack pointer to destination
 ret
 
+\ pend
+native &
+rsi pop			\ return address in rsi
+rsi push
+binary			\ failure handler in rcx
+rax push		\ save TOS
+rbx push		\ save data stack pointer
+rdx ERR_SP mov_rr,[aa]	\ previous ERR_SP in rdx
+rdx push		\ save previous ERR_SP
+rdx FAIL mov_rr,[aa]	\ previous handler in rdx
+rdx push		\ save previous handler
+rdx FAIL mov_rr,aa
+rdx push		\ save failure handler pointer
+rdx rcx	mov_[rr],rr	\ set new handler
+ERR_SP rsp mov_[aa],rr	\ set new ERR_SP
+rcx 28 mov_rr,x
+rcx push		\ save return address offset
+3 label
+rsi call_rr		\ call what follows
+rcx pop
+rcx 8 add_rr,s
+rcx push
+rcx rsp add_rr,rr
+rsi rcx mov_rr,[rr]
+3 lb jmp
+
 \ arithmetic mappers
 
 native 1-
@@ -1205,10 +1233,15 @@ bl }~ emit
 
 
 
+\ countdown generator
+{: cd& 0<> 1- 'self & }~ dup
+
 \ Seed loop
 {: seedl
-input
-tib @ type cr
+
+{ A cd& . }~fail
+'id|
+cr
 }~self
 
 7 rlabel \ the dictionary is ready here
