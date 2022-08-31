@@ -909,6 +909,7 @@ ERR_SP rsp mov_[aa],rr  \ set new ERR_SP
 binary			\ handler reference in rcx
 rdx rcx mov_[rr],rr	\ handler reference changed
 x' execute call		\ execute code with effects
+rsp ERR_SP mov_rr,[aa]	\ stack to handler frame
 rcx pop			\ handler ptr in rcx
 rdx pop			\ previous handler addr. in rdx
 rcx rdx mov_[rr],rr	\ restore handler
@@ -953,7 +954,6 @@ ret
 native &
 rsi pop			\ return address in rsi
 binary			\ failure handler in rcx
-rbx rax mov_[rr],rr	\ save TOS
 rbx push		\ save data stack pointer
 rdx ERR_SP mov_rr,[aa]	\ previous ERR_SP in rdx
 rdx push		\ save previous ERR_SP
@@ -963,16 +963,16 @@ rdx FAIL mov_rr,aa
 rdx push		\ save failure handler pointer
 rdx rcx	mov_[rr],rr	\ set new handler
 ERR_SP rsp mov_[aa],rr	\ set new ERR_SP
-rcx 20 mov_rr,x
-rcx push		\ save return address offset
+rcx 18 mov_rr,x		\ frame offset
+rcx rsp add_rr,rr	\ add stack pointer
 3 label
+rcx push
 rsi call_rr		\ call what follows
 rcx pop
 rcx 8 add_rr,s
-rcx push
-rcx rsp add_rr,rr
 rsi rcx mov_rr,[rr]
 3 lb jmp
+
 
 \ arithmetic mappers
 
@@ -1488,31 +1488,17 @@ x' cr jmp
 
 \ Seed loop
 {: seedl
-  " 1 2 4 5 6 9" type cr
-  {
-    { 1 . cut 2 . }~fail
-    { 3 . }~fail
-  }~|
-  { 4 . } |
-  {
-    { 5 . cut 6 . }
-    { 7 . }
-  }~|
-  { 8 . } |
-  9 .
-  cr
 
-  " 8 6 4 2 0" type cr
-  { A evens& . }~fail
-  'id|
-  cr
-
-  { A evens& cut . }
-  execute
-  cr
-
+{ A evens& cut . }
+'id|
 bye
+
 \ input
+\ word
+\ hex
+\ { current @ find . }
+\ { pad type "  not found." type cr } |
+
 \ ' interpret
 \ { "  fail" type }~ cr
 \ |
