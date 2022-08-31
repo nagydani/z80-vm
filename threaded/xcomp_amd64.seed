@@ -1469,6 +1469,7 @@ native .s
 rcx effects @ 8 + mov_rr,aa \ stack bottom
 3 label
 rbx rcx cmp_rr,rr
+x' cr jc
 4 jz_fs
 rcx push
 fromrax
