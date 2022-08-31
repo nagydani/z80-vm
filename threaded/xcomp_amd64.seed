@@ -1523,6 +1523,7 @@ bye
 ' seedl 'id ' ok }~ handle
 
 7 rlabel \ the dictionary is ready here
+7 label
 
 rax A mov_rr,x
 BASE rax mov_[aa],rl \ initialize numeral base
@@ -1535,6 +1536,18 @@ rdx SEED mov_rr,aa \ seed vocabulary pointer
 rdx rcx mov_[rr],rr \ initialize it
 CONTEXT rdx mov_[aa],rr \ initialize context vocabulary
 CURRENT rdx mov_[aa],rr \ initialize current vocabulary
+
+6 label
+rbx rax mov_[rr],rr	\ save TOS
+rbx push		\ save data stack ptr.
+rcx rsp mov_rr,rr	\ return stack ptr. to rcx
+rcx 18 sub_rr,s		\ bottom of handler frame
+rcx push		\ circular reference
+rcx 6 lb mov_rr,aa	\ this handler's address
+rcx push		\ circular reference
+rcx FAIL mov_rr,aa	\ failure handler
+rcx push
+ERR_SP rsp mov_[aa],rr	\ set ERR_SP
 
 \ initialize effects
 rcx x' stdemit mov_rr,aa
