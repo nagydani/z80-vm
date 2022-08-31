@@ -1039,7 +1039,18 @@ binary
 rax rcx xor_rr,rr
 ret
 
+\ tail call
+
 postpone word
+
+postpone find
+
+native }~
+2 lb jmp \ not permitted in interpret mode
+
+{ drop word find @ here - 5 + E9 c, d, }~fail
+
+does
 
 \ literal constructors
 
@@ -1053,8 +1064,6 @@ postpone word
 {: ascii word pad }~ c@
 
 x' >lit does
-
-postpone find
 
 {: ' word find }~ @
 
@@ -1071,15 +1080,6 @@ dup here swap - swap 4 - d!
 48 c, 83 c, C3 c, 08 c,
 58 c,
 FF c, E1 }~ c,
-
-\ tail call
-
-native }~
-2 lb jmp \ not permitted in interpret mode
-
-{ drop word find @ here - 5 + E9 c, d, }~fail
-
-does
 
 \ self references
 
@@ -1430,7 +1430,7 @@ pad
 
 {:: compile
 word
-{ find dup cell+ @ swap }~ @
+{ find dup cell+ @ swap @ }~ swap
 { pad s>number ' literal }
 | execute
 }~self
