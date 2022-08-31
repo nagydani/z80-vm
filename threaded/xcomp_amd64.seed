@@ -512,8 +512,15 @@ rcx pop
 rcx DP add_rr,[aa]
 rax rcx cmp_rr,rr
 2 jnc_fs
+rax push		\ save beginning of new heap
 rdi rcx mov_rr,rr
 0 lb call
+rdi pop			\ restore beginning of new heap
+rax rdi sub_rr,rr	\ calculate length of added area
+rsi rax mov_rr,rr	\ move length to rsi
+rdx 7 mov_rr,x		\ PROT_READ + PROT_WRITE + PROT_EXEC
+rax A mov_rr,x		\ mprotect
+syscall
 2 rslabel
 rbx pop
 rax pop
@@ -1056,8 +1063,8 @@ does
 
 {: literal
 48 c, 89 c, 03 c,
-48 c, 43 c, C3 c, 08 c,
-48 c, B8 c, }~ ,
+48 c, 83 c, C3 c, 08 c,
+48 c, B8 c, }~ , 
 
 {: >lit execute }~ literal
 
@@ -1502,7 +1509,8 @@ rax A mov_rr,x
 BASE rax mov_[aa],rl \ initialize numeral base
 rdi 0 mov_rr,x
 0 lb call \ get heap bottom
-DP rax mov_[aa],rr \ initialize dictionary pointer
+DP rax mov_[aa],rr \ initialize dictionary end
+DICTIONARY rax mov_[aa],rr \ and beginning
 rbx effects @ mov_rr,aa \ initialize stack pointer
 rcx xcurrent @ mov_rr,aa \ initial vocabulary
 rdx SEED mov_rr,aa \ seed vocabulary pointer
