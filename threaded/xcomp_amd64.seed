@@ -210,14 +210,15 @@ drop
 18020 constant ERR_SP
 18028 constant CONTEXT
 18030 constant CURRENT
-18038 constant BASE
-18039 constant EMIT_BUF
-1803A constant PAD
+18038 constant DICTIONARY
+18040 constant BASE
+18041 constant EMIT_BUF
+18042 constant PAD
    20 constant PAD_LEN
-1805A constant TIB_BUF
+18062 constant TIB_BUF
   100 constant TIB_BUF_LEN
 
-18160 constant EFFECTS
+18168 constant EFFECTS
 
 \ effect pointer for cross-compiling
 EFFECTS variable effects
@@ -294,7 +295,8 @@ dup
 4 + \ host address of jmp anchor
 here swap -
 swap w!
-} \ TODO: adjust interpret mode behavior address, too
+$ ' xcompile 'id|
+}~ drop \ TODO: adjust interpret mode behavior address, too
 
 \ colon definitions
 {: {:
@@ -561,7 +563,7 @@ ERR_SP rax mov_[aa],rr	\ restore previous ERR_SP
 3 lb jnz_s		\ next handler, if not found
 rcx rbx mov_rr,rr	\ rcx = current handler address
 rbx pop			\ restore data stack pointer
-rax pop			\ restore TOS
+rax rbx mov_rr,[rr]	\ restore TOS
 rcx jmp_rr		\ continue with handler
 
 x' endcomp does
@@ -616,8 +618,8 @@ ret
 
 \ compare strings for equality
 3 label
+rsi rax mov_rr,rr
 torax
-rsi rbx mov_rr,[rr]
 rdi rax mov_rr,rr
 rcx rcx xor_rr,rr
 4 label
@@ -647,6 +649,11 @@ ret
 \ heap manipulation
 
 DP address dp
+
+native dictionary
+fromrax
+rax DICTIONARY mov_rr,[aa]
+ret
 
 native here
 fromrax
@@ -891,8 +898,6 @@ rdx rdx xor_rr,rr
 rdx rcx mov_er,[rr]	\ handler pointer in rdx
 3 label
 rbx 10 sub_rr,s		\ data stack pointer to be saved
-rcx rbx mov_rr,[rr]	\ TOS to be saved
-rcx push		\ save TOS
 rbx push		\ save data stack pointer
 rbx 10 add_rr,s		\ current data stack pointer
 rcx ERR_SP mov_rr,[aa]	\ ERR_SP in rcx
@@ -909,7 +914,7 @@ rdx pop			\ previous handler addr. in rdx
 rcx rdx mov_[rr],rr	\ restore handler
 rcx pop
 ERR_SP rcx mov_[aa],rr	\ restore ERR_SP
-rsp 10 add_rr,s		\ discard data stack pointer and TOS
+rsp 8 add_rr,s		\ discard data stack pointer
 ret
 
 \ disjunction combinator
@@ -947,7 +952,10 @@ ERR_SP rcx mov_[aa],rr	\ restore previous ERR_SP
 rdi 10 add_rr,s		\ rdi points to top of handler frame
 rcx rsi mov_rr,rr
 rcx rsp sub_rr,rr	\ length of stack to move
+rdi dec_rr
+rsi dec_rr
 rep_movsb		\ cannot be zero due to return addr.
+rdi inc_rr
 rsp rdi mov_rr,rr	\ set stack pointer to destination
 ret
 
@@ -955,7 +963,7 @@ ret
 native &
 rsi pop			\ return address in rsi
 binary			\ failure handler in rcx
-rax push		\ save TOS
+rbx rax mov_[rr],rr	\ save TOS
 rbx push		\ save data stack pointer
 rdx ERR_SP mov_rr,[aa]	\ previous ERR_SP in rdx
 rdx push		\ save previous ERR_SP
@@ -965,7 +973,7 @@ rdx FAIL mov_rr,aa
 rdx push		\ save failure handler pointer
 rdx rcx	mov_[rr],rr	\ set new handler
 ERR_SP rsp mov_[aa],rr	\ set new ERR_SP
-rcx 28 mov_rr,x
+rcx 20 mov_rr,x
 rcx push		\ save return address offset
 3 label
 rsi call_rr		\ call what follows
@@ -1222,12 +1230,6 @@ base c@ * over c@ digit>int + swap 1+ dup c@
 {: s>number
 0 }~ >number
 
-\ convert integer to digit
-{: >digit
-{ 9 <= ascii 0 }
-{ 37 }
-| }~ +
-
 \ string functions
 
 \ non-empty filter
@@ -1327,6 +1329,45 @@ create redefine
 literal
 ' context callcomp ' ! }~ endcomp
 
+\ postpone colon definition
+{: postpone
+create redefine
+'id }~ endcomp
+
+\ search vocabulary
+{: search ( a -( pad fail )- a )
+traverse& cell+ cell+ pad s= cut cell- cell- }~ nip
+
+\ find word in context vocabulary
+{:: find ( -( pad fail )- a )
+context @ }~ search
+
+\ create colon definition
+{: {: ( -( heap )- )
+create
+redefine
+here ' compile 'id|
+}~ drop
+
+\ postponed colon definition
+{: {::
+word find @ \ address of jmp instruction
+1+ \ address of jmp relative address
+dup
+4 + \ address of jmp anchor
+here swap -
+swap ! \ TODO: adjust interpret mode behavior address, too
+here ' compile 'id|
+}~ drop
+
+\ change compile mode behavior
+{: does ( x -( heap )- )
+last cell+ }~ !
+
+\ make most recently definted word immediate
+{: immediate ( -( heap )- )
+' execute }~ does
+
 \ I/O functions
 
 {: type
@@ -1340,6 +1381,38 @@ A }~ emit
 {: space
 bl }~ emit
 
+\ emit all context words
+{: words
+{ context @ traverse& cell+ cell+ type space }~fail
+' cr }~| 
+
+\ interpreter functions
+
+\ interpreter
+{: interpret
+word
+{ find @ ' execute { cut }~ fail }~|
+{ { pad }~ s>number { pad type "  undefined" type }~ cr }~|
+| }~self
+
+\ unnamed macro
+
+{: [ ' interpret 'id}~|
+
+x' execute does
+
+{: ] }~fail
+
+x' }~fail does   \  TODO: not allowed in compile mode
+
+\ numeral functions
+
+\ convert integer to digit
+{: >digit ( n -- c )
+{ 9 <= ascii 0 }
+{ [ ascii A A - xliteral ] }
+| }~ +
+
 \ emit positive number w/o trailing space
 {: .nz
 { 0<> base c@ /mod .nz >digit }~ emit
@@ -1352,17 +1425,86 @@ bl }~ emit
 ' .nz
 | }~ space
 
-\ emit all context words
-{: words
-{ context @ traverse& cell+ cell+ type space }~fail
-'id}~| 
+\ input functions
+
+\ get next word from the input buffer
+{:: word ( -( tib pad fail )- )
+tib @ wsskip
+pad
+{ over c@ printable over c! pad
+[ PAD_LEN xliteral ] + < 1+ swap 1+ swap }~self
+{ 0 swap c! tib }~ !
+}~|
+
+\ compiler
+
+{:: compile
+word
+{ find dup cell+ @ swap }~ @
+{ pad s>number ' literal }
+| execute
+}~self
+
+\ ok effect
+{: stdok
+"  ok" type }~ cr
+
+effect ok
+
+\ empty word
+{:
+ok }~ input
+
+{ drop }~ input
+
+does
+
+\ seed vocabulary
+native seed
+rcx SEED mov_rr,aa
+CONTEXT rcx mov_[aa],rr
+ret
+
+\ debugging
+
+\ forget a word and what was defined after it
+{: forget
+word
+current @ context @ =
+search dictionary >=
+cell- dup @ current @ ! dp }~ !
+
+\ output data stack content
+native .s
+rcx effects @ 8 + mov_rr,aa \ stack bottom
+3 label
+rbx rcx cmp_rr,rr
+4 jz_fs
+rcx push
+fromrax
+rax rcx mov_rr,[rr]
+x' . call
+rcx pop
+rcx 8 add_rr,s
+3 lb jmp
+4 rslabel
+fromrax
+x' . call
+x' cr jmp
 
 \ Seed loop
 {: seedl
-words
-cr
-bye
+input
+{ tib @ " foo" s= } { " bar" } |
+type cr
+\ ' interpret
+\ { "  fail" type }~ cr
+\ |
 }~self
+
+\ output object code
+{: output
+' seedl 'id ' ok }~ handle
 
 7 rlabel \ the dictionary is ready here
 
@@ -1387,7 +1529,8 @@ rcx x' stdkey mov_rr,aa
 EFFECTS 10 + rcx mov_[aa],rr
 rcx x' stdinput mov_rr,aa
 EFFECTS 18 + rcx mov_[aa],rr
-
+rcx x' stdok mov_rr,aa
+EFFECTS 20 + rcx mov_[aa],rr
 
 \ execute seed loop
 x' seedl jmp
