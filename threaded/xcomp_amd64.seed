@@ -1089,7 +1089,7 @@ dup here swap - swap 4 - d!
 native }~self
 2 lb jmp \ not permitted in interpret mode
 
-{ drop dup here - 5 + E9 c, d, }~fail
+{ drop dup here - 5 - E9 c, d, }~fail
 
 does
 
