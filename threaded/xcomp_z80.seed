@@ -1471,7 +1471,7 @@ A }~ emit
 \ emit all context words
 {: words ( -( emit )- )
 { context @ traverse& type space }~fail
-'id}~|
+' cr }~|
 
 \ interpreter functions
 
