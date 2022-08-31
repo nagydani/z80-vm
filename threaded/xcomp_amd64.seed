@@ -1482,26 +1482,12 @@ fromrax
 x' . call
 x' cr jmp
 
-{: cd& 0<> 1- 'self & dup }
-
-{: evens& cd& dup 1 and 0= drop }
-
 \ Seed loop
 {: seedl
-
-{ A evens& cut . }
-'id|
-bye
-
-\ input
-\ word
-\ hex
-\ { current @ find . }
-\ { pad type "  not found." type cr } |
-
-\ ' interpret
-\ { "  fail" type }~ cr
-\ |
+input
+' interpret
+{ "  fail" type }~ cr
+|
 }~self
 
 \ output object code
