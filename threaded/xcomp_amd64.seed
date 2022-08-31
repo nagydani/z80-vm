@@ -939,9 +939,7 @@ x' endcomp does
 
 \ cut handler
 native cut
-rsi ERR_SP mov_rr,[aa]
-rdi rsi mov_rr,rr
-std
+rdi ERR_SP mov_rr,[aa]
 rcx rdi mov_rr,[rr]	\ handler ptr in rcx
 rdi 8 add_rr,s
 rdx rdi mov_rr,[rr]	\ previous handler reference in rdx
@@ -949,14 +947,6 @@ rdi 8 add_rr,s
 rcx rdx mov_[rr],rr	\ restore previous handler
 rcx rdi mov_rr,[rr]	\ previous ERR_SP in rcx
 ERR_SP rcx mov_[aa],rr	\ restore previous ERR_SP
-rdi 10 add_rr,s		\ rdi points to top of handler frame
-rcx rsi mov_rr,rr
-rcx rsp sub_rr,rr	\ length of stack to move
-rdi dec_rr
-rsi dec_rr
-rep_movsb		\ cannot be zero due to return addr.
-rdi inc_rr
-rsp rdi mov_rr,rr	\ set stack pointer to destination
 ret
 
 \ pend
@@ -1494,9 +1484,21 @@ x' cr jmp
 
 \ Seed loop
 {: seedl
-input
-{ tib @ " foo" s= } { " bar" } |
-type cr
+  " 1 2 4 5 6 9" type cr
+  {
+    { 1 . cut 2 . }~fail
+    { 3 . }~fail
+  }~|
+  { 4 . } |
+  {
+    { 5 . cut 6 . }
+    { 7 . }
+  }~|
+  { 8 . } |
+  9 .
+  cr
+bye
+\ input
 \ ' interpret
 \ { "  fail" type }~ cr
 \ |
