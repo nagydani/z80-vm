@@ -1055,9 +1055,7 @@ postpone find
 native }~
 2 lb jmp \ not permitted in interpret mode
 
-{ drop word find @ here - 5 + E9 c, d, }~fail
-
-does
+{ drop word find @ here - 5 - E9 c, d, }~fail does
 
 \ literal constructors
 
