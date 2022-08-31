@@ -1482,6 +1482,10 @@ fromrax
 x' . call
 x' cr jmp
 
+{: cd& 0<> 1- 'self & dup }
+
+{: evens& cd& dup 1 and 0= drop }
+
 \ Seed loop
 {: seedl
   " 1 2 4 5 6 9" type cr
@@ -1497,6 +1501,16 @@ x' cr jmp
   { 8 . } |
   9 .
   cr
+
+  " 8 6 4 2 0" type cr
+  { A evens& . }~fail
+  'id|
+  cr
+
+  { A evens& cut . }
+  execute
+  cr
+
 bye
 \ input
 \ ' interpret
