@@ -1280,13 +1280,14 @@ context @ current }~ !
 
 \ create new word returning the payload address
 {: create
+word
 last
 link
 current @ !
-here cell+ cell+ ,
+here cell+ cell+ pad length + 1+ ,
 ' callcomp ,
-word pad s, 0 c,
-here 11 +
+pad s, 0 c,
+here 12 +
 literal
 C3 c,			\ ret
 }
