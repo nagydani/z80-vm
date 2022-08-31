@@ -67,7 +67,7 @@ xlink
 xcurrent w!
 here
 0 a,
-callcomp @ offset @ +
+callcomp @
 a,
 word
 pad
@@ -1433,7 +1433,7 @@ word
 { find dup cell+ @ swap @ }~ swap
 { pad s>number ' literal }
 | execute
-}~self
+}~ compile  \ TODO: why }~self doesn't work?
 
 \ ok effect
 {: stdok
