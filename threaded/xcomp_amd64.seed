@@ -1133,8 +1133,12 @@ x' quotate does
 \ skip the rest of the line
 {: \ 0 tib @ }~ c!
 
+immediate
+
 \ skip till the closing paren
-{: ( { word pad " )" s<> drop }~self 'id }~|
+{: ( { word pad " )" s<> drop }~self 'id}~|
+
+immediate
 
 \ character filters
 
