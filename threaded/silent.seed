@@ -1,2 +1,1 @@
-{ last cons current @ ! 0 c, { drop }~ input , } execute { input } drop
-
+output

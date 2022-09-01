@@ -1,5 +1,5 @@
 {: assoc ( key value table -( heap )- )
-dup @ cons swap !
+dup @ link swap !
 swap , , }
 
 {: recall ( key table -- value )
