@@ -2,7 +2,7 @@ hex
 
 \ execute n times
 {: times ( x n -- )
-{ 1- carry? >r dup >r execute r> r> }~self
+{ 0<> 1- >r dup >r execute r> r> }~self
 { drop }~ drop
 }~|
 

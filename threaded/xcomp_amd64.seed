@@ -735,7 +735,12 @@ ret
 
 native allot
 binary
-1 lb jmp
+rcx push
+1 lb call
+rcx pop
+rcx DP add_rr,[aa]
+DP rcx mov_[aa],rr
+ret
 
 \ end Seed execution
 
@@ -1004,6 +1009,7 @@ ret
 
 native cells
 rax 3 shl_rr,s
+ret
 
 \ binary arithmetic primitives
 
