@@ -1384,7 +1384,7 @@ bl }~ emit
 \ interpreter
 {: interpret
 word
-{ find @ ' execute { cut }~ fail }~|
+{ find @ ' execute { cut }~fail }~|
 { { pad }~ s>number { pad type "  undefined" type }~ cr }~|
 | }~self
 
