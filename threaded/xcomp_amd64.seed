@@ -544,13 +544,16 @@ ret
 
 callcomp does
 
-native endcomp
-$ endcomp !
+native tailcomp
 rcx 5 mov_rr,x
 1 lb call
 rcx DP mov_rr,[aa]
 rcx E9 mov_byte_[rr],x \ jmp
-2 lb call
+2 lb jmp
+
+native endcomp
+$ endcomp !
+x' tailcomp call
 2 jmp_f
 
 native }~fail
@@ -1055,7 +1058,7 @@ postpone find
 native }~
 2 lb jmp \ not permitted in interpret mode
 
-{ drop word find @ here - 5 - E9 c, d, }~fail does
+{ drop word find @ endcomp } does
 
 \ literal constructors
 
@@ -1324,12 +1327,12 @@ FF c, 24 c, 25 c, d,	\ jmp [address]
 here last ,
 create redefine
 literal
-' context callcomp ' ! }~ endcomp
+' context callcomp ' ! }~ tailcomp
 
 \ postpone colon definition
 {: postpone
 create redefine
-'id }~ endcomp
+'id }~ tailcomp
 
 \ search vocabulary
 {: search ( a -( pad fail )- a )
