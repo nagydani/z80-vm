@@ -987,7 +987,6 @@ rcx 8 add_rr,s
 rsi rcx mov_rr,[rr]
 3 lb jmp
 
-
 \ arithmetic mappers
 
 native 1-
@@ -1106,7 +1105,6 @@ native 'self
 2 lb jmp \ not permitted in interpret mode
 
 { drop dup }~ literal
-
 does
 
 postpone compile
