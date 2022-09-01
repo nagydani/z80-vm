@@ -168,4 +168,3 @@ create labels
 {: cmpsb		A6 c, }
 {: mul_rr		48 c, F7 c, E0 or c, }
 {: div_rr		48 c, F7 c, F0 or c, }
-

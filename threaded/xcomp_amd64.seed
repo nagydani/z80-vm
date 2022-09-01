@@ -511,11 +511,10 @@ rcx pop
 rcx DP add_rr,[aa]
 rax rcx cmp_rr,rr
 2 jnc_fs
-rax push		\ save beginning of new heap
 rdi rcx mov_rr,rr
 0 lb call
-rdi pop			\ restore beginning of new heap
-rax rdi sub_rr,rr	\ calculate length of added area
+rdi DICTIONARY mov_rr,[aa] \ beginning of heap
+rax rdi sub_rr,rr	\ calculate length of heap
 rsi rax mov_rr,rr	\ move length to rsi
 rdx 7 mov_rr,x		\ PROT_READ + PROT_WRITE + PROT_EXEC
 rax A mov_rr,x		\ mprotect
@@ -541,7 +540,7 @@ DP rcx mov_[aa],rr
 torax
 ret
 
-callcomp does
+x' callcomp does
 
 native tailcomp
 rcx 5 mov_rr,x
@@ -768,7 +767,7 @@ syscall
 rax 1 cmp_rr,s
 rbx pop
 rax pop
-lb 2 jnz
+2 lb jnz
 ret
 
 effect emit ( -( emit fail )- )
