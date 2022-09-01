@@ -149,7 +149,7 @@ traverse& third over @ s= cut drop drop nip cell+ cell+ @ }
 >r \ subject on return stack
 dup >r \ predicate on return stack
 \ predicate on data stack
-{ r> drop r> drop r> drop } |
+{ r>drop r>drop r>drop } |
 r> \ predicate on data stack
 r> \ subject on data stack
 swap
@@ -886,6 +886,11 @@ native r>
 fromrax
 rcx pop
 rax pop
+rcx jmp_rr
+
+native r>drop
+rcx pop
+rdx pop
 rcx jmp_rr
 
 \ execution control
