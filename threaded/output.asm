@@ -126,4 +126,5 @@ vlist:		vm
 		defw	type
 		defw	space
 		defw	fail
-vliste:	defw	tickidtailor
+vliste:	defw	litN16, cr
+	defw	tailor
