@@ -127,7 +127,7 @@ selfref ' sref                          xcomps assoc
 >r \ subject on return stack
 dup >r \ predicate on return stack
 \ predicate on data stack
-{ r> drop r> drop r> drop } |
+{ r>drop r>drop r>drop } |
 r> \ predicate on data stack
 r> \ subject on data stack
 swap
@@ -509,6 +509,10 @@ next
 native r>
 bc pop
 frombc
+next
+
+native r>drop
+bc pop
 next
 
 \ failure

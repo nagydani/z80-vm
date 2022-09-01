@@ -1,9 +1,17 @@
 {: test
   {
-    { 1 . cut }~fail
-    { 2 . }~fail
+    { 1 . cut 2 . }~fail
+    { 3 . }~fail
   }~|
-  { 3 . }
-}~|
+  { 4 . } |
+  {
+    { 5 . cut 6 . }
+    { 7 . }
+  }~|
+  { 8 . } |
+  " stack:" type cr
+  .s
+}
 
 test
+bye

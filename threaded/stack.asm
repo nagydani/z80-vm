@@ -81,7 +81,6 @@ toR:	toBC
 	push	bc
 	jp	(ix)
 
-link_final_stack:
 fromR_link:
 	defw	toR_link
 	defb	"r>", 0
@@ -89,4 +88,14 @@ fromR_link:
 
 fromR:	pop	bc
 	fromBC
+	jp	(ix)
+
+link_final_stack:
+fromRdrop_link:
+	defw	fromR_link
+	defb	"r>drop", 0
+	defw	comma
+
+fromRdrop:
+	pop	bc
 	jp	(ix)

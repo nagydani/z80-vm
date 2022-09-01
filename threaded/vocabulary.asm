@@ -42,7 +42,7 @@ seedv:	defw	link_final_debug
 
 cons_link:
 	defw	seed_link
-	defb	"cons", 0
+	defb	"link", 0
 	defw	comma
 ; ( a -- a )
 cons:	vm

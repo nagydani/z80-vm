@@ -109,9 +109,34 @@ typel:		vm
 typele:	defw	tickidor
 	defw	tail, drop
 
+write_link:
+	defw	type_link
+	defb	"write", 0
+	defw	comma
+
+write:	toBC
+	push	bc
+	toBC
+	push	bc
+	exx
+	pop	hl
+	pop	bc
+	push	bc
+writel:	ld	a, (hl)
+	inc	hl
+	out	(0), a
+	dec	bc
+	ld	a, b
+	or	c
+	jr	nz, writel
+	exx
+	pop	bc
+	fromBC
+	jp	(ix)
+
 link_final_output:
 words_link:
-	defw	type_link
+	defw	write_link
 	defb	"words", 0
 	defw	comma
 
