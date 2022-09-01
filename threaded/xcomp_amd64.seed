@@ -89,7 +89,8 @@ rax swap mov_rr,aa
 }
 
 {: x{{ ( -( heap )- a )
-1FFFF call }~ here
+E8 c, 0 d, \ call forward
+}~ here
 
 {: x}} ( a -( heap )- )
 dup here swap - swap 4 - w!
@@ -235,7 +236,7 @@ xcreate
 \ postpone colon definition
 {: postpone
 native
-1FFFF jmp
+E9 c, 0 d, \ jmp forward
 }
 
 \ effect definition

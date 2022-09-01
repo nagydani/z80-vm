@@ -87,8 +87,8 @@ create labels
 6 constant rsi
 7 constant rdi
 
-\ relative jump
-{: rel		{ $ 4 + - carry? d, } { w, FFFF w, } }~|
+\ relative jump backwards
+{: rel          $ 4 + - w, FFFF w, }
 
 \ short relative jump
 {: srel		$ 1+ - c, }
