@@ -112,7 +112,6 @@ create labels
 {: mov_[aa],rl		88 c, 8 * 4 + c, 25 c, w, 1 w, }
 {: mov_rl,[aa]		8A c, swap 8 * 4 + c, 25 c, w, 1 w, }
 {: mov_rr,[aa]		48 c, 8B c, swap 8 * 4 + c, 25 c, w, 1 w, }
-{: xchg_rr,[rr]		48 c, 87 c, swap 8 * + c, }
 {: syscall		50F w, }
 {: add_rr,rr		48 c, 01 c, 8 * + C0 or c, }
 {: add_rr,s		48 c, 83 c, swap C0 + c, c, }

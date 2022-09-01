@@ -166,7 +166,6 @@ while
 }~|
 { pad s>number ' xliteral }
 |
-
 execute
 }~self
 
@@ -869,8 +868,9 @@ ret
 
 native >r
 binary
-rcx rsp xchg_rr,[rr]
-rcx jmp_rr
+rdx pop
+rcx push
+rdx jmp_rr
 
 native r>
 fromrax
