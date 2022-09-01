@@ -145,14 +145,19 @@ traverse& third over @ s= cut drop drop nip cell+ cell+ @ }
 
 \ while loop
 {: while
->r
-dup >r
-{ r> drop r> drop }~ } |
-r> r> swap
->r dup >r
-execute
-r> r> swap
-}~self
+>r \ subject on return stack
+dup >r \ predicate on return stack
+\ predicate on data stack
+{ r> drop r> drop r> drop } |
+r> \ predicate on data stack
+r> \ subject on data stack
+swap
+>r \ predicate on return stack
+dup >r \ subject on return stack
+execute \ execute subject
+r> \ subject on data stack
+r> \ predicate on data stack
+swap }~self
 
 \ cross-compiler
 {: xcompile
