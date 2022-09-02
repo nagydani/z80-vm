@@ -1048,6 +1048,9 @@ ret
 
 x' endtail does
 
+{: tailcomp
+' }~ , }~ ,
+
 \ self references
 
 {: selfref , dup dup here - }~ c,
