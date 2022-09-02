@@ -1,6 +1,6 @@
-effect one
-effect five
-effect ten
+'id effect one
+'id effect five
+'id effect ten
 
 { one ten }
 { five one one one }
@@ -31,7 +31,10 @@ r> ' ten handle }
 {: numeral
 create
 pad c@
-vm, literal ' emit , ' } , }
+vm,
+literal
+' emit
+tailcomp }
 
 numeral I
 numeral V
@@ -54,7 +57,7 @@ C D M
 numerals }
 
 {: thousands
-{ 1- carry? ascii M emit }~self
+{ 0<> 1- ascii M emit }~self
 ' drop
 }~|
 
