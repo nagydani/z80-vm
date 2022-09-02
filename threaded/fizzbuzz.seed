@@ -1,0 +1,19 @@
+{: divs ( n n -( fail )- n )
+over swap mod 0= }~ drop
+
+{: buzzer ( n -( emit )- )
+  { 15 divs drop " fizzbuzz " type }
+  { { 3 divs drop " fizz " type }
+    { { 5 divs drop " buzz " type }
+      ' .
+    }~|
+  }~|
+}~|
+
+{: countdown& ( n -( & )- n )
+0<> 1- 'self & }~ dup
+
+{: fizzbuzz ( n -( emit )- )
+{ dup countdown& third swap - buzzer }~fail
+'id| }~ drop
+
