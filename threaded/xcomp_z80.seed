@@ -1048,9 +1048,6 @@ ret
 
 x' endtail does
 
-{: tailcomp
-' }~ , }~ ,
-
 \ self references
 
 {: selfref , dup dup here - }~ c,
@@ -1463,6 +1460,10 @@ last cell+ skipstr }~ !
 \ make most recently defined word immediate
 {: immediate ( -( heap )- )
 ' execute }~ does
+
+\ compile tail call
+{: tailcomp
+' }~ , }~ ,
 
 \ output functions
 
