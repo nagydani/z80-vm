@@ -1,0 +1,3 @@
+{: not ( n x -( fail )- n )
+{ r>drop } |
+}~fail
